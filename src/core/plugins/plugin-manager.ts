@@ -300,11 +300,15 @@ export class PluginManager {
 
       if (executionResult.outputJson) {
         try {
-          const outputData: unknown = JSON.parse(executionResult.outputJson);
-          this.handleOutput(outputData);
+          this.coreApi.output.handleCommandOutput({
+            outputJson: executionResult.outputJson,
+            schema: commandSpec.output.schema,
+            template: commandSpec.output.humanTemplate,
+            format: this.coreApi.output.getFormat(),
+          });
         } catch (error) {
           logger.error(
-            `Failed to parse output JSON from ${commandSpec.name}: ${formatError('', error)}`,
+            `Failed to handle output from ${commandSpec.name}: ${formatError('', error)}`,
           );
           process.exit(1);
         }
@@ -316,8 +320,5 @@ export class PluginManager {
     // Legacy behavior: handler returns void, no output processing
     // Handler is responsible for its own output and error handling
   }
-
-  private handleOutput(data: unknown): void {
-    console.log(JSON.stringify(data, null, 2));
-  }
+  
 }

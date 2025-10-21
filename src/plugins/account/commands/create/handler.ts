@@ -1,21 +1,35 @@
 /**
  * Account Create Command Handler
  * Handles account creation using the Core API
+ * Follows ADR-003 contract: returns CommandExecutionResult
  */
+<<<<<<< HEAD:src/plugins/account/commands/create.ts
 import { CommandHandlerArgs } from '../../../core/plugins/plugin.interface';
 import type { AccountData } from '../schema';
 import { AliasType } from '../../../core/services/alias/alias-service.interface';
 import { formatError } from '../../../utils/errors';
 import { ZustandAccountStateHelper } from '../zustand-state-helper';
 import { processBalanceInput } from '../../../core/utils/process-balance-input';
+=======
+import { CommandHandlerArgs } from '../../../../core/plugins/plugin.interface';
+import { CommandExecutionResult } from '../../../../core/plugins/plugin.types';
+import type { AccountData } from '../../schema';
+import { AliasType } from '../../../../core/services/alias/alias-service.interface';
+import { formatError } from '../../../../utils/errors';
+import { ZustandAccountStateHelper } from '../../zustand-state-helper';
+import { CreateAccountOutput } from './output';
+>>>>>>> c952bb56 (ADR003 implementation prototype - account plugin):src/plugins/account/commands/create/handler.ts
 
-export async function createAccountHandler(args: CommandHandlerArgs) {
+export default async function createAccountHandler(
+  args: CommandHandlerArgs,
+): Promise<CommandExecutionResult> {
   const { api, logger } = args;
 
   // Initialize Zustand state helper
   const accountState = new ZustandAccountStateHelper(api.state, logger);
 
   // Extract command arguments
+<<<<<<< HEAD:src/plugins/account/commands/create.ts
   const rawBalance =
     args.args.balance !== undefined
       ? (args.args.balance as string | number)
@@ -34,6 +48,10 @@ export async function createAccountHandler(args: CommandHandlerArgs) {
     return;
   }
 
+=======
+  const balance =
+    args.args.balance !== undefined ? (args.args.balance as number) : 1;
+>>>>>>> c952bb56 (ADR003 implementation prototype - account plugin):src/plugins/account/commands/create/handler.ts
   const autoAssociations = (args.args['auto-associations'] as number) || 0;
   const alias = (args.args.name as string) || '';
 
@@ -93,6 +111,7 @@ export async function createAccountHandler(args: CommandHandlerArgs) {
 
       accountState.saveAccount(name, accountData);
 
+<<<<<<< HEAD:src/plugins/account/commands/create.ts
       logger.log(`✅ Account created successfully: ${accountData.accountId}`);
       logger.log(`   Name: ${accountData.name}`);
       logger.log(`   Type: ${accountData.type}`);
@@ -101,16 +120,34 @@ export async function createAccountHandler(args: CommandHandlerArgs) {
       }
       logger.log(`   Network: ${accountData.network}`);
       logger.log(`   Transaction ID: ${result.transactionId}`);
+=======
+      // Prepare output data
+      const outputData: CreateAccountOutput = {
+        accountId: accountData.accountId,
+        name: accountData.name,
+        type: accountData.type,
+        ...(alias && { alias }),
+        network: accountData.network,
+        transactionId: result.transactionId || '',
+        evmAddress: accountData.evmAddress,
+        publicKey: accountData.publicKey,
+      };
+>>>>>>> c952bb56 (ADR003 implementation prototype - account plugin):src/plugins/account/commands/create/handler.ts
 
-      process.exit(0);
+      return {
+        status: 'success',
+        outputJson: JSON.stringify(outputData),
+      };
     } else {
-      throw new Error('Failed to create account');
+      return {
+        status: 'failure',
+        errorMessage: 'Failed to create account',
+      };
     }
   } catch (error: unknown) {
-    logger.error(formatError('❌ Failed to create account', error));
-    process.exit(1);
+    return {
+      status: 'failure',
+      errorMessage: formatError('Failed to create account', error),
+    };
   }
 }
-
-// Default export for plugin manager
-export default createAccountHandler;

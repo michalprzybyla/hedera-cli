@@ -4,17 +4,34 @@
  */
 import { PluginManifest } from '../../core';
 import { ACCOUNT_JSON_SCHEMA, ACCOUNT_NAMESPACE } from './schema';
-import { createAccountHandler } from './commands/create';
-import { getAccountBalanceHandler } from './commands/balance';
-import { listAccountsHandler } from './commands/list';
-import { importAccountHandler } from './commands/import';
-import { clearAccountsHandler } from './commands/clear';
-import { deleteAccountHandler } from './commands/delete';
-import { viewAccountHandler } from './commands/view';
 import {
-  LIST_ACCOUNTS_OUTPUT_JSON_SCHEMA,
+  LIST_ACCOUNTS_OUTPUT_SCHEMA,
   LIST_ACCOUNTS_TEMPLATE,
-} from './output-schemas';
+} from './commands/list';
+import {
+  CREATE_ACCOUNT_OUTPUT_SCHEMA,
+  CREATE_ACCOUNT_TEMPLATE,
+} from './commands/create';
+import {
+  ACCOUNT_BALANCE_OUTPUT_SCHEMA,
+  ACCOUNT_BALANCE_TEMPLATE,
+} from './commands/balance';
+import {
+  CLEAR_ACCOUNTS_OUTPUT_SCHEMA,
+  CLEAR_ACCOUNTS_TEMPLATE,
+} from './commands/clear';
+import {
+  DELETE_ACCOUNT_OUTPUT_SCHEMA,
+  DELETE_ACCOUNT_TEMPLATE,
+} from './commands/delete';
+import {
+  VIEW_ACCOUNT_OUTPUT_SCHEMA,
+  VIEW_ACCOUNT_TEMPLATE,
+} from './commands/view';
+import {
+  IMPORT_ACCOUNT_OUTPUT_SCHEMA,
+  IMPORT_ACCOUNT_TEMPLATE,
+} from './commands/import';
 
 export const accountPluginManifest: PluginManifest = {
   name: 'account',
@@ -58,7 +75,12 @@ export const accountPluginManifest: PluginManifest = {
         { name: 'name', short: 'n', type: 'string', required: false },
         { name: 'payer', short: 'p', type: 'string', required: false },
       ],
-      handler: createAccountHandler,
+      handler: './commands/create/handler',
+      output: {
+        schema: CREATE_ACCOUNT_OUTPUT_SCHEMA,
+        humanTemplate: CREATE_ACCOUNT_TEMPLATE,
+      },
+    
     },
     {
       name: 'balance',
@@ -81,7 +103,12 @@ export const accountPluginManifest: PluginManifest = {
         },
         { name: 'token-id', short: 't', type: 'string', required: false },
       ],
-      handler: getAccountBalanceHandler,
+      handler: './commands/balance/handler',
+      output: {
+        schema: ACCOUNT_BALANCE_OUTPUT_SCHEMA,
+        humanTemplate: ACCOUNT_BALANCE_TEMPLATE,
+      },
+    
     },
     {
       name: 'list',
@@ -96,12 +123,10 @@ export const accountPluginManifest: PluginManifest = {
           default: false,
         },
       ],
-      handler: './commands/list/index',
+      handler: './commands/list/handler',
       output: {
-        schema: LIST_ACCOUNTS_OUTPUT_JSON_SCHEMA,
-        humanTemplate: {
-          inline: LIST_ACCOUNTS_TEMPLATE,
-        },
+        schema: LIST_ACCOUNTS_OUTPUT_SCHEMA,
+        humanTemplate: LIST_ACCOUNTS_TEMPLATE,
       },
     },
     {
@@ -113,14 +138,24 @@ export const accountPluginManifest: PluginManifest = {
         { name: 'key', short: 'k', type: 'string', required: false },
         { name: 'name', short: 'n', type: 'string', required: false },
       ],
-      handler: importAccountHandler,
+      handler: './commands/import/handler',
+      output: {
+        schema: IMPORT_ACCOUNT_OUTPUT_SCHEMA,
+        humanTemplate: IMPORT_ACCOUNT_TEMPLATE,
+      },
+    
     },
     {
       name: 'clear',
       summary: 'Clear all accounts',
       description: 'Remove all account information from the address book',
       options: [],
-      handler: clearAccountsHandler,
+      handler: './commands/clear/handler',
+      output: {
+        schema: CLEAR_ACCOUNTS_OUTPUT_SCHEMA,
+        humanTemplate: CLEAR_ACCOUNTS_TEMPLATE,
+      },
+    
     },
     {
       name: 'delete',
@@ -130,7 +165,12 @@ export const accountPluginManifest: PluginManifest = {
         { name: 'name', short: 'n', type: 'string', required: false },
         { name: 'id', short: 'i', type: 'string', required: false },
       ],
-      handler: deleteAccountHandler,
+      handler: './commands/delete/handler',
+      output: {
+        schema: DELETE_ACCOUNT_OUTPUT_SCHEMA,
+        humanTemplate: DELETE_ACCOUNT_TEMPLATE,
+      },
+    
     },
     {
       name: 'view',
@@ -144,7 +184,11 @@ export const accountPluginManifest: PluginManifest = {
           required: true,
         },
       ],
-      handler: viewAccountHandler,
+      handler: './commands/view/handler',
+      output: {
+        schema: VIEW_ACCOUNT_OUTPUT_SCHEMA,
+        humanTemplate: VIEW_ACCOUNT_TEMPLATE,
+      },
     },
   ],
   stateSchemas: [

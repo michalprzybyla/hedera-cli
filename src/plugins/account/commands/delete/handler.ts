@@ -1,13 +1,18 @@
 /**
  * Account Delete Command Handler
  * Handles deleting accounts using the Core API
+ * Follows ADR-003 contract: returns CommandExecutionResult
  */
-import { CommandHandlerArgs } from '../../../core/plugins/plugin.interface';
-import { formatError } from '../../../utils/errors';
-import { ZustandAccountStateHelper } from '../zustand-state-helper';
-import { AliasType } from '../../../core/services/alias/alias-service.interface';
+import { CommandHandlerArgs } from '../../../../core/plugins/plugin.interface';
+import { CommandExecutionResult } from '../../../../core/plugins/plugin.types';
+import { formatError } from '../../../../utils/errors';
+import { ZustandAccountStateHelper } from '../../zustand-state-helper';
+import { AliasType } from '../../../../core/services/alias/alias-service.interface';
+import { DeleteAccountOutput } from './output';
 
-export function deleteAccountHandler(args: CommandHandlerArgs) {
+export default function deleteAccountHandler(
+  args: CommandHandlerArgs,
+): CommandExecutionResult {
   const { api, logger } = args;
 
   // Initialize Zustand state helper
@@ -44,21 +49,37 @@ export function deleteAccountHandler(args: CommandHandlerArgs) {
       .list({ network: currentNetwork, type: AliasType.Account })
       .filter((rec) => rec.entityId === accountToDelete.accountId);
 
+    const removedAliases: string[] = [];
     for (const rec of aliasesForAccount) {
       api.alias.remove(rec.alias, currentNetwork);
+<<<<<<< HEAD:src/plugins/account/commands/delete.ts
       logger.log(`🧹 Removed name '${rec.alias}' on ${currentNetwork}`);
+=======
+      removedAliases.push(`${rec.alias} (${currentNetwork})`);
+      logger.log(`🧹 Removed alias '${rec.alias}' on ${currentNetwork}`);
+>>>>>>> c952bb56 (ADR003 implementation prototype - account plugin):src/plugins/account/commands/delete/handler.ts
     }
 
     // Delete account from state
     accountState.deleteAccount(accountToDelete.name);
 
-    logger.log(
-      `✅ Account deleted successfully: ${accountToDelete.name} (${accountToDelete.accountId})`,
-    );
+    // Prepare output data
+    const outputData: DeleteAccountOutput = {
+      deletedAccount: {
+        name: accountToDelete.name,
+        accountId: accountToDelete.accountId,
+      },
+      ...(removedAliases.length > 0 && { removedAliases }),
+    };
 
-    process.exit(0);
+    return {
+      status: 'success',
+      outputJson: JSON.stringify(outputData),
+    };
   } catch (error: unknown) {
-    logger.error(formatError('❌ Failed to delete account', error));
-    process.exit(1);
+    return {
+      status: 'failure',
+      errorMessage: formatError('Failed to delete account', error),
+    };
   }
 }
