@@ -11,6 +11,10 @@ import { importAccountHandler } from './commands/import';
 import { clearAccountsHandler } from './commands/clear';
 import { deleteAccountHandler } from './commands/delete';
 import { viewAccountHandler } from './commands/view';
+import {
+  LIST_ACCOUNTS_OUTPUT_JSON_SCHEMA,
+  LIST_ACCOUNTS_TEMPLATE,
+} from './output-schemas';
 
 export const accountPluginManifest: PluginManifest = {
   name: 'account',
@@ -92,7 +96,13 @@ export const accountPluginManifest: PluginManifest = {
           default: false,
         },
       ],
-      handler: listAccountsHandler,
+      handler: './commands/list/index',
+      output: {
+        schema: LIST_ACCOUNTS_OUTPUT_JSON_SCHEMA,
+        humanTemplate: {
+          inline: LIST_ACCOUNTS_TEMPLATE,
+        },
+      },
     },
     {
       name: 'import',

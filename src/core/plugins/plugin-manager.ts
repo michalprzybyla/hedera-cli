@@ -7,9 +7,13 @@ import * as path from 'path';
 import { Command } from 'commander';
 import { CoreApi } from '../core-api/core-api.interface';
 import { CommandHandlerArgs, PluginManifest } from './plugin.interface';
-import { CommandSpec } from './plugin.types';
+import { CommandSpec, CommandHandler } from './plugin.types';
 import { formatError } from '../../utils/errors';
 import { logger } from '../../utils/logger';
+
+function kebabToCamel(input: string): string {
+  return String(input).replace(/-([a-z])/g, (_m, c: string) => c.toUpperCase());
+}
 
 interface LoadedPlugin {
   manifest: PluginManifest;
@@ -240,7 +244,7 @@ export class PluginManager {
    * Execute a plugin command
    */
   private async executePluginCommand(
-    _plugin: LoadedPlugin,
+    plugin: LoadedPlugin,
     commandSpec: CommandSpec,
     args: unknown[],
   ): Promise<void> {
@@ -258,7 +262,62 @@ export class PluginManager {
       config: this.coreApi.config,
       logger: this.coreApi.logger,
     };
+    const handlerPath = commandSpec.handler;
+    if (!handlerPath) {
+      throw new Error(`No handler specified for command ${commandSpec.name}`);
+    }
 
-    await commandSpec.handler(handlerArgs);
+    const fullHandlerPath = path.resolve(plugin.path, handlerPath + '.js');
+    const handlerModule = (await import(fullHandlerPath)) as Record<string, unknown>;
+
+    const fixedName = kebabToCamel(commandSpec.name);
+    const handler =
+      (handlerModule.default as CommandHandler) ||
+      (handlerModule[fixedName + 'Handler'] as CommandHandler);
+
+    if (typeof handler !== 'function') {
+      throw new Error(`Handler for ${commandSpec.name} is not a function`);
+    }
+
+    const result = await handler(handlerArgs);
+
+    if (commandSpec.output) {
+      if (!result) {
+        logger.error(
+          `Handler for ${commandSpec.name} must return CommandExecutionResult when output spec is defined`,
+        );
+        process.exit(1);
+      }
+
+      const executionResult = result as { status: string; errorMessage?: string; outputJson?: string };
+
+      if (executionResult.status !== 'success') {
+        if (executionResult.errorMessage) {
+          logger.error(executionResult.errorMessage);
+        }
+        process.exit(1);
+      }
+
+      if (executionResult.outputJson) {
+        try {
+          const outputData: unknown = JSON.parse(executionResult.outputJson);
+          this.handleOutput(outputData);
+        } catch (error) {
+          logger.error(
+            `Failed to parse output JSON from ${commandSpec.name}: ${formatError('', error)}`,
+          );
+          process.exit(1);
+        }
+      }
+
+      process.exit(0);
+    }
+
+    // Legacy behavior: handler returns void, no output processing
+    // Handler is responsible for its own output and error handling
+  }
+
+  private handleOutput(data: unknown): void {
+    console.log(JSON.stringify(data, null, 2));
   }
 }
