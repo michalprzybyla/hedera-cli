@@ -11,6 +11,7 @@ import type { KmsService } from '../../src/core/services/kms/kms-service.interfa
 import type { AliasService } from '../../src/core/services/alias/alias-service.interface';
 import type { TxExecutionService } from '../../src/core/services/tx-execution/tx-execution-service.interface';
 import type { HederaMirrornodeService } from '../../src/core/services/mirrornode/hedera-mirrornode-service.interface';
+import type { OutputService } from '../../src/core/services/output/output-service.interface';
 import type { AccountData } from '../../src/plugins/account/schema';
 
 /**
@@ -66,6 +67,7 @@ export const makeArgs = (
     alias: makeAliasMock(),
     kms: makeKmsMock(),
     hbar: undefined,
+    output: makeOutputMock(),
     ...api,
   },
   logger,
@@ -205,6 +207,14 @@ export const makeMirrorMock = (
         accountPublicKey: 'pubKey',
       },
     ),
+});
+
+/**
+ * Create a mocked OutputService
+ */
+export const makeOutputMock = (): jest.Mocked<OutputService> => ({
+  handleCommandOutput: jest.fn(),
+  getFormat: jest.fn().mockReturnValue('human'),
 });
 
 /**
