@@ -10,6 +10,7 @@ import { CommandHandlerArgs, PluginManifest } from './plugin.interface';
 import { CommandSpec, CommandHandler } from './plugin.types';
 import { formatError } from '../../utils/errors';
 import { logger } from '../../utils/logger';
+import { isJsonOutput } from '../../utils/output';
 
 function kebabToCamel(input: string): string {
   return String(input).replace(/-([a-z])/g, (_m, c: string) => c.toUpperCase());
@@ -304,7 +305,7 @@ export class PluginManager {
             outputJson: executionResult.outputJson,
             schema: commandSpec.output.schema,
             template: commandSpec.output.humanTemplate,
-            format: this.coreApi.output.getFormat(),
+            format: isJsonOutput() ? 'json' : 'human',
           });
         } catch (error) {
           logger.error(

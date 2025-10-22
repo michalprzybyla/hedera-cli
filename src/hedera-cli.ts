@@ -11,6 +11,7 @@ import { Logger } from './utils/logger';
 import { setGlobalOutputMode } from './utils/output';
 import { PluginManager } from './core/plugins/plugin-manager';
 import { createCoreApi } from './core/core-api';
+import { CoreApiConfig } from './core/core-api/core-api-config';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const pkg = require('../package.json') as { version?: string };
@@ -32,9 +33,12 @@ program
 // Apply logging options and store format preference
 let globalFormat: 'human' | 'json' = 'human';
 
-// Store coreAPI instance to access in preAction hook
+<<<<<<< HEAD
+// Store coreAPI instance to access in preAction hook (no longer used for output format)
 let coreAPIInstance: ReturnType<typeof createCoreApi> | null = null;
 
+=======
+>>>>>>> 5457c0c4 (refactor - removed format setter from output service to keep the service stateless)
 program.hook('preAction', () => {
   const opts = program.opts();
 
@@ -44,16 +48,18 @@ program.hook('preAction', () => {
 
   setColorEnabled(opts.color !== false);
 
+<<<<<<< HEAD
   // Handle --json flag (deprecated) and --format flag
   const formatOption = opts.format as string | undefined;
   const format: string = formatOption || (opts.json ? 'json' : 'human');
   globalFormat = format as 'human' | 'json';
   setGlobalOutputMode({ json: format === 'json' });
 
-  // Update output format on coreAPI if available
-  if (coreAPIInstance) {
-    coreAPIInstance.output.setFormat(globalFormat);
-  }
+  // Output format is managed via utils/output and passed at render time
+=======
+  // Set global output mode based on already parsed format
+  setGlobalOutputMode({ json: globalFormat === 'json' });
+>>>>>>> 5457c0c4 (refactor - removed format setter from output service to keep the service stateless)
 });
 
 export function getGlobalFormat(): 'human' | 'json' {
@@ -65,13 +71,35 @@ async function initializeCLI() {
   try {
     console.error('🚀 Starting Hedera CLI...');
 
+<<<<<<< HEAD
     // Create plugin manager
     const coreAPI = createCoreApi();
     coreAPIInstance = coreAPI;
 
-    // Set initial output format
-    coreAPI.output.setFormat(globalFormat);
+    // Output format is managed globally; service remains stateless
     const pluginManager = new PluginManager(coreAPI);
+=======
+    // Pre-parse arguments to get format before creating core API
+    program.parseOptions(process.argv.slice(2));
+    const opts = program.opts();
+
+    const formatOption = opts.format as string | undefined;
+    const format: string = formatOption || (opts.json ? 'json' : 'human');
+    const initialFormat = format as 'human' | 'json';
+
+    // Update global format
+    globalFormat = initialFormat;
+
+    // Create core API config
+    const coreApiConfig: CoreApiConfig = {
+      format: initialFormat,
+    };
+
+    // Create plugin manager
+    const coreApi = createCoreApi(coreApiConfig);
+
+    const pluginManager = new PluginManager(coreApi);
+>>>>>>> 5457c0c4 (refactor - removed format setter from output service to keep the service stateless)
 
     // Set default plugins
     pluginManager.setDefaultPlugins([
