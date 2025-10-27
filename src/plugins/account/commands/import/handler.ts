@@ -9,7 +9,7 @@ import { formatError } from '../../../../utils/errors';
 import { ZustandAccountStateHelper } from '../../zustand-state-helper';
 import { ImportAccountOutput } from './output';
 
-export default async function importAccountHandler(
+export default async function importAccount(
   args: CommandHandlerArgs,
 ): Promise<CommandExecutionResult> {
   const { api, logger } = args;
@@ -99,14 +99,16 @@ export default async function importAccountHandler(
       type: account.type,
       ...(alias && { alias }),
       network: account.network,
-      balance: accountInfo.balance.balance.toString(),
+      balance: BigInt(accountInfo.balance.balance.toString()),
       evmAddress: account.evmAddress,
     };
 >>>>>>> c952bb56 (ADR003 implementation prototype - account plugin):src/plugins/account/commands/import/handler.ts
 
     return {
       status: 'success',
-      outputJson: JSON.stringify(outputData),
+      outputJson: JSON.stringify(outputData, (key, value): unknown =>
+        typeof value === 'bigint' ? value.toString() : value,
+      ),
     };
   } catch (error: unknown) {
     return {

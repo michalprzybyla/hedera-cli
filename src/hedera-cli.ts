@@ -62,10 +62,6 @@ program.hook('preAction', () => {
 >>>>>>> 5457c0c4 (refactor - removed format setter from output service to keep the service stateless)
 });
 
-export function getGlobalFormat(): 'human' | 'json' {
-  return globalFormat;
-}
-
 // Initialize the simplified plugin system
 async function initializeCLI() {
   try {

@@ -61,7 +61,7 @@ export class HederaMirrornodeServiceDefaultImpl
     };
   }
 
-  async getAccountHBarBalance(accountId: string): Promise<BigNumber> {
+  async getAccountHBarBalance(accountId: string): Promise<bigint> {
     let account;
     try {
       account = await this.getAccount(accountId);
@@ -70,7 +70,7 @@ export class HederaMirrornodeServiceDefaultImpl
         formatError(`Failed to fetch hbar balance for ${accountId}: `, error),
       );
     }
-    return new BigNumber(account.balance.balance);
+    return BigInt(account.balance.balance);
   }
 
   async getAccountTokenBalances(

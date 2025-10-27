@@ -20,7 +20,7 @@ import { ZustandAccountStateHelper } from '../../zustand-state-helper';
 import { CreateAccountOutput } from './output';
 >>>>>>> c952bb56 (ADR003 implementation prototype - account plugin):src/plugins/account/commands/create/handler.ts
 
-export default async function createAccountHandler(
+export default async function createAccount(
   args: CommandHandlerArgs,
 ): Promise<CommandExecutionResult> {
   const { api, logger } = args;
