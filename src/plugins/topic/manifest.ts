@@ -3,10 +3,21 @@
  */
 import { PluginManifest } from '../../core';
 import { TOPIC_JSON_SCHEMA, TOPIC_NAMESPACE } from './schema';
-import { createTopicHandler } from './commands/create';
-import { listTopicsHandler } from './commands/list';
-import { submitMessageHandler } from './commands/message-submit';
-import { findMessageHandler } from './commands/message-find';
+
+// Import output specifications from each command
+import {
+  CreateTopicOutputSchema,
+  CREATE_TOPIC_TEMPLATE,
+} from './commands/create';
+import { ListTopicsOutputSchema, LIST_TOPICS_TEMPLATE } from './commands/list';
+import {
+  SubmitMessageOutputSchema,
+  SUBMIT_MESSAGE_TEMPLATE,
+} from './commands/submit-message';
+import {
+  FindMessagesOutputSchema,
+  FIND_MESSAGES_TEMPLATE,
+} from './commands/find-message';
 
 export const topicPluginManifest: PluginManifest = {
   name: 'topic',
@@ -65,14 +76,32 @@ export const topicPluginManifest: PluginManifest = {
           description: 'Define the name for this topic',
         },
       ],
-      handler: createTopicHandler,
+      handler: './commands/create/handler',
+      output: {
+        schema: CreateTopicOutputSchema,
+        humanTemplate: CREATE_TOPIC_TEMPLATE,
+      },
+    
     },
     {
       name: 'list',
       summary: 'List all topics',
       description: 'List all topics stored in the state',
-      options: [],
-      handler: listTopicsHandler,
+      options: [
+        {
+          name: 'network',
+          type: 'string',
+          required: false,
+          description: 'Filter topics by network',
+          short: 'n',
+        },
+      ],
+      handler: './commands/list/handler',
+      output: {
+        schema: ListTopicsOutputSchema,
+        humanTemplate: LIST_TOPICS_TEMPLATE,
+      },
+    
     },
     {
       name: 'submit-message',
@@ -94,7 +123,12 @@ export const topicPluginManifest: PluginManifest = {
           short: 'm',
         },
       ],
-      handler: submitMessageHandler,
+      handler: './commands/submit-message/handler',
+      output: {
+        schema: SubmitMessageOutputSchema,
+        humanTemplate: SUBMIT_MESSAGE_TEMPLATE,
+      },
+    
     },
     {
       name: 'find-message',
@@ -158,7 +192,11 @@ export const topicPluginManifest: PluginManifest = {
           description: 'The sequence number not equal to',
         },
       ],
-      handler: findMessageHandler,
+      handler: './commands/find-message/handler',
+      output: {
+        schema: FindMessagesOutputSchema,
+        humanTemplate: FIND_MESSAGES_TEMPLATE,
+      },
     },
   ],
   stateSchemas: [
