@@ -3,10 +3,11 @@
  * Defines the network plugin
  */
 import { PluginManifest } from '../../core/plugins/plugin.interface';
-import { listHandler } from './commands/list';
-import { useHandler } from './commands/use';
-import { setOperatorHandler } from './commands/set-operator';
-import { getOperatorHandler } from './commands/get-operator';
+import {
+  ListNetworksOutputSchema,
+  LIST_NETWORKS_TEMPLATE,
+} from './commands/list';
+import { UseNetworkOutputSchema, USE_NETWORK_TEMPLATE } from './commands/use';
 
 export const networkPluginManifest: PluginManifest = {
   name: 'network',
@@ -26,7 +27,11 @@ export const networkPluginManifest: PluginManifest = {
       description:
         'List all available networks with their configuration and health status',
       options: [],
-      handler: listHandler,
+      handler: './commands/list/handler',
+      output: {
+        schema: ListNetworksOutputSchema,
+        humanTemplate: LIST_NETWORKS_TEMPLATE,
+      },
     },
     {
       name: 'use',
@@ -35,52 +40,17 @@ export const networkPluginManifest: PluginManifest = {
       options: [
         {
           name: 'network',
-          short: 'N',
+          short: 'n',
           type: 'string',
           required: true,
           description: 'Network name (testnet, mainnet, previewnet, localnet)',
         },
       ],
-      handler: useHandler,
-    },
-    {
-      name: 'set-operator',
-      summary: 'Set operator for a network',
-      description:
-        'Set operator credentials for signing transactions on a specific network',
-      options: [
-        {
-          name: 'operator',
-          short: 'o',
-          type: 'string',
-          required: true,
-          description:
-            'Operator credentials: name or account-id:private-key pair',
-        },
-        {
-          name: 'network',
-          short: 'n',
-          type: 'string',
-          required: false,
-          description: 'Target network (defaults to current network)',
-        },
-      ],
-      handler: setOperatorHandler,
-    },
-    {
-      name: 'get-operator',
-      summary: 'Get operator for a network',
-      description: 'Get operator credentials for a specific network',
-      options: [
-        {
-          name: 'network',
-          short: 'n',
-          type: 'string',
-          required: false,
-          description: 'Target network (defaults to current network)',
-        },
-      ],
-      handler: getOperatorHandler,
+      handler: './commands/use/handler',
+      output: {
+        schema: UseNetworkOutputSchema,
+        humanTemplate: USE_NETWORK_TEMPLATE,
+      },
     },
   ],
 };
