@@ -1,0 +1,12 @@
+/**
+ * Token Plugin Index
+ * Exports the token plugin manifest and command handlers
+ */
+export { tokenPluginManifest } from './manifest';
+
+// Export command handlers and schemas
+export { transferTokenHandler } from './commands/transfer';
+export { createTokenHandler } from './commands/create';
+export { associateTokenHandler } from './commands/associate';
+export { createTokenFromFileHandler } from './commands/createFromFile';
+export { listTokensHandler } from './commands/list';

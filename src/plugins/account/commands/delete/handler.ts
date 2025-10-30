@@ -52,12 +52,8 @@ export default function deleteAccount(
     const removedAliases: string[] = [];
     for (const rec of aliasesForAccount) {
       api.alias.remove(rec.alias, currentNetwork);
-<<<<<<< HEAD:src/plugins/account/commands/delete.ts
-      logger.log(`🧹 Removed name '${rec.alias}' on ${currentNetwork}`);
-=======
       removedAliases.push(`${rec.alias} (${currentNetwork})`);
       logger.log(`🧹 Removed alias '${rec.alias}' on ${currentNetwork}`);
->>>>>>> c952bb56 (ADR003 implementation prototype - account plugin):src/plugins/account/commands/delete/handler.ts
     }
 
     // Delete account from state

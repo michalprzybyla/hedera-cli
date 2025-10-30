@@ -82,16 +82,6 @@ export default async function importAccount(
     // Store account in state using the helper
     accountState.saveAccount(name, account);
 
-<<<<<<< HEAD:src/plugins/account/commands/import.ts
-    logger.log(`✅ Account imported successfully: ${accountId}`);
-    logger.log(`   Name: ${account.name}`);
-    logger.log(`   Type: ${account.type}`);
-    logger.log(`   Network: ${account.network}`);
-    if (alias) {
-      logger.log(`   Name: ${alias}`);
-    }
-    logger.log(`   Balance: ${accountInfo.balance.balance} tinybars`);
-=======
     // Prepare output data
     const outputData: ImportAccountOutput = {
       accountId,
@@ -102,7 +92,6 @@ export default async function importAccount(
       balance: BigInt(accountInfo.balance.balance.toString()),
       evmAddress: account.evmAddress,
     };
->>>>>>> c952bb56 (ADR003 implementation prototype - account plugin):src/plugins/account/commands/import/handler.ts
 
     return {
       status: 'success',

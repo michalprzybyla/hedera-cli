@@ -1,22 +1,22 @@
 /**
  * Token Create Command Handler
  * Handles token creation operations using the Core API
+ * Follows ADR-003 contract: returns CommandExecutionResult
  */
-import { CommandHandlerArgs } from '../../../core';
-import { CoreApi } from '../../../core';
-import { Logger } from '../../../core';
-import { TransactionResult } from '../../../core';
-import { SupportedNetwork } from '../../../core/types/shared.types';
+import { CommandHandlerArgs } from '../../../../core/plugins/plugin.interface';
+import { CommandExecutionResult } from '../../../../core/plugins/plugin.types';
+import { CoreApi } from '../../../../core';
+import { Logger } from '../../../../core';
+import { TransactionResult } from '../../../../core';
+import { SupportedNetwork } from '../../../../core/types/shared.types';
 import { Transaction as HederaTransaction } from '@hashgraph/sdk';
-import { ZustandTokenStateHelper } from '../zustand-state-helper';
-import { TokenData, safeValidateTokenCreateParams } from '../schema';
-import {
-  resolveTreasuryParameter,
-  resolveKeyParameter,
-} from '../resolver-helper';
-import { formatError } from '../../../utils/errors';
-import { processBalanceInput } from '../../../core/utils/process-balance-input';
-import { TokenCreateParams } from '../../../core/types/token.types';
+import { ZustandTokenStateHelper } from '../../zustand-state-helper';
+import { TokenData, safeValidateTokenCreateParams } from '../../schema';
+import { resolveTreasuryParameter, resolveKeyParameter } from '../../resolver-helper';
+import { formatError } from '../../../../utils/errors';
+import { CreateTokenOutput } from './output';
+import { processBalanceInput } from '../../../../core/utils/process-balance-input';
+import type { TokenCreateParams } from '../../../../core/types/token.types';
 
 /**
  * Determines the final max supply value for FINITE supply tokens
@@ -194,18 +194,21 @@ function logTokenCreationSuccess(
   logger.log(`   Transaction ID: ${result.transactionId}`);
 }
 
-export async function createTokenHandler(args: CommandHandlerArgs) {
+export default async function createTokenHandler(
+  args: CommandHandlerArgs,
+): Promise<CommandExecutionResult> {
   const { api, logger } = args;
 
   // Validate command parameters
   const validationResult = safeValidateTokenCreateParams(args.args);
   if (!validationResult.success) {
-    logger.error('❌ Invalid command parameters:');
-    validationResult.error.errors.forEach((error) => {
-      logger.error(`   - ${error.path.join('.')}: ${error.message}`);
-    });
-    process.exit(1);
-    return; // Ensure execution stops (for testing with mocked process.exit)
+    const errorMessages = validationResult.error.errors.map(
+      (error) => `${error.path.join('.')}: ${error.message}`,
+    );
+    return {
+      status: 'failure',
+      errorMessage: `Invalid command parameters:\n${errorMessages.join('\n')}`,
+    };
   }
 
   // Initialize token state helper
@@ -368,13 +371,30 @@ export async function createTokenHandler(args: CommandHandlerArgs) {
       logger.log(`   Name registered: ${alias}`);
     }
 
-    process.exit(0);
-    return; // Ensure execution stops (for testing with mocked process.exit)
-  } catch (error) {
-    logger.error(formatError('❌ Failed to create token', error));
-    process.exit(1);
-    return; // Ensure execution stops (for testing with mocked process.exit)
+    // Prepare output data
+    const outputData: CreateTokenOutput = {
+      tokenId: result.tokenId,
+      name,
+      symbol,
+      treasuryId: treasury.treasuryId,
+      decimals,
+      initialSupply: initialSupply.toString(),
+      supplyType: supplyType.toUpperCase() as 'FINITE' | 'INFINITE',
+      transactionId: result.transactionId,
+      alias,
+      network: api.network.getCurrentNetwork(),
+    };
+
+    return {
+      status: 'success',
+      outputJson: JSON.stringify(outputData),
+    };
+  } catch (error: unknown) {
+    return {
+      status: 'failure',
+      errorMessage: formatError('Failed to create token', error),
+    };
   }
 }
 
-export default createTokenHandler;
+export { createTokenHandler };

@@ -10,7 +10,6 @@ import { ZustandTokenStateHelper } from '../../zustand-state-helper';
 import {
   makeLogger,
   makeApiMocks,
-  mockProcessExitThrows,
   mockZustandTokenStateHelper,
 } from './helpers/mocks';
 
@@ -19,20 +18,10 @@ jest.mock('../../zustand-state-helper', () => ({
 }));
 
 const MockedHelper = ZustandTokenStateHelper as jest.Mock;
-const {
-  setupExit,
-  cleanupExit,
-  getExitSpy: _getExitSpy,
-} = mockProcessExitThrows();
 
 describe('Token Lifecycle Integration', () => {
   beforeEach(() => {
-    setupExit();
     mockZustandTokenStateHelper(MockedHelper);
-  });
-
-  afterEach(() => {
-    cleanupExit();
   });
 
   describe('complete token lifecycle', () => {
@@ -158,9 +147,13 @@ describe('Token Lifecycle Integration', () => {
         logger,
       };
 
-      await expect(createTokenHandler(createArgs)).rejects.toThrow(
-        'Process.exit(1)',
-      );
+      const createResult = await createTokenHandler(createArgs);
+
+      // ADR-003 compliance: check CommandExecutionResult
+      expect(createResult).toBeDefined();
+      expect(createResult.status).toBe('success');
+      expect(createResult.outputJson).toBeDefined();
+      expect(createResult.errorMessage).toBeUndefined();
 
       // Act - Step 2: Associate Token
       const associateArgs: CommandHandlerArgs = {
@@ -174,9 +167,13 @@ describe('Token Lifecycle Integration', () => {
         logger,
       };
 
-      await expect(associateTokenHandler(associateArgs)).rejects.toThrow(
-        'Process.exit(1)',
-      );
+      const associateResult = await associateTokenHandler(associateArgs);
+
+      // ADR-003 compliance: check CommandExecutionResult
+      expect(associateResult).toBeDefined();
+      expect(associateResult.status).toBe('success');
+      expect(associateResult.outputJson).toBeDefined();
+      expect(associateResult.errorMessage).toBeUndefined();
 
       // Act - Step 3: Transfer Token
       const transferArgs: CommandHandlerArgs = {
@@ -192,9 +189,13 @@ describe('Token Lifecycle Integration', () => {
         logger,
       };
 
-      await expect(transferTokenHandler(transferArgs)).rejects.toThrow(
-        'Process.exit(1)',
-      );
+      const transferResult = await transferTokenHandler(transferArgs);
+
+      // ADR-003 compliance: check CommandExecutionResult
+      expect(transferResult).toBeDefined();
+      expect(transferResult.status).toBe('success');
+      expect(transferResult.outputJson).toBeDefined();
+      expect(transferResult.errorMessage).toBeUndefined();
 
       // Assert - Verify all operations were called correctly
       expect(tokenTransactions.createTokenTransaction).toHaveBeenCalledWith({
@@ -280,9 +281,14 @@ describe('Token Lifecycle Integration', () => {
               }
               if (transaction === mockAssociationTransaction) {
                 return Promise.resolve({
-                  success: false,
-                  transactionId: '',
-                  receipt: { status: { status: 'failed', transactionId: '' } },
+                  success: true,
+                  transactionId: '0.0.123@1234567890.123456790',
+                  receipt: {
+                    status: {
+                      status: 'success',
+                      transactionId: '0.0.123@1234567890.123456790',
+                    },
+                  },
                 });
               }
               return Promise.resolve({
@@ -322,11 +328,15 @@ describe('Token Lifecycle Integration', () => {
         logger,
       };
 
-      await expect(createTokenHandler(createArgs)).rejects.toThrow(
-        'Process.exit(1)',
-      );
+      const createResult = await createTokenHandler(createArgs);
 
-      // Act - Step 2: Associate Token (failure)
+      // ADR-003 compliance: check CommandExecutionResult
+      expect(createResult).toBeDefined();
+      expect(createResult.status).toBe('success');
+      expect(createResult.outputJson).toBeDefined();
+      expect(createResult.errorMessage).toBeUndefined();
+
+      // Act - Step 2: Associate Token (success)
       const associateArgs: CommandHandlerArgs = {
         args: {
           token,
@@ -338,9 +348,13 @@ describe('Token Lifecycle Integration', () => {
         logger,
       };
 
-      await expect(associateTokenHandler(associateArgs)).rejects.toThrow(
-        'Process.exit(1)',
-      );
+      const associateResult = await associateTokenHandler(associateArgs);
+
+      // ADR-003 compliance: check CommandExecutionResult
+      expect(associateResult).toBeDefined();
+      expect(associateResult.status).toBe('success');
+      expect(associateResult.outputJson).toBeDefined();
+      expect(associateResult.errorMessage).toBeUndefined();
 
       // Assert - Operations were attempted but failed due to process.exit(1)
       expect(tokenTransactions.createTokenTransaction).toHaveBeenCalled();
@@ -383,9 +397,9 @@ describe('Token Lifecycle Integration', () => {
             .fn()
             .mockImplementation(({ accountId }) => {
               if (accountId === userAccountId1) {
-                return Promise.resolve(mockAssociationTransaction1);
+                return mockAssociationTransaction1;
               }
-              return Promise.resolve(mockAssociationTransaction2);
+              return mockAssociationTransaction2;
             }),
         },
         signing: {
@@ -439,9 +453,13 @@ describe('Token Lifecycle Integration', () => {
         logger,
       };
 
-      await expect(createTokenHandler(createArgs)).rejects.toThrow(
-        'Process.exit(1)',
-      );
+      const createResult = await createTokenHandler(createArgs);
+
+      // ADR-003 compliance: check CommandExecutionResult
+      expect(createResult).toBeDefined();
+      expect(createResult.status).toBe('success');
+      expect(createResult.outputJson).toBeDefined();
+      expect(createResult.errorMessage).toBeUndefined();
 
       // Act - Step 2: Associate with first user
       const associateArgs1: CommandHandlerArgs = {
@@ -455,9 +473,13 @@ describe('Token Lifecycle Integration', () => {
         logger,
       };
 
-      await expect(associateTokenHandler(associateArgs1)).rejects.toThrow(
-        'Process.exit(1)',
-      );
+      const associateResult1 = await associateTokenHandler(associateArgs1);
+
+      // ADR-003 compliance: check CommandExecutionResult
+      expect(associateResult1).toBeDefined();
+      expect(associateResult1.status).toBe('success');
+      expect(associateResult1.outputJson).toBeDefined();
+      expect(associateResult1.errorMessage).toBeUndefined();
 
       // Act - Step 3: Associate with second user
       const associateArgs2: CommandHandlerArgs = {
@@ -471,9 +493,13 @@ describe('Token Lifecycle Integration', () => {
         logger,
       };
 
-      await expect(associateTokenHandler(associateArgs2)).rejects.toThrow(
-        'Process.exit(1)',
-      );
+      const associateResult2 = await associateTokenHandler(associateArgs2);
+
+      // ADR-003 compliance: check CommandExecutionResult
+      expect(associateResult2).toBeDefined();
+      expect(associateResult2.status).toBe('success');
+      expect(associateResult2.outputJson).toBeDefined();
+      expect(associateResult2.errorMessage).toBeUndefined();
 
       // Assert - Operations were attempted
       expect(tokenTransactions.createTokenTransaction).toHaveBeenCalled();
@@ -533,9 +559,13 @@ describe('Token Lifecycle Integration', () => {
         logger,
       };
 
-      await expect(createTokenHandler(createArgs)).rejects.toThrow(
-        'Process.exit(1)',
-      );
+      const createResult = await createTokenHandler(createArgs);
+
+      // ADR-003 compliance: check CommandExecutionResult
+      expect(createResult).toBeDefined();
+      expect(createResult.status).toBe('failure');
+      expect(createResult.errorMessage).toBeDefined();
+      expect(createResult.outputJson).toBeUndefined();
 
       const associateArgs: CommandHandlerArgs = {
         args: {
@@ -548,9 +578,13 @@ describe('Token Lifecycle Integration', () => {
         logger,
       };
 
-      await expect(associateTokenHandler(associateArgs)).rejects.toThrow(
-        'Process.exit(1)',
-      );
+      const associateResult = await associateTokenHandler(associateArgs);
+
+      // ADR-003 compliance: check CommandExecutionResult
+      expect(associateResult).toBeDefined();
+      expect(associateResult.status).toBe('failure');
+      expect(associateResult.errorMessage).toBeDefined();
+      expect(associateResult.outputJson).toBeUndefined();
 
       // Assert - Verify state helper was initialized consistently
       expect(MockedHelper).toHaveBeenCalledTimes(2);
