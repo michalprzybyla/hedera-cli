@@ -7,14 +7,10 @@ import * as path from 'path';
 import { Command } from 'commander';
 import { CoreApi } from '../core-api/core-api.interface';
 import { CommandHandlerArgs, PluginManifest } from './plugin.interface';
-import { CommandSpec, CommandHandler } from './plugin.types';
+import { CommandSpec } from './plugin.types';
 import { formatError } from '../../utils/errors';
 import { logger } from '../../utils/logger';
 import { isJsonOutput } from '../../utils/output';
-
-function kebabToCamel(input: string): string {
-  return String(input).replace(/-([a-z])/g, (_m, c: string) => c.toUpperCase());
-}
 
 interface LoadedPlugin {
   manifest: PluginManifest;
@@ -286,24 +282,7 @@ export class PluginManager {
       config: this.coreApi.config,
       logger: this.coreApi.logger,
     };
-    const handlerPath = commandSpec.handler;
-    if (!handlerPath) {
-      throw new Error(`No handler specified for command ${commandSpec.name}`);
-    }
-
-    const fullHandlerPath = path.resolve(plugin.path, handlerPath + '.js');
-    const handlerModule = (await import(fullHandlerPath)) as Record<string, unknown>;
-
-    const fixedName = kebabToCamel(commandSpec.name);
-    const handler =
-      (handlerModule.default as CommandHandler) ||
-      (handlerModule[fixedName + 'Handler'] as CommandHandler);
-
-    if (typeof handler !== 'function') {
-      throw new Error(`Handler for ${commandSpec.name} is not a function`);
-    }
-
-    const result = await handler(handlerArgs);
+    const result = await commandSpec.handler(handlerArgs);
 
     if (commandSpec.output) {
       if (!result) {

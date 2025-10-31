@@ -32,6 +32,13 @@ import {
   ImportAccountOutputSchema,
   IMPORT_ACCOUNT_TEMPLATE,
 } from './commands/import';
+import { createAccount } from './commands/create/handler';
+import { getAccountBalance } from './commands/balance/handler';
+import { listAccounts } from './commands/list/handler';
+import { importAccount } from './commands/import/handler';
+import { clearAccounts } from './commands/clear/handler';
+import { deleteAccount } from './commands/delete/handler';
+import { viewAccount } from './commands/view/handler';
 
 export const accountPluginManifest: PluginManifest = {
   name: 'account',
@@ -75,7 +82,7 @@ export const accountPluginManifest: PluginManifest = {
         { name: 'name', short: 'n', type: 'string', required: false },
         { name: 'payer', short: 'p', type: 'string', required: false },
       ],
-      handler: './commands/create/handler',
+      handler: createAccount,
       output: {
         schema: CreateAccountOutputSchema,
         humanTemplate: CREATE_ACCOUNT_TEMPLATE,
@@ -103,7 +110,7 @@ export const accountPluginManifest: PluginManifest = {
         },
         { name: 'token-id', short: 't', type: 'string', required: false },
       ],
-      handler: './commands/balance/handler',
+      handler: getAccountBalance,
       output: {
         schema: AccountBalanceOutputSchema,
         humanTemplate: ACCOUNT_BALANCE_TEMPLATE,
@@ -123,7 +130,7 @@ export const accountPluginManifest: PluginManifest = {
           default: false,
         },
       ],
-      handler: './commands/list/handler',
+      handler: listAccounts,
       output: {
         schema: ListAccountsOutputSchema,
         humanTemplate: LIST_ACCOUNTS_TEMPLATE,
@@ -138,7 +145,7 @@ export const accountPluginManifest: PluginManifest = {
         { name: 'key', short: 'k', type: 'string', required: false },
         { name: 'name', short: 'n', type: 'string', required: false },
       ],
-      handler: './commands/import/handler',
+      handler: importAccount,
       output: {
         schema: ImportAccountOutputSchema,
         humanTemplate: IMPORT_ACCOUNT_TEMPLATE,
@@ -150,7 +157,7 @@ export const accountPluginManifest: PluginManifest = {
       summary: 'Clear all accounts',
       description: 'Remove all account information from the address book',
       options: [],
-      handler: './commands/clear/handler',
+      handler: clearAccounts,
       output: {
         schema: ClearAccountsOutputSchema,
         humanTemplate: CLEAR_ACCOUNTS_TEMPLATE,
@@ -165,7 +172,7 @@ export const accountPluginManifest: PluginManifest = {
         { name: 'name', short: 'n', type: 'string', required: false },
         { name: 'id', short: 'i', type: 'string', required: false },
       ],
-      handler: './commands/delete/handler',
+      handler: deleteAccount,
       output: {
         schema: DeleteAccountOutputSchema,
         humanTemplate: DELETE_ACCOUNT_TEMPLATE,
@@ -184,7 +191,7 @@ export const accountPluginManifest: PluginManifest = {
           required: true,
         },
       ],
-      handler: './commands/view/handler',
+      handler: viewAccount,
       output: {
         schema: ViewAccountOutputSchema,
         humanTemplate: VIEW_ACCOUNT_TEMPLATE,

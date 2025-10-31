@@ -7,6 +7,26 @@ import { AddPluginOutputSchema, ADD_PLUGIN_TEMPLATE } from './commands/add/outpu
 import { RemovePluginOutputSchema, REMOVE_PLUGIN_TEMPLATE } from './commands/remove/output';
 import { ListPluginsOutputSchema, LIST_PLUGINS_TEMPLATE } from './commands/list/output';
 import { PluginInfoOutputSchema, PLUGIN_INFO_TEMPLATE } from './commands/info/output';
+import {
+  AddPluginOutputSchema,
+  ADD_PLUGIN_TEMPLATE,
+} from './commands/add/output';
+import {
+  RemovePluginOutputSchema,
+  REMOVE_PLUGIN_TEMPLATE,
+} from './commands/remove/output';
+import {
+  ListPluginsOutputSchema,
+  LIST_PLUGINS_TEMPLATE,
+} from './commands/list/output';
+import {
+  PluginInfoOutputSchema,
+  PLUGIN_INFO_TEMPLATE,
+} from './commands/info/output';
+import { addPlugin } from './commands/add/handler';
+import { removePlugin } from './commands/remove/handler';
+import { getPluginList } from './commands/list/handler';
+import { getPluginInfo } from './commands/info/handler';
 
 export const pluginManagementManifest: PluginManifest = {
   name: 'plugin-management',
@@ -25,7 +45,7 @@ export const pluginManagementManifest: PluginManifest = {
       summary: 'Add a plugin from path',
       description: 'Add a new plugin to the system from a file path',
       options: [{ name: 'path', short: 'p', type: 'string', required: true }],
-      handler: './commands/add/handler',
+      handler: addPlugin,
       output: {
         schema: AddPluginOutputSchema,
         humanTemplate: ADD_PLUGIN_TEMPLATE,
@@ -37,7 +57,7 @@ export const pluginManagementManifest: PluginManifest = {
       summary: 'Remove a plugin',
       description: 'Remove a plugin from the system',
       options: [{ name: 'name', short: 'n', type: 'string', required: true }],
-      handler: './commands/remove/handler',
+      handler: removePlugin,
       output: {
         schema: RemovePluginOutputSchema,
         humanTemplate: REMOVE_PLUGIN_TEMPLATE,
@@ -48,7 +68,7 @@ export const pluginManagementManifest: PluginManifest = {
       name: 'list',
       summary: 'List all plugins',
       description: 'Show all loaded plugins',
-      handler: './commands/list/handler',
+      handler: getPluginList,
       output: {
         schema: ListPluginsOutputSchema,
         humanTemplate: LIST_PLUGINS_TEMPLATE,
@@ -60,7 +80,7 @@ export const pluginManagementManifest: PluginManifest = {
       summary: 'Get plugin information',
       description: 'Show detailed information about a specific plugin',
       options: [{ name: 'name', short: 'n', type: 'string', required: true }],
-      handler: './commands/info/handler',
+      handler: getPluginInfo,
       output: {
         schema: PluginInfoOutputSchema,
         humanTemplate: PLUGIN_INFO_TEMPLATE,

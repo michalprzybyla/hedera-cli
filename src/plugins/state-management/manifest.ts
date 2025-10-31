@@ -9,6 +9,11 @@ import { ClearStateOutputSchema, CLEAR_STATE_TEMPLATE } from './commands/clear';
 import { StateInfoOutputSchema, STATE_INFO_TEMPLATE } from './commands/info';
 import { StateBackupOutputSchema, STATE_BACKUP_TEMPLATE } from './commands/backup';
 import { StateStatsOutputSchema, STATE_STATS_TEMPLATE } from './commands/stats';
+import { listState } from './commands/list/handler';
+import { clearState } from './commands/clear/handler';
+import { stateInfo } from './commands/info/handler';
+import { stateBackup } from './commands/backup/handler';
+import { stateStats } from './commands/stats/handler';
 
 export const stateManagementManifest: PluginManifest = {
   name: 'state-management',
@@ -29,7 +34,7 @@ export const stateManagementManifest: PluginManifest = {
       options: [
         { name: 'namespace', short: 'n', type: 'string', required: false },
       ],
-      handler: './commands/list/handler',
+      handler: listState,
       output: {
         schema: ListStateOutputSchema,
         humanTemplate: LIST_STATE_TEMPLATE,
@@ -44,7 +49,7 @@ export const stateManagementManifest: PluginManifest = {
         { name: 'namespace', short: 'n', type: 'string', required: false },
         { name: 'confirm', short: 'c', type: 'boolean', required: false },
       ],
-      handler: './commands/clear/handler',
+      handler: clearState,
       output: {
         schema: ClearStateOutputSchema,
         humanTemplate: CLEAR_STATE_TEMPLATE,
@@ -55,7 +60,7 @@ export const stateManagementManifest: PluginManifest = {
       name: 'info',
       summary: 'Show state information',
       description: 'Display information about stored state data',
-      handler: './commands/info/handler',
+      handler: stateInfo,
       output: {
         schema: StateInfoOutputSchema,
         humanTemplate: STATE_INFO_TEMPLATE,
@@ -68,7 +73,7 @@ export const stateManagementManifest: PluginManifest = {
       options: [
         { name: 'output', short: 'o', type: 'string', required: false },
       ],
-      handler: './commands/backup/handler',
+      handler: stateBackup,
       output: {
         schema: StateBackupOutputSchema,
         humanTemplate: STATE_BACKUP_TEMPLATE,
@@ -78,7 +83,7 @@ export const stateManagementManifest: PluginManifest = {
       name: 'stats',
       summary: 'Show state statistics',
       description: 'Display detailed statistics about stored state data',
-      handler: './commands/stats/handler',
+      handler: stateStats,
       output: {
         schema: StateStatsOutputSchema,
         humanTemplate: STATE_STATS_TEMPLATE,
