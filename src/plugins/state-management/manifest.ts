@@ -10,7 +10,7 @@ import { StateInfoOutputSchema, STATE_INFO_TEMPLATE } from './commands/info';
 import { StateBackupOutputSchema, STATE_BACKUP_TEMPLATE } from './commands/backup';
 import { StateStatsOutputSchema, STATE_STATS_TEMPLATE } from './commands/stats';
 
-const stateManagementManifest: PluginManifest = {
+export const stateManagementManifest: PluginManifest = {
   name: 'state-management',
   version: '1.0.0',
   displayName: 'State Management',

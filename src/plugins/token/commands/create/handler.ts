@@ -194,7 +194,7 @@ function logTokenCreationSuccess(
   logger.log(`   Transaction ID: ${result.transactionId}`);
 }
 
-export default async function createTokenHandler(
+export async function createToken(
   args: CommandHandlerArgs,
 ): Promise<CommandExecutionResult> {
   const { api, logger } = args;
@@ -397,4 +397,3 @@ export default async function createTokenHandler(
   }
 }
 
-export { createTokenHandler };

@@ -3,9 +3,9 @@
  * Tests the complete token lifecycle: create → associate → transfer
  */
 import type { CommandHandlerArgs } from '../../../../core/plugins/plugin.interface';
-import { createTokenHandler } from '../../commands/create';
-import { associateTokenHandler } from '../../commands/associate';
-import { transferTokenHandler } from '../../commands/transfer';
+import { createToken } from '../../commands/create';
+import { associateToken } from '../../commands/associate';
+import { transferToken } from '../../commands/transfer';
 import { ZustandTokenStateHelper } from '../../zustand-state-helper';
 import {
   makeLogger,
@@ -147,7 +147,7 @@ describe('Token Lifecycle Integration', () => {
         logger,
       };
 
-      const createResult = await createTokenHandler(createArgs);
+      const createResult = await createToken(createArgs);
 
       // ADR-003 compliance: check CommandExecutionResult
       expect(createResult).toBeDefined();
@@ -167,7 +167,7 @@ describe('Token Lifecycle Integration', () => {
         logger,
       };
 
-      const associateResult = await associateTokenHandler(associateArgs);
+      const associateResult = await associateToken(associateArgs);
 
       // ADR-003 compliance: check CommandExecutionResult
       expect(associateResult).toBeDefined();
@@ -189,7 +189,7 @@ describe('Token Lifecycle Integration', () => {
         logger,
       };
 
-      const transferResult = await transferTokenHandler(transferArgs);
+      const transferResult = await transferToken(transferArgs);
 
       // ADR-003 compliance: check CommandExecutionResult
       expect(transferResult).toBeDefined();
@@ -328,7 +328,7 @@ describe('Token Lifecycle Integration', () => {
         logger,
       };
 
-      const createResult = await createTokenHandler(createArgs);
+      const createResult = await createToken(createArgs);
 
       // ADR-003 compliance: check CommandExecutionResult
       expect(createResult).toBeDefined();
@@ -348,7 +348,7 @@ describe('Token Lifecycle Integration', () => {
         logger,
       };
 
-      const associateResult = await associateTokenHandler(associateArgs);
+      const associateResult = await associateToken(associateArgs);
 
       // ADR-003 compliance: check CommandExecutionResult
       expect(associateResult).toBeDefined();
@@ -453,7 +453,7 @@ describe('Token Lifecycle Integration', () => {
         logger,
       };
 
-      const createResult = await createTokenHandler(createArgs);
+      const createResult = await createToken(createArgs);
 
       // ADR-003 compliance: check CommandExecutionResult
       expect(createResult).toBeDefined();
@@ -473,7 +473,7 @@ describe('Token Lifecycle Integration', () => {
         logger,
       };
 
-      const associateResult1 = await associateTokenHandler(associateArgs1);
+      const associateResult1 = await associateToken(associateArgs1);
 
       // ADR-003 compliance: check CommandExecutionResult
       expect(associateResult1).toBeDefined();
@@ -493,7 +493,7 @@ describe('Token Lifecycle Integration', () => {
         logger,
       };
 
-      const associateResult2 = await associateTokenHandler(associateArgs2);
+      const associateResult2 = await associateToken(associateArgs2);
 
       // ADR-003 compliance: check CommandExecutionResult
       expect(associateResult2).toBeDefined();
@@ -559,7 +559,7 @@ describe('Token Lifecycle Integration', () => {
         logger,
       };
 
-      const createResult = await createTokenHandler(createArgs);
+      const createResult = await createToken(createArgs);
 
       // ADR-003 compliance: check CommandExecutionResult
       expect(createResult).toBeDefined();
@@ -578,7 +578,7 @@ describe('Token Lifecycle Integration', () => {
         logger,
       };
 
-      const associateResult = await associateTokenHandler(associateArgs);
+      const associateResult = await associateToken(associateArgs);
 
       // ADR-003 compliance: check CommandExecutionResult
       expect(associateResult).toBeDefined();

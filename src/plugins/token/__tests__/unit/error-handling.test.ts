@@ -3,10 +3,10 @@
  * Tests error scenarios and edge cases across the token plugin
  */
 import type { CommandHandlerArgs } from '../../../../core/plugins/plugin.interface';
-import { createTokenHandler } from '../../commands/create';
-import { associateTokenHandler } from '../../commands/associate';
-import { transferTokenHandler } from '../../commands/transfer';
-import { createTokenFromFileHandler } from '../../commands/createFromFile';
+import { createToken } from '../../commands/create';
+import { associateToken } from '../../commands/associate';
+import { transferToken } from '../../commands/transfer';
+import { createTokenFromFile } from '../../commands/createFromFile';
 import { ZustandTokenStateHelper } from '../../zustand-state-helper';
 import type { TransactionResult } from '../../../../core/services/tx-execution/tx-execution-service.interface';
 import {
@@ -71,7 +71,7 @@ describe('Token Plugin Error Handling', () => {
       };
 
       // Act & Assert
-      const result = await createTokenHandler(args);
+      const result = await createToken(args);
 
       // ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -107,7 +107,7 @@ describe('Token Plugin Error Handling', () => {
       };
 
       // Act & Assert
-      const result = await associateTokenHandler(args);
+      const result = await associateToken(args);
 
       // ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -156,7 +156,7 @@ describe('Token Plugin Error Handling', () => {
       };
 
       // Act & Assert
-      const result = await transferTokenHandler(args);
+      const result = await transferToken(args);
 
       // ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -199,7 +199,7 @@ describe('Token Plugin Error Handling', () => {
       };
 
       // Act & Assert - Error is thrown before try-catch block
-      await expect(createTokenHandler(args)).rejects.toThrow(
+      await expect(createToken(args)).rejects.toThrow(
         'Invalid private key format',
       );
     });
@@ -263,7 +263,7 @@ describe('Token Plugin Error Handling', () => {
       };
 
       // Act & Assert
-      const result = await createTokenHandler(args);
+      const result = await createToken(args);
 
       // ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -317,7 +317,7 @@ describe('Token Plugin Error Handling', () => {
       };
 
       // Act & Assert
-      const result = await associateTokenHandler(args);
+      const result = await associateToken(args);
 
       // ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -374,7 +374,7 @@ describe('Token Plugin Error Handling', () => {
       };
 
       // Act & Assert
-      const result = await transferTokenHandler(args);
+      const result = await transferToken(args);
 
       // ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -409,7 +409,7 @@ describe('Token Plugin Error Handling', () => {
       };
 
       // Act & Assert
-      const result = await associateTokenHandler(args);
+      const result = await associateToken(args);
 
       // ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -456,7 +456,7 @@ describe('Token Plugin Error Handling', () => {
       };
 
       // Act & Assert
-      const result = await associateTokenHandler(args);
+      const result = await associateToken(args);
 
       // ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -512,7 +512,7 @@ describe('Token Plugin Error Handling', () => {
       };
 
       // Act & Assert
-      const result = await createTokenHandler(args);
+      const result = await createToken(args);
 
       // ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -539,7 +539,7 @@ describe('Token Plugin Error Handling', () => {
       };
 
       // Act & Assert
-      const result = await createTokenFromFileHandler(args);
+      const result = await createTokenFromFile(args);
 
       // ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -563,7 +563,7 @@ describe('Token Plugin Error Handling', () => {
       };
 
       // Act & Assert
-      const result = await createTokenFromFileHandler(args);
+      const result = await createTokenFromFile(args);
 
       // ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -587,7 +587,7 @@ describe('Token Plugin Error Handling', () => {
       };
 
       // Act & Assert
-      const result = await createTokenFromFileHandler(args);
+      const result = await createTokenFromFile(args);
 
       // ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -666,7 +666,7 @@ describe('Token Plugin Error Handling', () => {
       };
 
       // Act & Assert
-      const result = await createTokenHandler(args);
+      const result = await createToken(args);
 
       // ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -709,7 +709,7 @@ describe('Token Plugin Error Handling', () => {
       };
 
       // Act & Assert
-      const result = await createTokenHandler(args);
+      const result = await createToken(args);
 
       // ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -760,7 +760,7 @@ describe('Token Plugin Error Handling', () => {
       };
 
       // Act & Assert
-      const result = await transferTokenHandler(args);
+      const result = await transferToken(args);
 
       // ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -822,7 +822,7 @@ describe('Token Plugin Error Handling', () => {
       };
 
       // Act & Assert
-      const result = await createTokenHandler(args);
+      const result = await createToken(args);
 
       expect(result).toBeDefined();
       expect(result.status).toBe('failure');
@@ -855,7 +855,7 @@ describe('Token Plugin Error Handling', () => {
       };
 
       // Act & Assert
-      const result = await createTokenHandler(args);
+      const result = await createToken(args);
 
       // ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -905,7 +905,7 @@ describe('Token Plugin Error Handling', () => {
       };
 
       // Act & Assert
-      const result = await associateTokenHandler(associateArgs);
+      const result = await associateToken(associateArgs);
 
       // ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
