@@ -5,6 +5,7 @@
  */
 import { CommandHandlerArgs } from '../../../../core/plugins/plugin.interface';
 import { CommandExecutionResult } from '../../../../core/plugins/plugin.types';
+import { Status } from '../../../../core/shared/constants';
 import { formatError } from '../../../../utils/errors';
 import { ClearStateOutput } from './output';
 
@@ -24,7 +25,7 @@ export function clearState(args: CommandHandlerArgs): CommandExecutionResult {
         : 'This will clear ALL state data across all plugins. Add --confirm flag to proceed.';
 
       return {
-        status: 'failure',
+        status: Status.Failure,
         errorMessage: message,
       };
     }
@@ -44,7 +45,7 @@ export function clearState(args: CommandHandlerArgs): CommandExecutionResult {
       };
 
       return {
-        status: 'success',
+        status: Status.Success,
         outputJson: JSON.stringify(outputData),
       };
     } else {
@@ -68,13 +69,13 @@ export function clearState(args: CommandHandlerArgs): CommandExecutionResult {
       };
 
       return {
-        status: 'success',
+        status: Status.Success,
         outputJson: JSON.stringify(outputData),
       };
     }
   } catch (error: unknown) {
     return {
-      status: 'failure',
+      status: Status.Failure,
       errorMessage: formatError('Failed to clear state data', error),
     };
   }

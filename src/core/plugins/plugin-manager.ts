@@ -10,6 +10,7 @@ import { CommandHandlerArgs, PluginManifest } from './plugin.interface';
 import { CommandSpec } from './plugin.types';
 import { formatError } from '../../utils/errors';
 import { logger } from '../../utils/logger';
+import { Status } from '../shared/constants';
 
 interface LoadedPlugin {
   manifest: PluginManifest;
@@ -292,7 +293,8 @@ export class PluginManager {
 
     const executionResult = result;
 
-    if (executionResult.status !== 'success') {
+    // Handle non-success statuses
+    if (executionResult.status !== Status.Success) {
       throw new Error(
         executionResult.errorMessage ||
           `Command ${commandSpec.name} failed with status: ${executionResult.status}`,
