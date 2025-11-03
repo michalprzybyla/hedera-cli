@@ -7,6 +7,7 @@ import type { CommandHandlerArgs } from '../../../../core/plugins/plugin.interfa
 import { createToken } from '../../commands/create';
 import { ZustandTokenStateHelper } from '../../zustand-state-helper';
 import type { TransactionResult } from '../../../../core/services/tx-execution/tx-execution-service.interface';
+import { Status } from '../../../../core/shared/constants';
 import {
   makeLogger,
   makeApiMocks,
@@ -80,7 +81,7 @@ describe('createTokenHandler', () => {
       const args = makeTokenCreateCommandArgs({ api, logger });
 
       // Act
-      await createToken(args);
+      const result = await createToken(args);
 
       // Assert
       expect(api.kms.importPrivateKey).toHaveBeenCalledWith('test-private-key');
@@ -92,7 +93,7 @@ describe('createTokenHandler', () => {
         { keyRefId: 'treasury-key-ref-id' },
       );
       expect(mockSaveToken).toHaveBeenCalled();
-      // Expect success result instead of process.exit
+      expect(result.status).toBe(Status.Success);
       // This test is now ADR-003 compliant
     });
 
@@ -134,7 +135,7 @@ describe('createTokenHandler', () => {
       };
 
       // Act
-      await createToken(args);
+      const result = await createToken(args);
 
       // Assert
       expect(api.network.getOperator).toHaveBeenCalled();
@@ -152,7 +153,7 @@ describe('createTokenHandler', () => {
         mockTransactions.token,
       );
       expect(mockSaveToken).toHaveBeenCalled();
-      // Expect success result instead of process.exit
+      expect(result.status).toBe(Status.Success);
       // This test is now ADR-003 compliant
     });
   });
@@ -174,14 +175,11 @@ describe('createTokenHandler', () => {
       };
 
       // Act
-      await createToken(args);
+      const result = await createToken(args);
 
       // Assert
-      // ADR-003 compliance: logger.error calls are no longer expected
-      // expect(logger.error).toHaveBeenCalledWith(
-      //   '❌ Invalid command parameters:',
-      // );
-      // Expect failure result instead of process.exit
+      expect(result.status).toBe(Status.Failure);
+      expect(result.errorMessage).toContain('Invalid command parameters');
       // This test is now ADR-003 compliant
     });
 
@@ -204,14 +202,12 @@ describe('createTokenHandler', () => {
       };
 
       // Act
-      await createToken(args);
+      const result = await createToken(args);
 
       // Assert
-      // ADR-003 compliance: logger.error calls are no longer expected
-      // expect(logger.error).toHaveBeenCalledWith(
-      //   expect.stringContaining('❌ Failed to create token:'),
-      // );
-      // Expect failure result instead of process.exit
+      expect(result.status).toBe(Status.Failure);
+      expect(result.errorMessage).toContain('Failed to create token');
+      expect(result.errorMessage).toContain('No operator credentials found');
       // This test is now ADR-003 compliant
     });
   });
@@ -267,14 +263,13 @@ describe('createTokenHandler', () => {
       };
 
       // Act
-      await createToken(args);
+      const result = await createToken(args);
 
       // Assert
-      // ADR-003 compliance: logger.error calls are no longer expected
-      // expect(logger.error).toHaveBeenCalledWith(
-      //   expect.stringContaining('❌ Failed to create token:'),
-      // );
-      // Expect failure result instead of process.exit
+      expect(result.status).toBe(Status.Failure);
+      expect(result.errorMessage).toContain('Failed to create token');
+      expect(result.errorMessage).toContain('no token ID returned');
+      expect(mockSaveToken).not.toHaveBeenCalled();
       // This test is now ADR-003 compliant
     });
 
@@ -305,10 +300,12 @@ describe('createTokenHandler', () => {
       };
 
       // Act
-      await createToken(args);
+      const result = await createToken(args);
 
       // Assert
-      // Expect failure result instead of process.exit
+      expect(result.status).toBe(Status.Failure);
+      expect(result.errorMessage).toContain('Failed to create token');
+      expect(result.errorMessage).toContain('Service error');
       // This test is now ADR-003 compliant
     });
   });
@@ -374,12 +371,12 @@ describe('createTokenHandler', () => {
       };
 
       // Act
-      await createToken(args);
+      const result = await createToken(args);
 
       // Assert
       expect(MockedHelper).toHaveBeenCalledWith(api.state, logger);
       expect(mockSaveToken).toHaveBeenCalled();
-      // Expect success result instead of process.exit
+      expect(result.status).toBe(Status.Success);
       // This test is now ADR-003 compliant
     });
   });
