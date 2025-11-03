@@ -68,9 +68,7 @@ describe('hbar plugin - transfer command (unit)', () => {
 
     const result = await transferHandler(args);
     expect(result.status).toBe(Status.Failure);
-    expect(result.errorMessage).toContain(
-      'Invalid balance: provide a positive number of tinybars',
-    );
+    expect(result.errorMessage).toContain('Invalid balance value');
   });
 
   test('returns failure when balance is negative', async () => {
