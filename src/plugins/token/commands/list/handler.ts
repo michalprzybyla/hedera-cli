@@ -98,6 +98,39 @@ function displayToken(
 }
 
 /**
+ * Extracts token keys for output
+ * @param tokenKeys - Token keys to extract
+ * @returns Keys object with all keys mapped to their values or null, or undefined if tokenKeys is not provided
+ */
+function extractTokenKeysForOutput(tokenKeys: TokenData['keys'] | undefined):
+  | {
+      adminKey: string | null;
+      supplyKey: string | null;
+      wipeKey: string | null;
+      kycKey: string | null;
+      freezeKey: string | null;
+      pauseKey: string | null;
+      feeScheduleKey: string | null;
+      treasuryKey: string | null;
+    }
+  | undefined {
+  if (!tokenKeys) {
+    return undefined;
+  }
+
+  return {
+    adminKey: tokenKeys.adminKey || null,
+    supplyKey: tokenKeys.supplyKey || null,
+    wipeKey: tokenKeys.wipeKey || null,
+    kycKey: tokenKeys.kycKey || null,
+    freezeKey: tokenKeys.freezeKey || null,
+    pauseKey: tokenKeys.pauseKey || null,
+    feeScheduleKey: tokenKeys.feeScheduleKey || null,
+    treasuryKey: tokenKeys.treasuryKey || null,
+  };
+}
+
+/**
  * Displays token statistics
  * @param stats - Token statistics
  * @param logger - Logger instance
@@ -252,19 +285,7 @@ export function listTokens(args: CommandHandlerArgs): CommandExecutionResult {
         treasuryId: token.treasuryId,
         network: token.network,
         alias: alias || undefined,
-        keys:
-          showKeys && token.keys
-            ? {
-                adminKey: token.keys.adminKey || null,
-                supplyKey: token.keys.supplyKey || null,
-                wipeKey: token.keys.wipeKey || null,
-                kycKey: token.keys.kycKey || null,
-                freezeKey: token.keys.freezeKey || null,
-                pauseKey: token.keys.pauseKey || null,
-                feeScheduleKey: token.keys.feeScheduleKey || null,
-                treasuryKey: token.keys.treasuryKey || null,
-              }
-            : undefined,
+        keys: showKeys ? extractTokenKeysForOutput(token.keys) : undefined,
       };
     });
 
