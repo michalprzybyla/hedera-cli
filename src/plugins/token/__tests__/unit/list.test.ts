@@ -40,7 +40,7 @@ describe('token plugin - list command', () => {
     });
     const args = makeArgs(api, logger, {});
 
-    const result = listTokens(args);
+    const result = await listTokens(args);
 
     // ADR-003 compliance: check CommandExecutionResult
     expect(result).toBeDefined();
@@ -70,7 +70,7 @@ describe('token plugin - list command', () => {
     });
     const args = makeArgs(api, logger, {});
 
-    const result = listTokens(args);
+    const result = await listTokens(args);
 
     // ADR-003 compliance: check CommandExecutionResult
     expect(result).toBeDefined();

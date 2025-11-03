@@ -38,11 +38,11 @@ describe('State Backup Command', () => {
   });
 
   describe('when creating backup', () => {
-    it('should return success with backup information', () => {
+    it('should return success with backup information', async () => {
       const api = { state: stateService };
       const args = makeArgs(api, logger, {});
 
-      const result = stateBackup(args);
+      const result = await stateBackup(args);
 
       expect(result.status).toBe(Status.Success);
       expect(result.outputJson).toBeDefined();
@@ -55,11 +55,11 @@ describe('State Backup Command', () => {
       expect(output.namespaces).toHaveLength(3);
     });
 
-    it('should use custom output filename when provided', () => {
+    it('should use custom output filename when provided', async () => {
       const api = { state: stateService };
       const args = makeArgs(api, logger, { output: 'custom-backup.json' });
 
-      const result = stateBackup(args);
+      const result = await stateBackup(args);
 
       expect(result.status).toBe(Status.Success);
       expect(result.outputJson).toBeDefined();
@@ -68,12 +68,12 @@ describe('State Backup Command', () => {
       expect(output.filePath).toBe('/resolved/custom-backup.json');
     });
 
-    it('should handle empty state data', () => {
+    it('should handle empty state data', async () => {
       const emptyStateService = makeEmptyStateServiceMock();
       const api = { state: emptyStateService };
       const args = makeArgs(api, logger, {});
 
-      const result = stateBackup(args);
+      const result = await stateBackup(args);
 
       expect(result.status).toBe(Status.Success);
       expect(result.outputJson).toBeDefined();
@@ -85,14 +85,14 @@ describe('State Backup Command', () => {
       expect(output.namespaces).toHaveLength(0);
     });
 
-    it('should write backup file with correct data', () => {
+    it('should write backup file with correct data', async () => {
       // Reset the mock to clear previous calls
       mockFs.writeFileSync.mockClear();
 
       const api = { state: stateService };
       const args = makeArgs(api, logger, {});
 
-      stateBackup(args);
+      await stateBackup(args);
 
       expect(mockFs.writeFileSync).toHaveBeenCalledTimes(1);
       const [filePath, content] = mockFs.writeFileSync.mock.calls[0];
@@ -107,7 +107,7 @@ describe('State Backup Command', () => {
   });
 
   describe('error handling', () => {
-    it('should return failure on state service error', () => {
+    it('should return failure on state service error', async () => {
       const errorStateService = {
         ...makeEmptyStateServiceMock(),
         getNamespaces: jest.fn().mockImplementation(() => {
@@ -117,14 +117,14 @@ describe('State Backup Command', () => {
       const api = { state: errorStateService };
       const args = makeArgs(api, logger, {});
 
-      const result = stateBackup(args);
+      const result = await stateBackup(args);
 
       expect(result.status).toBe(Status.Failure);
       expect(result.errorMessage).toContain('Failed to create backup');
       expect(result.outputJson).toBeUndefined();
     });
 
-    it('should return failure on file write error', () => {
+    it('should return failure on file write error', async () => {
       mockFs.writeFileSync.mockImplementation(() => {
         throw new Error('File write error');
       });
@@ -132,14 +132,14 @@ describe('State Backup Command', () => {
       const api = { state: stateService };
       const args = makeArgs(api, logger, {});
 
-      const result = stateBackup(args);
+      const result = await stateBackup(args);
 
       expect(result.status).toBe(Status.Failure);
       expect(result.errorMessage).toContain('Failed to create backup');
       expect(result.outputJson).toBeUndefined();
     });
 
-    it('should return failure on list error', () => {
+    it('should return failure on list error', async () => {
       const errorStateService = {
         ...makeEmptyStateServiceMock(),
         getNamespaces: jest.fn().mockImplementation(() => {
@@ -149,7 +149,7 @@ describe('State Backup Command', () => {
       const api = { state: errorStateService };
       const args = makeArgs(api, logger, {});
 
-      const result = stateBackup(args);
+      const result = await stateBackup(args);
 
       expect(result.status).toBe(Status.Failure);
       expect(result.errorMessage).toContain('Failed to create backup');
@@ -158,21 +158,21 @@ describe('State Backup Command', () => {
   });
 
   describe('output validation', () => {
-    it('should return valid JSON output', () => {
+    it('should return valid JSON output', async () => {
       const api = { state: stateService };
       const args = makeArgs(api, logger, {});
 
-      const result = stateBackup(args);
+      const result = await stateBackup(args);
 
       expect(result.status).toBe(Status.Success);
       expect(() => JSON.parse(result.outputJson!)).not.toThrow();
     });
 
-    it('should include all required fields in output', () => {
+    it('should include all required fields in output', async () => {
       const api = { state: stateService };
       const args = makeArgs(api, logger, {});
 
-      const result = stateBackup(args);
+      const result = await stateBackup(args);
       const output = JSON.parse(result.outputJson!);
 
       expect(output).toHaveProperty('success');
@@ -189,22 +189,22 @@ describe('State Backup Command', () => {
       expect(Array.isArray(output.namespaces)).toBe(true);
     });
 
-    it('should generate valid timestamp', () => {
+    it('should generate valid timestamp', async () => {
       const api = { state: stateService };
       const args = makeArgs(api, logger, {});
 
-      const result = stateBackup(args);
+      const result = await stateBackup(args);
       const output = JSON.parse(result.outputJson!);
 
       expect(() => new Date(output.timestamp)).not.toThrow();
       expect(new Date(output.timestamp).getTime()).toBeGreaterThan(0);
     });
 
-    it('should calculate correct totals', () => {
+    it('should calculate correct totals', async () => {
       const api = { state: stateService };
       const args = makeArgs(api, logger, {});
 
-      const result = stateBackup(args);
+      const result = await stateBackup(args);
       const output = JSON.parse(result.outputJson!);
 
       expect(output.totalNamespaces).toBe(output.namespaces.length);

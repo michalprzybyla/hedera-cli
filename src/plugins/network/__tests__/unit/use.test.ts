@@ -39,7 +39,7 @@ describe('network plugin - use command', () => {
     mockedIsJsonOutput.mockReturnValue(false);
   });
 
-  test('switches to a valid network', () => {
+  test('switches to a valid network', async () => {
     const logger = makeLogger();
     const networkService = makeNetworkMock('testnet');
     networkService.switchNetwork = jest.fn();
@@ -49,13 +49,13 @@ describe('network plugin - use command', () => {
       network: 'mainnet',
     });
 
-    const result = useHandler(args);
+    const result = await useHandler(args);
 
     expect(networkService.switchNetwork).toHaveBeenCalledWith('mainnet');
     expect(result.status).toBe(Status.Success);
   });
 
-  test('returns failure for invalid network', () => {
+  test('returns failure for invalid network', async () => {
     const logger = makeLogger();
     const networkService = makeNetworkMock('testnet');
     networkService.switchNetwork = jest.fn().mockImplementation(() => {
@@ -66,13 +66,13 @@ describe('network plugin - use command', () => {
       network: 'invalid',
     });
 
-    const result = useHandler(args);
+    const result = await useHandler(args);
 
     expect(result.status).toBe(Status.Failure);
     expect(result.errorMessage).toContain('Failed to switch network');
   });
 
-  test('returns JSON output when requested', () => {
+  test('returns JSON output when requested', async () => {
     mockedIsJsonOutput.mockReturnValue(true);
 
     const logger = makeLogger();
@@ -84,14 +84,14 @@ describe('network plugin - use command', () => {
       json: true,
     });
 
-    const result = useHandler(args);
+    const result = await useHandler(args);
 
     expect(networkService.switchNetwork).toHaveBeenCalledWith('previewnet');
     expect(result.status).toBe(Status.Success);
     expect(result.outputJson).toBeDefined();
   });
 
-  test('logs verbose message', () => {
+  test('logs verbose message', async () => {
     const logger = makeLogger();
     const networkService = makeNetworkMock('testnet');
     networkService.switchNetwork = jest.fn();
@@ -100,7 +100,7 @@ describe('network plugin - use command', () => {
       network: 'mainnet',
     });
 
-    const result = useHandler(args);
+    const result = await useHandler(args);
     expect(result.status).toBe(Status.Success);
 
     expect(logger.verbose).toHaveBeenCalledWith(
@@ -108,19 +108,19 @@ describe('network plugin - use command', () => {
     );
   });
 
-  test('handles missing network argument', () => {
+  test('handles missing network argument', async () => {
     const logger = makeLogger();
     const networkService = makeNetworkMock('testnet');
 
     const args = makeArgs({ network: networkService }, logger, {});
 
-    const result = useHandler(args);
+    const result = await useHandler(args);
 
     expect(result.status).toBe(Status.Failure);
     expect(result.errorMessage).toContain('Network name is required');
   });
 
-  test('successfully switches between networks', () => {
+  test('successfully switches between networks', async () => {
     const logger = makeLogger();
     const networkService = makeNetworkMock('testnet');
     networkService.switchNetwork = jest.fn();
@@ -129,7 +129,7 @@ describe('network plugin - use command', () => {
       network: 'mainnet',
     });
 
-    const res1 = useHandler(argsToMainnet);
+    const res1 = await useHandler(argsToMainnet);
     expect(res1.status).toBe(Status.Success);
 
     expect(networkService.switchNetwork).toHaveBeenCalledWith('mainnet');
@@ -140,7 +140,7 @@ describe('network plugin - use command', () => {
       network: 'previewnet',
     });
 
-    const res2 = useHandler(argsToPreviewnet);
+    const res2 = await useHandler(argsToPreviewnet);
     expect(res2.status).toBe(Status.Success);
 
     expect(networkService.switchNetwork).toHaveBeenCalledWith('previewnet');

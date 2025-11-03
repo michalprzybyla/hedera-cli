@@ -21,11 +21,11 @@ describe('State Stats Command', () => {
   });
 
   describe('when getting state statistics', () => {
-    it('should return success with statistics', () => {
+    it('should return success with statistics', async () => {
       const api = { state: stateService };
       const args = makeArgs(api, logger, {});
 
-      const result = stateStats(args);
+      const result = await stateStats(args);
 
       expect(result.status).toBe(Status.Success);
       expect(result.outputJson).toBeDefined();
@@ -37,12 +37,12 @@ describe('State Stats Command', () => {
       expect(output.namespaces).toHaveLength(3);
     });
 
-    it('should handle empty state data', () => {
+    it('should handle empty state data', async () => {
       const emptyStateService = makeEmptyStateServiceMock();
       const api = { state: emptyStateService };
       const args = makeArgs(api, logger, {});
 
-      const result = stateStats(args);
+      const result = await stateStats(args);
 
       expect(result.status).toBe(Status.Success);
       expect(result.outputJson).toBeDefined();
@@ -54,7 +54,7 @@ describe('State Stats Command', () => {
       expect(output.namespaces).toHaveLength(0);
     });
 
-    it('should include all namespaces even if empty', () => {
+    it('should include all namespaces even if empty', async () => {
       const stateServiceWithEmpty = makeStateServiceWithData({
         accounts: mockStateData.accounts,
         empty: [],
@@ -63,7 +63,7 @@ describe('State Stats Command', () => {
       const api = { state: stateServiceWithEmpty };
       const args = makeArgs(api, logger, {});
 
-      const result = stateStats(args);
+      const result = await stateStats(args);
 
       expect(result.status).toBe(Status.Success);
       expect(result.outputJson).toBeDefined();
@@ -73,11 +73,11 @@ describe('State Stats Command', () => {
       expect(output.namespaces).toHaveLength(3);
     });
 
-    it('should calculate correct totals', () => {
+    it('should calculate correct totals', async () => {
       const api = { state: stateService };
       const args = makeArgs(api, logger, {});
 
-      const result = stateStats(args);
+      const result = await stateStats(args);
       const output = JSON.parse(result.outputJson!);
 
       const expectedEntries = output.namespaces.reduce(
@@ -95,7 +95,7 @@ describe('State Stats Command', () => {
   });
 
   describe('error handling', () => {
-    it('should return failure on state service error', () => {
+    it('should return failure on state service error', async () => {
       const errorStateService = {
         ...makeEmptyStateServiceMock(),
         getNamespaces: jest.fn().mockImplementation(() => {
@@ -105,14 +105,14 @@ describe('State Stats Command', () => {
       const api = { state: errorStateService };
       const args = makeArgs(api, logger, {});
 
-      const result = stateStats(args);
+      const result = await stateStats(args);
 
       expect(result.status).toBe(Status.Failure);
       expect(result.errorMessage).toContain('Failed to get statistics');
       expect(result.outputJson).toBeUndefined();
     });
 
-    it('should return failure on list error', () => {
+    it('should return failure on list error', async () => {
       const errorStateService = {
         ...makeEmptyStateServiceMock(),
         getNamespaces: jest.fn().mockReturnValue(['test']),
@@ -123,7 +123,7 @@ describe('State Stats Command', () => {
       const api = { state: errorStateService };
       const args = makeArgs(api, logger, {});
 
-      const result = stateStats(args);
+      const result = await stateStats(args);
 
       expect(result.status).toBe(Status.Failure);
       expect(result.errorMessage).toContain('Failed to get statistics');
@@ -132,21 +132,21 @@ describe('State Stats Command', () => {
   });
 
   describe('output validation', () => {
-    it('should return valid JSON output', () => {
+    it('should return valid JSON output', async () => {
       const api = { state: stateService };
       const args = makeArgs(api, logger, {});
 
-      const result = stateStats(args);
+      const result = await stateStats(args);
 
       expect(result.status).toBe(Status.Success);
       expect(() => JSON.parse(result.outputJson!)).not.toThrow();
     });
 
-    it('should include all required fields in output', () => {
+    it('should include all required fields in output', async () => {
       const api = { state: stateService };
       const args = makeArgs(api, logger, {});
 
-      const result = stateStats(args);
+      const result = await stateStats(args);
       const output = JSON.parse(result.outputJson!);
 
       expect(output).toHaveProperty('totalNamespaces');
@@ -159,11 +159,11 @@ describe('State Stats Command', () => {
       expect(Array.isArray(output.namespaces)).toBe(true);
     });
 
-    it('should have valid namespace information', () => {
+    it('should have valid namespace information', async () => {
       const api = { state: stateService };
       const args = makeArgs(api, logger, {});
 
-      const result = stateStats(args);
+      const result = await stateStats(args);
       const output = JSON.parse(result.outputJson!);
 
       output.namespaces.forEach((ns: any) => {

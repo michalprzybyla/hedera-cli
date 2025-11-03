@@ -21,11 +21,11 @@ describe('State List Command', () => {
   });
 
   describe('when listing all namespaces', () => {
-    it('should return success with all namespace data', () => {
+    it('should return success with all namespace data', async () => {
       const api = { state: stateService };
       const args = makeArgs(api, logger, {});
 
-      const result = listState(args);
+      const result = await listState(args);
 
       expect(result.status).toBe(Status.Success);
       expect(result.outputJson).toBeDefined();
@@ -37,12 +37,12 @@ describe('State List Command', () => {
       expect(output.filteredNamespace).toBeUndefined();
     });
 
-    it('should handle empty state data', () => {
+    it('should handle empty state data', async () => {
       const emptyStateService = makeEmptyStateServiceMock();
       const api = { state: emptyStateService };
       const args = makeArgs(api, logger, {});
 
-      const result = listState(args);
+      const result = await listState(args);
 
       expect(result.status).toBe(Status.Success);
       expect(result.outputJson).toBeDefined();
@@ -55,11 +55,11 @@ describe('State List Command', () => {
   });
 
   describe('when listing specific namespace', () => {
-    it('should return success with filtered namespace data', () => {
+    it('should return success with filtered namespace data', async () => {
       const api = { state: stateService };
       const args = makeArgs(api, logger, { namespace: 'accounts' });
 
-      const result = listState(args);
+      const result = await listState(args);
 
       expect(result.status).toBe(Status.Success);
       expect(result.outputJson).toBeDefined();
@@ -72,11 +72,11 @@ describe('State List Command', () => {
       expect(output.namespaces[0].name).toBe('accounts');
     });
 
-    it('should handle non-existent namespace', () => {
+    it('should handle non-existent namespace', async () => {
       const api = { state: stateService };
       const args = makeArgs(api, logger, { namespace: 'non-existent' });
 
-      const result = listState(args);
+      const result = await listState(args);
 
       expect(result.status).toBe(Status.Success);
       expect(result.outputJson).toBeDefined();
@@ -90,7 +90,7 @@ describe('State List Command', () => {
   });
 
   describe('error handling', () => {
-    it('should return failure on state service error', () => {
+    it('should return failure on state service error', async () => {
       const errorStateService = {
         ...makeEmptyStateServiceMock(),
         getNamespaces: jest.fn().mockImplementation(() => {
@@ -100,14 +100,14 @@ describe('State List Command', () => {
       const api = { state: errorStateService };
       const args = makeArgs(api, logger, {});
 
-      const result = listState(args);
+      const result = await listState(args);
 
       expect(result.status).toBe(Status.Failure);
       expect(result.errorMessage).toContain('Failed to list state data');
       expect(result.outputJson).toBeUndefined();
     });
 
-    it('should return failure on list error', () => {
+    it('should return failure on list error', async () => {
       const errorStateService = {
         ...makeEmptyStateServiceMock(),
         getNamespaces: jest.fn().mockReturnValue(['test']),
@@ -118,7 +118,7 @@ describe('State List Command', () => {
       const api = { state: errorStateService };
       const args = makeArgs(api, logger, {});
 
-      const result = listState(args);
+      const result = await listState(args);
 
       expect(result.status).toBe(Status.Failure);
       expect(result.errorMessage).toContain('Failed to list state data');
@@ -127,21 +127,21 @@ describe('State List Command', () => {
   });
 
   describe('output validation', () => {
-    it('should return valid JSON output', () => {
+    it('should return valid JSON output', async () => {
       const api = { state: stateService };
       const args = makeArgs(api, logger, {});
 
-      const result = listState(args);
+      const result = await listState(args);
 
       expect(result.status).toBe(Status.Success);
       expect(() => JSON.parse(result.outputJson!)).not.toThrow();
     });
 
-    it('should include all required fields in output', () => {
+    it('should include all required fields in output', async () => {
       const api = { state: stateService };
       const args = makeArgs(api, logger, {});
 
-      const result = listState(args);
+      const result = await listState(args);
       const output = JSON.parse(result.outputJson!);
 
       expect(output).toHaveProperty('namespaces');

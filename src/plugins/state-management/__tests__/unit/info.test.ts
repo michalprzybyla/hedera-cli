@@ -32,11 +32,11 @@ describe('State Info Command', () => {
   });
 
   describe('when getting state information', () => {
-    it('should return success with state information', () => {
+    it('should return success with state information', async () => {
       const api = { state: stateService };
       const args = makeArgs(api, logger, {});
 
-      const result = stateInfo(args);
+      const result = await stateInfo(args);
 
       expect(result.status).toBe(Status.Success);
       expect(result.outputJson).toBeDefined();
@@ -49,7 +49,7 @@ describe('State Info Command', () => {
       expect(output.namespaces).toHaveLength(3);
     });
 
-    it('should handle empty state data', () => {
+    it('should handle empty state data', async () => {
       const emptyStateService = makeEmptyStateServiceMock();
       // Ensure all namespaces return empty arrays
       emptyStateService.list.mockReturnValue([]);
@@ -58,7 +58,7 @@ describe('State Info Command', () => {
       const api = { state: emptyStateService };
       const args = makeArgs(api, logger, {});
 
-      const result = stateInfo(args);
+      const result = await stateInfo(args);
 
       expect(result.status).toBe(Status.Success);
       expect(result.outputJson).toBeDefined();
@@ -69,14 +69,14 @@ describe('State Info Command', () => {
       expect(output.namespaces).toHaveLength(0);
     });
 
-    it('should handle uninitialized storage directory', () => {
+    it('should handle uninitialized storage directory', async () => {
       const uninitializedStateService = makeStateServiceWithData(mockStateData);
       uninitializedStateService.isInitialized.mockReturnValue(false);
 
       const api = { state: uninitializedStateService };
       const args = makeArgs(api, logger, {});
 
-      const result = stateInfo(args);
+      const result = await stateInfo(args);
 
       expect(result.status).toBe(Status.Success);
       expect(result.outputJson).toBeDefined();
@@ -85,7 +85,7 @@ describe('State Info Command', () => {
       expect(output.isInitialized).toBe(false);
     });
 
-    it('should include all namespaces including empty ones', () => {
+    it('should include all namespaces including empty ones', async () => {
       const stateServiceWithEmpty = makeStateServiceWithData({
         accounts: mockStateData.accounts,
         empty: [],
@@ -94,7 +94,7 @@ describe('State Info Command', () => {
       const api = { state: stateServiceWithEmpty };
       const args = makeArgs(api, logger, {});
 
-      const result = stateInfo(args);
+      const result = await stateInfo(args);
 
       expect(result.status).toBe(Status.Success);
       expect(result.outputJson).toBeDefined();
@@ -111,7 +111,7 @@ describe('State Info Command', () => {
   });
 
   describe('error handling', () => {
-    it.skip('should return failure on state service error', () => {
+    it.skip('should return failure on state service error', async () => {
       const errorStateService = {
         ...makeEmptyStateServiceMock(),
         getNamespaces: jest.fn().mockImplementation(() => {
@@ -121,14 +121,14 @@ describe('State Info Command', () => {
       const api = { state: errorStateService };
       const args = makeArgs(api, logger, {});
 
-      const result = stateInfo(args);
+      const result = await stateInfo(args);
 
       expect(result.status).toBe(Status.Failure);
       expect(result.errorMessage).toContain('Failed to get state information');
       expect(result.outputJson).toBeUndefined();
     });
 
-    it('should return failure on state service error', () => {
+    it('should return failure on state service error', async () => {
       const errorStateService = makeStateServiceWithData(mockStateData);
       errorStateService.getNamespaces.mockImplementation(() => {
         throw new Error('State service error');
@@ -137,7 +137,7 @@ describe('State Info Command', () => {
       const api = { state: errorStateService };
       const args = makeArgs(api, logger, {});
 
-      const result = stateInfo(args);
+      const result = await stateInfo(args);
 
       expect(result.status).toBe(Status.Failure);
       expect(result.errorMessage).toContain('Failed to get state information');
@@ -146,21 +146,21 @@ describe('State Info Command', () => {
   });
 
   describe('output validation', () => {
-    it('should return valid JSON output', () => {
+    it('should return valid JSON output', async () => {
       const api = { state: stateService };
       const args = makeArgs(api, logger, {});
 
-      const result = stateInfo(args);
+      const result = await stateInfo(args);
 
       expect(result.status).toBe(Status.Success);
       expect(() => JSON.parse(result.outputJson!)).not.toThrow();
     });
 
-    it('should include all required fields in output', () => {
+    it('should include all required fields in output', async () => {
       const api = { state: stateService };
       const args = makeArgs(api, logger, {});
 
-      const result = stateInfo(args);
+      const result = await stateInfo(args);
       const output = JSON.parse(result.outputJson!);
 
       expect(output).toHaveProperty('storageDirectory');
@@ -175,11 +175,11 @@ describe('State Info Command', () => {
       expect(Array.isArray(output.namespaces)).toBe(true);
     });
 
-    it('should calculate correct totals', () => {
+    it('should calculate correct totals', async () => {
       const api = { state: stateService };
       const args = makeArgs(api, logger, {});
 
-      const result = stateInfo(args);
+      const result = await stateInfo(args);
       const output = JSON.parse(result.outputJson!);
 
       const expectedEntries = output.namespaces.reduce(
