@@ -10,8 +10,8 @@ import { CommandHandlerArgs, PluginManifest } from './plugin.interface';
 import { CommandSpec } from './plugin.types';
 import { formatError } from '../../utils/errors';
 import { logger } from '../../utils/logger';
-import { filterReservedOptions } from '../utils/cli-options';
 import { Status } from '../shared/constants';
+import { filterReservedOptions } from '../utils/filter-reserved-options';
 
 interface LoadedPlugin {
   manifest: PluginManifest;

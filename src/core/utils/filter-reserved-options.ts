@@ -1,18 +1,5 @@
-import { CommandOption } from '../plugins/plugin.types';
-
-export const RESERVED_LONG_OPTIONS = new Set<string>([
-  'format',
-  'json',
-  'output',
-  'script',
-  'color',
-  'no-color',
-  'verbose',
-  'quiet',
-  'debug',
-  'help',
-  'version',
-]);
+import { CommandOption } from '../core-api';
+import { RESERVED_LONG_OPTIONS } from '../shared/config/cli-options';
 
 export function filterReservedOptions(options: CommandOption[]): {
   allowed: CommandOption[];
