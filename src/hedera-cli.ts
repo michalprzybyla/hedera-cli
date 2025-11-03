@@ -91,13 +91,18 @@ async function initializeCLI() {
     pluginManager.registerCommands(program);
 
     console.error('✅ CLI ready');
+  } catch (error) {
+    console.error('❌ CLI initialization failed:', error);
+    process.exit(1);
+  }
 
+  try {
     // Parse arguments and execute command
     installGlobalErrorHandlers();
     await program.parseAsync(process.argv);
     process.exit(0);
   } catch (error) {
-    console.error('❌ CLI initialization failed:', error);
+    console.error('❌ CLI execution failed:', error);
     process.exit(1);
   }
 }
