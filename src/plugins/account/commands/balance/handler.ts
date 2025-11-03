@@ -11,6 +11,7 @@ import { CoreApi } from '../../../../core/core-api/core-api.interface';
 import { formatError } from '../../../../utils/errors';
 import { ZustandAccountStateHelper } from '../../zustand-state-helper';
 import { AccountBalanceOutput } from './output';
+import { AliasType } from '../../../../core/services/alias/alias-service.interface';
 
 /**
  * Fetches and maps token balances for an account
@@ -64,9 +65,21 @@ export async function getAccountBalance(
       accountId = account.accountId;
       logger.log(`Found account in state: ${account.name} -> ${accountId}`);
     } else {
-      // For now, assume it's an account ID
-      // TODO: Add proper alias resolution here
-      logger.log(`Using as account ID: ${accountIdOrNameOrAlias}`);
+      const currentNetwork = api.network.getCurrentNetwork();
+      const resolved = api.alias.resolve(
+        accountIdOrNameOrAlias,
+        AliasType.Account,
+        currentNetwork,
+      );
+
+      if (!resolved?.entityId) {
+        return {
+          status: Status.Failure,
+          errorMessage: `Account not found with ID or alias: ${accountIdOrNameOrAlias}`,
+        };
+      }
+
+      accountId = resolved.entityId;
     }
 
     // Get HBAR balance from mirror node

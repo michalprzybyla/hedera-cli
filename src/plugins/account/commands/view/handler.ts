@@ -9,6 +9,7 @@ import { Status } from '../../../../core/shared/constants';
 import { formatError } from '../../../../utils/errors';
 import { ZustandAccountStateHelper } from '../../zustand-state-helper';
 import { ViewAccountOutput } from './output';
+import { AliasType } from '../../../../core/services/alias/alias-service.interface';
 
 export async function viewAccount(
   args: CommandHandlerArgs,
@@ -33,9 +34,21 @@ export async function viewAccount(
       accountId = account.accountId;
       logger.log(`Found account in state: ${account.name}`);
     } else {
-      // For now, assume it's an account ID
-      // TODO: Add proper alias resolution here
-      logger.log(`Using as account ID: ${accountIdOrNameOrAlias}`);
+      const currentNetwork = args.api.network.getCurrentNetwork();
+      const resolved = args.api.alias.resolve(
+        accountIdOrNameOrAlias,
+        AliasType.Account,
+        currentNetwork,
+      );
+
+      if (!resolved?.entityId) {
+        return {
+          status: Status.Failure,
+          errorMessage: `Account not found with ID or alias: ${accountIdOrNameOrAlias}`,
+        };
+      }
+
+      accountId = resolved.entityId;
     }
 
     // Get account info from mirror node

@@ -9,6 +9,7 @@ import {
   makeAccountData,
   makeArgs,
   makeMirrorMock,
+  makeAliasMock,
 } from '../../../../../__tests__/helpers/plugin';
 
 jest.mock('../../zustand-state-helper', () => ({
@@ -59,7 +60,7 @@ describe('account plugin - view command (ADR-003)', () => {
     expect(output.balance).toBe('1000');
   });
 
-  test('returns account details when not found in state', async () => {
+  test('returns account details when resolved via alias (not in state)', async () => {
     const logger = makeLogger();
 
     MockedHelper.mockImplementation(() => ({
@@ -74,18 +75,25 @@ describe('account plugin - view command (ADR-003)', () => {
         accountPublicKey: 'pubKey2',
       },
     });
+    const alias = makeAliasMock();
+    (alias.resolve as jest.Mock).mockReturnValue({
+      alias: 'acc2',
+      type: 'account',
+      network: 'testnet',
+      entityId: '0.0.2222',
+      createdAt: new Date().toISOString(),
+    });
     const api: Partial<CoreApi> = {
       mirror: mirrorMock as HederaMirrornodeService,
       logger,
       state: {} as any,
+      alias,
     };
-    const args = makeArgs(api, logger, { account: '0.0.2222' });
+    const args = makeArgs(api, logger, { accountIdOrNameOrAlias: 'acc2' });
 
     const result = await viewAccount(args);
 
-    expect(logger.log).toHaveBeenCalledWith(
-      'Viewing account details: 0.0.2222',
-    );
+    expect(logger.log).toHaveBeenCalledWith('Viewing account details: acc2');
     expect(mirrorMock.getAccount).toHaveBeenCalledWith('0.0.2222');
 
     expect(result.status).toBe(Status.Success);

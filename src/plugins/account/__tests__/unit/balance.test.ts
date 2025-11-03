@@ -9,6 +9,7 @@ import {
   makeAccountData,
   makeArgs,
   makeMirrorMock,
+  makeAliasMock,
 } from '../../../../../__tests__/helpers/plugin';
 
 jest.mock('../../zustand-state-helper', () => ({
@@ -102,6 +103,44 @@ describe('account plugin - balance command (ADR-003)', () => {
       tokenId: '0.0.4004',
       balance: '200',
     });
+  });
+
+  test('returns HBAR balance when resolved via alias (not in state)', async () => {
+    const logger = makeLogger();
+
+    MockedHelper.mockImplementation(() => ({
+      loadAccount: jest.fn().mockReturnValue(null),
+    }));
+
+    const mirrorMock = makeMirrorMock({ hbarBalance: 999n });
+
+    const alias = makeAliasMock();
+    (alias.resolve as jest.Mock).mockReturnValue({
+      alias: 'acc777',
+      type: 'account',
+      network: 'testnet',
+      entityId: '0.0.7777',
+      createdAt: new Date().toISOString(),
+    });
+
+    const api: Partial<CoreApi> = {
+      mirror: mirrorMock as HederaMirrornodeService,
+      logger,
+      state: {} as any,
+      alias,
+    };
+    const args = makeArgs(api, logger, { accountIdOrNameOrAlias: 'acc777' });
+
+    const result = await getAccountBalance(args);
+
+    expect(mirrorMock.getAccountHBarBalance).toHaveBeenCalledWith('0.0.7777');
+    expect(result.status).toBe(Status.Success);
+    expect(result.outputJson).toBeDefined();
+
+    const output: AccountBalanceOutput = JSON.parse(result.outputJson!);
+    expect(output.accountId).toBe('0.0.7777');
+    expect(output.hbarBalance).toBe('999');
+    expect(output.tokenBalances).toBeUndefined();
   });
 
   test('returns HBAR balance without token balances when none found', async () => {
