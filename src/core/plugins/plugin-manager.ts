@@ -10,6 +10,7 @@ import { CommandHandlerArgs, PluginManifest } from './plugin.interface';
 import { CommandSpec } from './plugin.types';
 import { formatError } from '../../utils/errors';
 import { logger } from '../../utils/logger';
+import { filterReservedOptions } from '../utils/cli-options';
 import { Status } from '../shared/constants';
 
 interface LoadedPlugin {
@@ -175,7 +176,6 @@ export class PluginManager {
     commandSpec: CommandSpec,
   ): void {
     const commandName = String(commandSpec.name);
-
     const command = pluginCommand
       .command(commandName)
       .description(
@@ -188,7 +188,17 @@ export class PluginManager {
 
     // Add options
     if (commandSpec.options) {
-      for (const option of commandSpec.options) {
+      const { allowed, filtered } = filterReservedOptions(commandSpec.options);
+
+      if (filtered.length > 0) {
+        logger.log(
+          `⚠️  Plugin ${plugin.manifest.name} command ${commandName}: filtered reserved option(s) ${filtered
+            .map((n) => `--${n}`)
+            .join(', ')} (reserved by core CLI)`,
+        );
+      }
+
+      for (const option of allowed) {
         const optionName = String(option.name);
         const short = option.short ? `-${String(option.short)}` : '';
         const long = `--${optionName}`;
