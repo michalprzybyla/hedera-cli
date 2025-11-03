@@ -5,6 +5,7 @@
  */
 import { CommandHandlerArgs } from '../../../../core/plugins/plugin.interface';
 import { CommandExecutionResult } from '../../../../core/plugins/plugin.types';
+import { Status } from '../../../../core/shared/constants';
 import { safeValidateTokenTransferParams } from '../../schema';
 import {
   resolveAccountParameter,
@@ -14,7 +15,7 @@ import {
 import { formatError } from '../../../../utils/errors';
 import { TransferTokenOutput } from './output';
 
-export default async function transferTokenHandler(
+export async function transferToken(
   args: CommandHandlerArgs,
 ): Promise<CommandExecutionResult> {
   const { api, logger } = args;
@@ -26,7 +27,7 @@ export default async function transferTokenHandler(
       (error) => `${error.path.join('.')}: ${error.message}`,
     );
     return {
-      status: 'failure',
+      status: Status.Failure,
       errorMessage: `Invalid command parameters:\n${errorMessages.join('\n')}`,
     };
   }
@@ -149,23 +150,21 @@ export default async function transferTokenHandler(
       };
 
       return {
-        status: 'success',
+        status: Status.Success,
         outputJson: JSON.stringify(outputData, (key, value): unknown =>
           typeof value === 'bigint' ? value.toString() : value,
         ),
       };
     } else {
       return {
-        status: 'failure',
+        status: Status.Failure,
         errorMessage: 'Token transfer failed',
       };
     }
   } catch (error: unknown) {
     return {
-      status: 'failure',
+      status: Status.Failure,
       errorMessage: formatError('Failed to transfer token', error),
     };
   }
 }
-
-export { transferTokenHandler };

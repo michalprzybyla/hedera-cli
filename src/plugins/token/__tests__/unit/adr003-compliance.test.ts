@@ -3,11 +3,11 @@
  * Tests that all command handlers return CommandExecutionResult according to ADR-003
  */
 import type { CommandHandlerArgs } from '../../../../core/plugins/plugin.interface';
-import { createTokenHandler } from '../../commands/create';
-import { transferTokenHandler } from '../../commands/transfer';
-import { associateTokenHandler } from '../../commands/associate';
-import { listTokensHandler } from '../../commands/list';
-import { createTokenFromFileHandler } from '../../commands/createFromFile';
+import { createToken } from '../../commands/create';
+import { transferToken } from '../../commands/transfer';
+import { associateToken } from '../../commands/associate';
+import { listTokens } from '../../commands/list';
+import { createTokenFromFile } from '../../commands/createFromFile';
 import { ZustandTokenStateHelper } from '../../zustand-state-helper';
 import type { CreateTokenOutput } from '../../commands/create';
 import type { TransferTokenOutput } from '../../commands/transfer';
@@ -18,6 +18,7 @@ import {
   makeApiMocks,
   makeTransactionResult,
 } from './helpers/mocks';
+import { Status } from '../../../../core/shared/constants';
 
 jest.mock('../../zustand-state-helper', () => ({
   ZustandTokenStateHelper: jest.fn(),
@@ -75,7 +76,7 @@ describe('ADR-003 Compliance - Token Plugin', () => {
       };
 
       // Act
-      const result = await createTokenHandler({
+      const result = await createToken({
         api,
         logger: makeLogger(),
         state: {} as any,
@@ -85,7 +86,7 @@ describe('ADR-003 Compliance - Token Plugin', () => {
 
       // Assert
       expect(result).toBeDefined();
-      expect(result.status).toBe('success');
+      expect(result.status).toBe(Status.Success);
       expect(result.outputJson).toBeDefined();
 
       const output = JSON.parse(result.outputJson!) as CreateTokenOutput;
@@ -104,7 +105,7 @@ describe('ADR-003 Compliance - Token Plugin', () => {
       };
 
       // Act
-      const result = await createTokenHandler({
+      const result = await createToken({
         api,
         logger: makeLogger(),
         state: {} as any,
@@ -114,7 +115,7 @@ describe('ADR-003 Compliance - Token Plugin', () => {
 
       // Assert
       expect(result).toBeDefined();
-      expect(result.status).toBe('failure');
+      expect(result.status).toBe(Status.Failure);
       expect(result.errorMessage).toBeDefined();
       expect(result.errorMessage).toContain('Invalid command parameters');
     });
@@ -172,7 +173,7 @@ describe('ADR-003 Compliance - Token Plugin', () => {
       };
 
       // Act
-      const result = await transferTokenHandler({
+      const result = await transferToken({
         api,
         logger: makeLogger(),
         state: {} as any,
@@ -182,7 +183,7 @@ describe('ADR-003 Compliance - Token Plugin', () => {
 
       // Assert
       expect(result).toBeDefined();
-      expect(result.status).toBe('success');
+      expect(result.status).toBe(Status.Success);
       expect(result.outputJson).toBeDefined();
 
       const output = JSON.parse(result.outputJson!) as TransferTokenOutput;
@@ -202,7 +203,7 @@ describe('ADR-003 Compliance - Token Plugin', () => {
       };
 
       // Act
-      const result = await transferTokenHandler({
+      const result = await transferToken({
         api,
         logger: makeLogger(),
         state: {} as any,
@@ -212,7 +213,7 @@ describe('ADR-003 Compliance - Token Plugin', () => {
 
       // Assert
       expect(result).toBeDefined();
-      expect(result.status).toBe('failure');
+      expect(result.status).toBe(Status.Failure);
       expect(result.errorMessage).toBeDefined();
     });
   });
@@ -245,7 +246,7 @@ describe('ADR-003 Compliance - Token Plugin', () => {
       };
 
       // Act
-      const result = await associateTokenHandler({
+      const result = await associateToken({
         api,
         logger: makeLogger(),
         state: {} as any,
@@ -255,7 +256,7 @@ describe('ADR-003 Compliance - Token Plugin', () => {
 
       // Assert
       expect(result).toBeDefined();
-      expect(result.status).toBe('success');
+      expect(result.status).toBe(Status.Success);
       expect(result.outputJson).toBeDefined();
 
       const output = JSON.parse(result.outputJson!) as AssociateTokenOutput;
@@ -273,7 +274,7 @@ describe('ADR-003 Compliance - Token Plugin', () => {
       const args = {};
 
       // Act
-      const result = listTokensHandler({
+      const result = listTokens({
         api,
         logger: makeLogger(),
         state: {} as any,
@@ -283,7 +284,7 @@ describe('ADR-003 Compliance - Token Plugin', () => {
 
       // Assert
       expect(result).toBeDefined();
-      expect(result.status).toBe('success');
+      expect(result.status).toBe(Status.Success);
       expect(result.outputJson).toBeDefined();
 
       const output = JSON.parse(result.outputJson!) as ListTokensOutput;
@@ -320,7 +321,7 @@ describe('ADR-003 Compliance - Token Plugin', () => {
       const args = {};
 
       // Act
-      const result = listTokensHandler({
+      const result = listTokens({
         api,
         logger: makeLogger(),
         state: {} as any,
@@ -330,7 +331,7 @@ describe('ADR-003 Compliance - Token Plugin', () => {
 
       // Assert
       expect(result).toBeDefined();
-      expect(result.status).toBe('success');
+      expect(result.status).toBe(Status.Success);
       expect(result.outputJson).toBeDefined();
 
       const output = JSON.parse(result.outputJson!) as ListTokensOutput;
@@ -344,11 +345,11 @@ describe('ADR-003 Compliance - Token Plugin', () => {
     test('all handlers return CommandExecutionResult interface', async () => {
       // This test verifies that all handlers return the correct interface type
       const handlers = [
-        createTokenHandler,
-        transferTokenHandler,
-        associateTokenHandler,
-        listTokensHandler,
-        createTokenFromFileHandler,
+        createToken,
+        transferToken,
+        associateToken,
+        listTokens,
+        createTokenFromFile,
       ];
 
       const { api } = makeApiMocks();
@@ -370,13 +371,13 @@ describe('ADR-003 Compliance - Token Plugin', () => {
           // Assert - should always return CommandExecutionResult
           expect(result).toBeDefined();
           expect(result).toHaveProperty('status');
-          expect(['success', 'failure', 'partial']).toContain(result.status);
+          expect([Status.Success, Status.Failure]).toContain(result.status);
 
-          if (result.status === 'success') {
+          if (result.status === Status.Success) {
             expect(result).toHaveProperty('outputJson');
           }
 
-          if (result.status !== 'success') {
+          if (result.status !== Status.Success) {
             expect(result).toHaveProperty('errorMessage');
           }
         } catch (error) {

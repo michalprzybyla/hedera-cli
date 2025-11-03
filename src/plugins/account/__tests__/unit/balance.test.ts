@@ -1,8 +1,9 @@
-import getAccountBalanceHandler from '../../commands/balance/handler';
+import { getAccountBalance } from '../../commands/balance/handler';
 import type { AccountBalanceOutput } from '../../commands/balance';
 import { ZustandAccountStateHelper } from '../../zustand-state-helper';
 import type { CoreApi } from '../../../../core/core-api/core-api.interface';
 import type { HederaMirrornodeService } from '../../../../core/services/mirrornode/hedera-mirrornode-service.interface';
+import { Status } from '../../../../core/shared/constants';
 import {
   makeLogger,
   makeAccountData,
@@ -44,10 +45,10 @@ describe('account plugin - balance command (ADR-003)', () => {
       'only-hbar': true,
     });
 
-    const result = await getAccountBalanceHandler(args);
+    const result = await getAccountBalance(args);
 
     expect(mirrorMock.getAccountHBarBalance).toHaveBeenCalledWith('0.0.1001');
-    expect(result.status).toBe('success');
+    expect(result.status).toBe(Status.Success);
     expect(result.outputJson).toBeDefined();
 
     const output: AccountBalanceOutput = JSON.parse(result.outputJson!);
@@ -82,11 +83,11 @@ describe('account plugin - balance command (ADR-003)', () => {
     };
     const args = makeArgs(api, logger, { accountIdOrNameOrAlias: 'acc2' });
 
-    const result = await getAccountBalanceHandler(args);
+    const result = await getAccountBalance(args);
 
     expect(mirrorMock.getAccountHBarBalance).toHaveBeenCalledWith('0.0.2002');
     expect(mirrorMock.getAccountTokenBalances).toHaveBeenCalledWith('0.0.2002');
-    expect(result.status).toBe('success');
+    expect(result.status).toBe(Status.Success);
     expect(result.outputJson).toBeDefined();
 
     const output: AccountBalanceOutput = JSON.parse(result.outputJson!);
@@ -125,9 +126,9 @@ describe('account plugin - balance command (ADR-003)', () => {
     };
     const args = makeArgs(api, logger, { accountIdOrNameOrAlias: 'acc3' });
 
-    const result = await getAccountBalanceHandler(args);
+    const result = await getAccountBalance(args);
 
-    expect(result.status).toBe('success');
+    expect(result.status).toBe(Status.Success);
     expect(result.outputJson).toBeDefined();
 
     const output: AccountBalanceOutput = JSON.parse(result.outputJson!);
@@ -159,9 +160,9 @@ describe('account plugin - balance command (ADR-003)', () => {
     };
     const args = makeArgs(api, logger, { accountIdOrNameOrAlias: 'acc4' });
 
-    const result = await getAccountBalanceHandler(args);
+    const result = await getAccountBalance(args);
 
-    expect(result.status).toBe('failure');
+    expect(result.status).toBe(Status.Failure);
     expect(result.errorMessage).toBeDefined();
     expect(result.errorMessage).toContain('Could not fetch token balances');
     expect(result.errorMessage).toContain('mirror error');
@@ -187,9 +188,9 @@ describe('account plugin - balance command (ADR-003)', () => {
     };
     const args = makeArgs(api, logger, { accountIdOrNameOrAlias: 'broken' });
 
-    const result = await getAccountBalanceHandler(args);
+    const result = await getAccountBalance(args);
 
-    expect(result.status).toBe('failure');
+    expect(result.status).toBe(Status.Failure);
     expect(result.errorMessage).toBeDefined();
     expect(result.errorMessage).toContain('Failed to get account balance');
     expect(result.errorMessage).toContain('state failure');

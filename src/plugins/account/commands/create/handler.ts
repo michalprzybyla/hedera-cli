@@ -5,13 +5,14 @@
  */
 import { CommandHandlerArgs } from '../../../../core/plugins/plugin.interface';
 import { CommandExecutionResult } from '../../../../core/plugins/plugin.types';
+import { Status } from '../../../../core/shared/constants';
 import type { AccountData } from '../../schema';
 import { AliasType } from '../../../../core/services/alias/alias-service.interface';
 import { formatError } from '../../../../utils/errors';
 import { ZustandAccountStateHelper } from '../../zustand-state-helper';
 import { CreateAccountOutput } from './output';
 
-export default async function createAccount(
+export async function createAccount(
   args: CommandHandlerArgs,
 ): Promise<CommandExecutionResult> {
   const { api, logger } = args;
@@ -89,18 +90,18 @@ export default async function createAccount(
       };
 
       return {
-        status: 'success',
+        status: Status.Success,
         outputJson: JSON.stringify(outputData),
       };
     } else {
       return {
-        status: 'failure',
+        status: Status.Failure,
         errorMessage: 'Failed to create account',
       };
     }
   } catch (error: unknown) {
     return {
-      status: 'failure',
+      status: Status.Failure,
       errorMessage: formatError('Failed to create account', error),
     };
   }

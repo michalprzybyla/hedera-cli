@@ -1,8 +1,9 @@
-import importAccountHandler from '../../commands/import/handler';
+import { importAccount } from '../../commands/import/handler';
 import type { ImportAccountOutput } from '../../commands/import';
 import { ZustandAccountStateHelper } from '../../zustand-state-helper';
 import type { CoreApi } from '../../../../core/core-api/core-api.interface';
 import type { HederaMirrornodeService } from '../../../../core/services/mirrornode/hedera-mirrornode-service.interface';
+import { Status } from '../../../../core/shared/constants';
 import {
   makeLogger,
   makeArgs,
@@ -52,7 +53,7 @@ describe('account plugin - import command (ADR-003)', () => {
       alias: 'imported',
     });
 
-    const result = await importAccountHandler(args);
+    const result = await importAccount(args);
 
     expect(kms.importPrivateKey).toHaveBeenCalledWith('privKey', [
       'account:imported',
@@ -78,7 +79,7 @@ describe('account plugin - import command (ADR-003)', () => {
       }),
     );
 
-    expect(result.status).toBe('success');
+    expect(result.status).toBe(Status.Success);
     expect(result.outputJson).toBeDefined();
 
     const output: ImportAccountOutput = JSON.parse(result.outputJson!);
@@ -117,9 +118,9 @@ describe('account plugin - import command (ADR-003)', () => {
       alias: 'test',
     });
 
-    const result = await importAccountHandler(args);
+    const result = await importAccount(args);
 
-    expect(result.status).toBe('failure');
+    expect(result.status).toBe(Status.Failure);
     expect(result.errorMessage).toBeDefined();
     expect(result.errorMessage).toContain(
       "Account with name 'test' already exists",
@@ -155,9 +156,9 @@ describe('account plugin - import command (ADR-003)', () => {
       key: 'key',
     });
 
-    const result = await importAccountHandler(args);
+    const result = await importAccount(args);
 
-    expect(result.status).toBe('failure');
+    expect(result.status).toBe(Status.Failure);
     expect(result.errorMessage).toBeDefined();
     expect(result.errorMessage).toContain('Failed to import account');
     expect(result.errorMessage).toContain('mirror down');

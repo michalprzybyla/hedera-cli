@@ -4,10 +4,11 @@
  */
 import { CommandHandlerArgs } from '../../../../core/plugins/plugin.interface';
 import { CommandExecutionResult } from '../../../../core/plugins/plugin.types';
+import { Status } from '../../../../core/shared/constants';
 import { formatError } from '../../../../utils/errors';
 import { RemoveCredentialsOutput } from './output';
 
-export default function removeCredentials(
+export function removeCredentials(
   args: CommandHandlerArgs,
 ): CommandExecutionResult {
   const { logger, api } = args;
@@ -26,7 +27,7 @@ export default function removeCredentials(
     };
 
     return {
-      status: 'success',
+      status: Status.Success,
       outputJson: JSON.stringify(outputData),
     };
   } catch (error: unknown) {
@@ -37,7 +38,7 @@ export default function removeCredentials(
     };
 
     return {
-      status: 'failure',
+      status: Status.Failure,
       errorMessage: formatError('Failed to remove credentials', error),
       outputJson: JSON.stringify(outputData),
     };

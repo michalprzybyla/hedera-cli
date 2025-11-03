@@ -3,10 +3,11 @@
  * Tests the token transfer functionality of the token plugin
  */
 import type { CommandHandlerArgs } from '../../../../core/plugins/plugin.interface';
-import { transferTokenHandler } from '../../commands/transfer';
+import { transferToken } from '../../commands/transfer';
 import type { TransferTokenOutput } from '../../commands/transfer';
 import type { TransactionResult } from '../../../../core/services/tx-execution/tx-execution-service.interface';
 import { makeLogger, makeApiMocks } from './helpers/mocks';
+import { Status } from '../../../../core/shared/constants';
 
 describe('transferTokenHandler', () => {
   describe('success scenarios', () => {
@@ -60,11 +61,11 @@ describe('transferTokenHandler', () => {
       };
 
       // Act
-      const result = await transferTokenHandler(args);
+      const result = await transferToken(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
-      expect(result.status).toBe('success');
+      expect(result.status).toBe(Status.Success);
       expect(result.outputJson).toBeDefined();
 
       const output = JSON.parse(result.outputJson!) as TransferTokenOutput;
@@ -137,11 +138,11 @@ describe('transferTokenHandler', () => {
       };
 
       // Act
-      const result = await transferTokenHandler(args);
+      const result = await transferToken(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
-      expect(result.status).toBe('success');
+      expect(result.status).toBe(Status.Success);
       expect(result.outputJson).toBeDefined();
 
       const output = JSON.parse(result.outputJson!) as TransferTokenOutput;
@@ -222,11 +223,11 @@ describe('transferTokenHandler', () => {
       };
 
       // Act
-      const result = await transferTokenHandler(args);
+      const result = await transferToken(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
-      expect(result.status).toBe('success');
+      expect(result.status).toBe(Status.Success);
       expect(result.outputJson).toBeDefined();
       expect(result.errorMessage).toBeUndefined();
 
@@ -263,11 +264,11 @@ describe('transferTokenHandler', () => {
       };
 
       // Act
-      const result = await transferTokenHandler(args);
+      const result = await transferToken(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
-      expect(result.status).toBe('failure');
+      expect(result.status).toBe(Status.Failure);
       expect(result.errorMessage).toBeDefined();
       expect(result.errorMessage).toContain('Invalid command parameters');
       expect(result.outputJson).toBeUndefined();
@@ -321,11 +322,11 @@ describe('transferTokenHandler', () => {
       };
 
       // Act
-      const result = await transferTokenHandler(args);
+      const result = await transferToken(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
-      expect(result.status).toBe('success');
+      expect(result.status).toBe(Status.Success);
       expect(result.outputJson).toBeDefined();
       expect(result.errorMessage).toBeUndefined();
 
@@ -353,11 +354,11 @@ describe('transferTokenHandler', () => {
       };
 
       // Act
-      const result = await transferTokenHandler(args);
+      const result = await transferToken(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
-      expect(result.status).toBe('failure');
+      expect(result.status).toBe(Status.Failure);
       expect(result.errorMessage).toBeDefined();
       expect(result.outputJson).toBeUndefined();
     });
@@ -380,11 +381,11 @@ describe('transferTokenHandler', () => {
       };
 
       // Act
-      const result = await transferTokenHandler(args);
+      const result = await transferToken(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
-      expect(result.status).toBe('failure');
+      expect(result.status).toBe(Status.Failure);
       expect(result.errorMessage).toBeDefined();
       expect(result.outputJson).toBeUndefined();
     });
@@ -407,11 +408,11 @@ describe('transferTokenHandler', () => {
       };
 
       // Act
-      const result = await transferTokenHandler(args);
+      const result = await transferToken(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
-      expect(result.status).toBe('failure');
+      expect(result.status).toBe(Status.Failure);
       expect(result.errorMessage).toBeDefined();
       expect(result.outputJson).toBeUndefined();
     });
@@ -464,11 +465,11 @@ describe('transferTokenHandler', () => {
       };
 
       // Act
-      const result = await transferTokenHandler(args);
+      const result = await transferToken(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
-      expect(result.status).toBe('failure');
+      expect(result.status).toBe(Status.Failure);
       expect(result.errorMessage).toBeDefined();
       expect(result.outputJson).toBeUndefined();
     });
@@ -508,11 +509,11 @@ describe('transferTokenHandler', () => {
       };
 
       // Act
-      const result = await transferTokenHandler(args);
+      const result = await transferToken(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
-      expect(result.status).toBe('failure');
+      expect(result.status).toBe(Status.Failure);
       expect(result.errorMessage).toBeDefined();
       expect(result.errorMessage).toContain('Network error');
       expect(result.outputJson).toBeUndefined();
@@ -561,11 +562,11 @@ describe('transferTokenHandler', () => {
       };
 
       // Act
-      const result = await transferTokenHandler(args);
+      const result = await transferToken(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
-      expect(result.status).toBe('failure');
+      expect(result.status).toBe(Status.Failure);
       expect(result.errorMessage).toBeDefined();
       expect(result.errorMessage).toContain('Invalid key');
       expect(result.outputJson).toBeUndefined();
@@ -617,11 +618,11 @@ describe('transferTokenHandler', () => {
       };
 
       // Act
-      const result = await transferTokenHandler(args);
+      const result = await transferToken(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
-      expect(result.status).toBe('success');
+      expect(result.status).toBe(Status.Success);
       expect(result.outputJson).toBeDefined();
       expect(result.errorMessage).toBeUndefined();
 
@@ -688,11 +689,11 @@ describe('transferTokenHandler', () => {
       };
 
       // Act
-      const result = await transferTokenHandler(args);
+      const result = await transferToken(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
-      expect(result.status).toBe('success');
+      expect(result.status).toBe(Status.Success);
       expect(result.outputJson).toBeDefined();
       expect(result.errorMessage).toBeUndefined();
 
@@ -750,11 +751,11 @@ describe('transferTokenHandler', () => {
       };
 
       // Act
-      const result = await transferTokenHandler(args);
+      const result = await transferToken(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
-      expect(result.status).toBe('success');
+      expect(result.status).toBe(Status.Success);
       expect(result.outputJson).toBeDefined();
       expect(result.errorMessage).toBeUndefined();
 
@@ -791,11 +792,11 @@ describe('transferTokenHandler', () => {
       };
 
       // Act
-      const result = await transferTokenHandler(args);
+      const result = await transferToken(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
-      expect(result.status).toBe('failure');
+      expect(result.status).toBe(Status.Failure);
       expect(result.errorMessage).toBeDefined();
       expect(result.errorMessage).toContain('cannot be converted to a BigInt');
       expect(result.outputJson).toBeUndefined();

@@ -4,11 +4,12 @@
  */
 import { CommandHandlerArgs } from '../../../../core/plugins/plugin.interface';
 import { CommandExecutionResult } from '../../../../core/plugins/plugin.types';
+import { Status } from '../../../../core/shared/constants';
 import { SupportedNetwork } from '../../../../core/types/shared.types';
 import { formatError } from '../../../../utils/errors';
 import { SetCredentialsOutput } from './output';
 
-export default function setCredentials(
+export function setCredentials(
   args: CommandHandlerArgs,
 ): CommandExecutionResult {
   const { logger, api } = args;
@@ -41,12 +42,12 @@ export default function setCredentials(
     };
 
     return {
-      status: 'success',
+      status: Status.Success,
       outputJson: JSON.stringify(outputData),
     };
   } catch (error: unknown) {
     return {
-      status: 'failure',
+      status: Status.Failure,
       errorMessage: formatError('Failed to set operator credentials', error),
     };
   }

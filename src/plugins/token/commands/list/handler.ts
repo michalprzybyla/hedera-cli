@@ -5,6 +5,7 @@
  */
 import { CommandHandlerArgs } from '../../../../core/plugins/plugin.interface';
 import { CommandExecutionResult } from '../../../../core/plugins/plugin.types';
+import { Status } from '../../../../core/shared/constants';
 import { ZustandTokenStateHelper } from '../../zustand-state-helper';
 import { TokenData } from '../../schema';
 import { formatError } from '../../../../utils/errors';
@@ -138,9 +139,7 @@ function displayStatistics(
   }
 }
 
-export default function listTokensHandler(
-  args: CommandHandlerArgs,
-): CommandExecutionResult {
+export function listTokens(args: CommandHandlerArgs): CommandExecutionResult {
   const { api, logger } = args;
 
   // Initialize token state helper
@@ -214,7 +213,7 @@ export default function listTokensHandler(
       };
 
       return {
-        status: 'success',
+        status: Status.Success,
         outputJson: JSON.stringify(outputData),
       };
     }
@@ -289,15 +288,13 @@ export default function listTokensHandler(
     };
 
     return {
-      status: 'success',
+      status: Status.Success,
       outputJson: JSON.stringify(outputData),
     };
   } catch (error: unknown) {
     return {
-      status: 'failure',
+      status: Status.Failure,
       errorMessage: formatError('Failed to list tokens', error),
     };
   }
 }
-
-export { listTokensHandler };

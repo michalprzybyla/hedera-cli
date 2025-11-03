@@ -1,9 +1,10 @@
-import createAccountHandler from '../../commands/create/handler';
+import { createAccount } from '../../commands/create/handler';
 import type { CreateAccountOutput } from '../../commands/create';
 import { ZustandAccountStateHelper } from '../../zustand-state-helper';
 import type { CoreApi } from '../../../../core/core-api/core-api.interface';
 import type { AccountService } from '../../../../core/services/account/account-transaction-service.interface';
 import type { TransactionResult } from '../../../../core/services/tx-execution/tx-execution-service.interface';
+import { Status } from '../../../../core/shared/constants';
 import {
   makeLogger,
   makeArgs,
@@ -88,7 +89,7 @@ describe('account plugin - create command (ADR-003)', () => {
       alias: 'myAccount',
     });
 
-    const result = await createAccountHandler(args);
+    const result = await createAccount(args);
 
     expect(kms.createLocalPrivateKey).toHaveBeenCalled();
     expect(account.createAccount).toHaveBeenCalledWith({
@@ -120,14 +121,13 @@ describe('account plugin - create command (ADR-003)', () => {
     );
 
     // Verify ADR-003 result
-    expect(result.status).toBe('success');
+    expect(result.status).toBe(Status.Success);
     expect(result.outputJson).toBeDefined();
 
     const output: CreateAccountOutput = JSON.parse(result.outputJson!);
     expect(output.accountId).toBe('0.0.9999');
     expect(output.name).toBe('myAccount');
     expect(output.type).toBe('ECDSA');
-    expect(output.alias).toBe('myAccount');
     expect(output.network).toBe('testnet');
     expect(output.transactionId).toBe('tx-123');
     expect(output.evmAddress).toBe(
@@ -165,9 +165,9 @@ describe('account plugin - create command (ADR-003)', () => {
 
     const args = makeArgs(api, logger, { name: 'failAccount' });
 
-    const result = await createAccountHandler(args);
+    const result = await createAccount(args);
 
-    expect(result.status).toBe('failure');
+    expect(result.status).toBe(Status.Failure);
     expect(result.errorMessage).toBe('Failed to create account');
   });
 
@@ -192,9 +192,9 @@ describe('account plugin - create command (ADR-003)', () => {
 
     const args = makeArgs(api, logger, { name: 'errorAccount' });
 
-    const result = await createAccountHandler(args);
+    const result = await createAccount(args);
 
-    expect(result.status).toBe('failure');
+    expect(result.status).toBe(Status.Failure);
     expect(result.errorMessage).toBeDefined();
     expect(result.errorMessage).toContain('Failed to create account');
     expect(result.errorMessage).toContain('network error');

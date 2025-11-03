@@ -5,11 +5,12 @@
  */
 import { CommandHandlerArgs } from '../../../../core/plugins/plugin.interface';
 import { CommandExecutionResult } from '../../../../core/plugins/plugin.types';
+import { Status } from '../../../../core/shared/constants';
 import { formatError } from '../../../../utils/errors';
 import { ZustandAccountStateHelper } from '../../zustand-state-helper';
 import { ViewAccountOutput } from './output';
 
-export default async function viewAccountHandler(
+export async function viewAccount(
   args: CommandHandlerArgs,
 ): Promise<CommandExecutionResult> {
   const { api, logger } = args;
@@ -52,14 +53,14 @@ export default async function viewAccountHandler(
     };
 
     return {
-      status: 'success',
+      status: Status.Success,
       outputJson: JSON.stringify(outputData, (key, value): unknown =>
         typeof value === 'bigint' ? value.toString() : value,
       ),
     };
   } catch (error: unknown) {
     return {
-      status: 'failure',
+      status: Status.Failure,
       errorMessage: formatError('Failed to view account', error),
     };
   }

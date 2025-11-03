@@ -7,10 +7,10 @@ import * as path from 'path';
 import { Command } from 'commander';
 import { CoreApi } from '../core-api/core-api.interface';
 import { CommandHandlerArgs, PluginManifest } from './plugin.interface';
-import { CommandSpec, CommandHandler } from './plugin.types';
+import { CommandSpec } from './plugin.types';
 import { formatError } from '../../utils/errors';
 import { logger } from '../../utils/logger';
-import { kebabToCamel } from '../utils/kebab-to-camel';
+import { Status } from '../shared/constants';
 
 interface LoadedPlugin {
   manifest: PluginManifest;
@@ -248,15 +248,7 @@ export class PluginManager {
 
     // Set up action handler
     command.action(async (...args: unknown[]) => {
-      try {
-        await this.executePluginCommand(plugin, commandSpec, args);
-      } catch (error) {
-        console.error(
-          `Error executing ${plugin.manifest.name} ${commandName}:`,
-          error,
-        );
-        process.exit(1);
-      }
+      await this.executePluginCommand(plugin, commandSpec, args);
     });
   }
 
@@ -283,74 +275,47 @@ export class PluginManager {
       logger: this.coreApi.logger,
     };
 
-    const handlerPath = commandSpec.handler;
-    if (!handlerPath) {
-      throw new Error(`No handler specified for command ${commandSpec.name}`);
+    const result = await commandSpec.handler(handlerArgs);
+
+    // Validate that output spec is present (required per CommandSpec type)
+    if (!commandSpec.output) {
+      throw new Error(
+        `Command ${commandSpec.name} must define an output specification`,
+      );
     }
-
-    const fullHandlerPath = path.resolve(plugin.path, handlerPath + '.js');
-    const handlerModule = (await import(fullHandlerPath)) as Record<
-      string,
-      unknown
-    >;
-
-    // handle for dash commands handlers like `submit-message` -> `submitMessage`
-    const fixedName = kebabToCamel(commandSpec.name);
-
-    const handler =
-      (handlerModule.default as CommandHandler) ||
-      (handlerModule[fixedName + 'Handler'] as CommandHandler);
-
-    if (typeof handler !== 'function') {
-      throw new Error(`Handler for ${commandSpec.name} is not a function`);
-    }
-
-    // Execute handler
-    const result = await handler(handlerArgs);
 
     // ADR-003: If command has output spec, expect handler to return result
-    if (commandSpec.output) {
-      if (!result) {
-        logger.error(
-          `Handler for ${commandSpec.name} must return CommandExecutionResult when output spec is defined`,
-        );
-        process.exit(1);
-      }
-
-      const executionResult = result;
-
-      // Handle failure or partial success
-      if (executionResult.status !== 'success') {
-        if (executionResult.errorMessage) {
-          logger.error(executionResult.errorMessage);
-        }
-        // Exit with code 1 for both 'failure' and 'partial' status
-        process.exit(1);
-      }
-
-      // Handle successful execution with output
-      if (executionResult.outputJson) {
-        try {
-          // Use OutputHandlerService to format and display output
-          this.coreApi.output.handleCommandOutput({
-            outputJson: executionResult.outputJson,
-            schema: commandSpec.output.schema,
-            template: commandSpec.output.humanTemplate,
-            format: this.coreApi.output.getFormat(),
-          });
-        } catch (error) {
-          logger.error(
-            `Failed to handle output from ${commandSpec.name}: ${formatError('', error)}`,
-          );
-          process.exit(1);
-        }
-      }
-
-      // Success - exit with code 0
-      process.exit(0);
+    if (!result) {
+      throw new Error(
+        `Handler for ${commandSpec.name} must return CommandExecutionResult when output spec is defined`,
+      );
     }
 
-    // Legacy behavior: handler returns void, no output processing
-    // Handler is responsible for its own output and error handling
+    const executionResult = result;
+
+    // Handle non-success statuses
+    if (executionResult.status !== Status.Success) {
+      throw new Error(
+        executionResult.errorMessage ||
+          `Command ${commandSpec.name} failed with status: ${executionResult.status}`,
+      );
+    }
+
+    // Handle successful execution with output
+    if (executionResult.outputJson) {
+      try {
+        // Use OutputHandlerService to format and display output
+        this.coreApi.output.handleCommandOutput({
+          outputJson: executionResult.outputJson,
+          schema: commandSpec.output.schema,
+          template: commandSpec.output.humanTemplate,
+          format: this.coreApi.output.getFormat(),
+        });
+      } catch (error) {
+        throw new Error(
+          `Failed to handle output from ${commandSpec.name}: ${formatError('', error)}`,
+        );
+      }
+    }
   }
 }

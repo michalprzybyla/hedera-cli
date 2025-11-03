@@ -6,11 +6,40 @@
 import { TokenBalance } from '../../../../../types';
 import { CommandHandlerArgs } from '../../../../core/plugins/plugin.interface';
 import { CommandExecutionResult } from '../../../../core/plugins/plugin.types';
+import { Status } from '../../../../core/shared/constants';
+import { CoreApi } from '../../../../core/core-api/core-api.interface';
 import { formatError } from '../../../../utils/errors';
 import { ZustandAccountStateHelper } from '../../zustand-state-helper';
 import { AccountBalanceOutput } from './output';
 
-export default async function getAccountBalance(
+/**
+ * Fetches and maps token balances for an account
+ * @param api - The Core API instance
+ * @param accountId - The account ID to fetch token balances for
+ * @returns An array of token balances or undefined if no tokens found
+ * @throws Error if token balances could not be fetched
+ */
+async function fetchAccountTokenBalances(
+  api: CoreApi,
+  accountId: string,
+): Promise<
+  | Array<{
+      tokenId: string;
+      balance: bigint;
+    }>
+  | undefined
+> {
+  const tokenBalances = await api.mirror.getAccountTokenBalances(accountId);
+  if (tokenBalances.tokens && tokenBalances.tokens.length > 0) {
+    return tokenBalances.tokens.map((token: TokenBalance) => ({
+      tokenId: token.token_id,
+      balance: BigInt(token.balance.toString()),
+    }));
+  }
+  return undefined;
+}
+
+export async function getAccountBalance(
   args: CommandHandlerArgs,
 ): Promise<CommandExecutionResult> {
   const { api, logger } = args;
@@ -52,33 +81,27 @@ export default async function getAccountBalance(
     // Get token balances if not only HBAR
     if (!onlyHbar && !tokenId) {
       try {
-        const tokenBalances =
-          await api.mirror.getAccountTokenBalances(accountId);
-        if (tokenBalances.tokens && tokenBalances.tokens.length > 0) {
-          outputData.tokenBalances = tokenBalances.tokens.map(
-            (token: TokenBalance) => ({
-              tokenId: token.token_id,
-              balance: BigInt(token.balance.toString()),
-            }),
-          );
-        }
+        outputData.tokenBalances = await fetchAccountTokenBalances(
+          api,
+          accountId,
+        );
       } catch (error: unknown) {
         return {
-          status: 'failure',
+          status: Status.Failure,
           errorMessage: formatError('Could not fetch token balances', error),
         };
       }
     }
 
     return {
-      status: 'success',
+      status: Status.Success,
       outputJson: JSON.stringify(outputData, (key, value): unknown =>
         typeof value === 'bigint' ? value.toString() : value,
       ),
     };
   } catch (error: unknown) {
     return {
-      status: 'failure',
+      status: Status.Failure,
       errorMessage: formatError('Failed to get account balance', error),
     };
   }
