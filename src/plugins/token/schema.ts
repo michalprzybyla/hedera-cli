@@ -4,7 +4,7 @@
  */
 import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
-import { validateSupplyTypeAndMaxSupply } from '../../core/utils/validation-helpers';
+import { validateSupplyTypeAndMaxSupply } from '../../core/shared/validation/validate-supply.zod';
 
 // Zod schema for token keys
 export const TokenKeysSchema = z.object({
