@@ -12,6 +12,7 @@ import { formatError } from '../../utils/errors';
 import { logger } from '../../utils/logger';
 import { Status } from '../shared/constants';
 import { isJsonOutput } from '../../utils/output';
+import { filterReservedOptions } from '../utils/filter-reserved-options';
 
 interface LoadedPlugin {
   manifest: PluginManifest;
@@ -176,7 +177,6 @@ export class PluginManager {
     commandSpec: CommandSpec,
   ): void {
     const commandName = String(commandSpec.name);
-
     const command = pluginCommand
       .command(commandName)
       .description(
@@ -189,7 +189,17 @@ export class PluginManager {
 
     // Add options
     if (commandSpec.options) {
-      for (const option of commandSpec.options) {
+      const { allowed, filtered } = filterReservedOptions(commandSpec.options);
+
+      if (filtered.length > 0) {
+        logger.log(
+          `⚠️  Plugin ${plugin.manifest.name} command ${commandName}: filtered reserved option(s) ${filtered
+            .map((n) => `--${n}`)
+            .join(', ')} (reserved by core CLI)`,
+        );
+      }
+
+      for (const option of allowed) {
         const optionName = String(option.name);
         const short = option.short ? `-${String(option.short)}` : '';
         const long = `--${optionName}`;
@@ -310,38 +320,7 @@ export class PluginManager {
       }
     }
 
-    // ADR-003: If command has output spec, expect handler to return result
-    if (!result) {
-      throw new Error(
-        `Handler for ${commandSpec.name} must return CommandExecutionResult when output spec is defined`,
-      );
-    }
-
-    const executionResult = result;
-
-    if (executionResult.status !== Status.Success) {
-      throw new Error(
-        executionResult.errorMessage ||
-          `Command ${commandSpec.name} failed with status: ${executionResult.status}`,
-      );
-    }
-
-    // Handle successful execution with output
-    if (executionResult.outputJson) {
-      try {
-        // Use OutputHandlerService to format and display output
-        this.coreApi.output.handleCommandOutput({
-          outputJson: executionResult.outputJson,
-          schema: commandSpec.output.schema,
-          template: commandSpec.output.humanTemplate,
-          format: isJsonOutput() ? 'json' : 'human',
-        });
-      } catch (error) {
-        throw new Error(
-          `Failed to handle output from ${commandSpec.name}: ${formatError('', error)}`,
-        );
-      }
-    }
+    
   }
   
 }
