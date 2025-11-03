@@ -13,6 +13,7 @@ import { processBalanceInput } from '../../../core/utils/process-balance-input';
 =======
 import { CommandHandlerArgs } from '../../../../core/plugins/plugin.interface';
 import { CommandExecutionResult } from '../../../../core/plugins/plugin.types';
+import { Status } from '../../../../core/shared/constants';
 import type { AccountData } from '../../schema';
 import { AliasType } from '../../../../core/services/alias/alias-service.interface';
 import { formatError } from '../../../../utils/errors';
@@ -135,18 +136,18 @@ export async function createAccount(
 >>>>>>> c952bb56 (ADR003 implementation prototype - account plugin):src/plugins/account/commands/create/handler.ts
 
       return {
-        status: 'success',
+        status: Status.Success,
         outputJson: JSON.stringify(outputData),
       };
     } else {
       return {
-        status: 'failure',
+        status: Status.Failure,
         errorMessage: 'Failed to create account',
       };
     }
   } catch (error: unknown) {
     return {
-      status: 'failure',
+      status: Status.Failure,
       errorMessage: formatError('Failed to create account', error),
     };
   }

@@ -10,6 +10,7 @@ import { CommandHandlerArgs, PluginManifest } from './plugin.interface';
 import { CommandSpec } from './plugin.types';
 import { formatError } from '../../utils/errors';
 import { logger } from '../../utils/logger';
+import { Status } from '../shared/constants';
 import { isJsonOutput } from '../../utils/output';
 
 interface LoadedPlugin {
@@ -286,7 +287,7 @@ export class PluginManager {
 
       const executionResult = result;
 
-      if (executionResult.status !== 'success') {
+      if (executionResult.status !== Status.Success) {
         throw new Error(
           executionResult.errorMessage ||
             `Command ${commandSpec.name} failed with status: ${executionResult.status}`,
@@ -302,19 +303,11 @@ export class PluginManager {
             format: isJsonOutput() ? 'json' : 'human',
           });
         } catch (error) {
-          logger.error(
+          throw new Error(
             `Failed to handle output from ${commandSpec.name}: ${formatError('', error)}`,
           );
-          process.exit(1);
         }
       }
-      
-    // Validate that output spec is present (required per CommandSpec type)
-    if (!commandSpec.output) {
-      throw new Error(
-        `Command ${commandSpec.name} must define an output specification`,
-      );
-    }
     }
 
     // ADR-003: If command has output spec, expect handler to return result
@@ -326,7 +319,7 @@ export class PluginManager {
 
     const executionResult = result;
 
-    if (executionResult.status !== 'success') {
+    if (executionResult.status !== Status.Success) {
       throw new Error(
         executionResult.errorMessage ||
           `Command ${commandSpec.name} failed with status: ${executionResult.status}`,
