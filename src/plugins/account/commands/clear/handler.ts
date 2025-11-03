@@ -10,9 +10,9 @@ import { formatError } from '../../../../utils/errors';
 import { ZustandAccountStateHelper } from '../../zustand-state-helper';
 import { ClearAccountsOutput } from './output';
 
-export function clearAccounts(
+export async function clearAccounts(
   args: CommandHandlerArgs,
-): CommandExecutionResult {
+): Promise<CommandExecutionResult> {
   const { api, logger } = args;
 
   // Initialize Zustand state helper

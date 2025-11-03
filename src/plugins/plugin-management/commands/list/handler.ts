@@ -9,9 +9,9 @@ import { Status } from '../../../../core/shared/constants';
 import { formatError } from '../../../../utils/errors';
 import { ListPluginsOutput } from './output';
 
-export function getPluginList(
+export async function getPluginList(
   args: CommandHandlerArgs,
-): CommandExecutionResult {
+): Promise<CommandExecutionResult> {
   const { logger } = args;
 
   logger.log('📋 Getting plugin list...');

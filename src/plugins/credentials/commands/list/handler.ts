@@ -8,9 +8,9 @@ import { Status } from '../../../../core/shared/constants';
 import { formatError } from '../../../../utils/errors';
 import { ListCredentialsOutput } from './output';
 
-export function listCredentials(
+export async function listCredentials(
   args: CommandHandlerArgs,
-): CommandExecutionResult {
+): Promise<CommandExecutionResult> {
   const { logger, api } = args;
 
   logger.log('🔐 Retrieving stored credentials...');

@@ -10,7 +10,9 @@ import { formatError } from '../../../../utils/errors';
 import { ZustandAccountStateHelper } from '../../zustand-state-helper';
 import { ListAccountsOutput } from './output';
 
-export function listAccounts(args: CommandHandlerArgs): CommandExecutionResult {
+export async function listAccounts(
+  args: CommandHandlerArgs,
+): Promise<CommandExecutionResult> {
   const { api, logger } = args;
 
   // Initialize Zustand state helper

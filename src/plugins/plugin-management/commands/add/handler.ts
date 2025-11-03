@@ -9,7 +9,9 @@ import { Status } from '../../../../core/shared/constants';
 import { formatError } from '../../../../utils/errors';
 import { AddPluginOutput } from './output';
 
-export function addPlugin(args: CommandHandlerArgs): CommandExecutionResult {
+export async function addPlugin(
+  args: CommandHandlerArgs,
+): Promise<CommandExecutionResult> {
   const { logger } = args;
   const { path } = args.args as { path: string };
 

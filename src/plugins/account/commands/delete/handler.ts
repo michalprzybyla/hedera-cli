@@ -11,9 +11,9 @@ import { ZustandAccountStateHelper } from '../../zustand-state-helper';
 import { AliasType } from '../../../../core/services/alias/alias-service.interface';
 import { DeleteAccountOutput } from './output';
 
-export function deleteAccount(
+export async function deleteAccount(
   args: CommandHandlerArgs,
-): CommandExecutionResult {
+): Promise<CommandExecutionResult> {
   const { api, logger } = args;
 
   // Initialize Zustand state helper
