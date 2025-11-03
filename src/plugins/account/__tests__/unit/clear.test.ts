@@ -16,7 +16,7 @@ describe('account plugin - clear command (ADR-003)', () => {
     jest.clearAllMocks();
   });
 
-  test('clears all accounts successfully', () => {
+  test('clears all accounts successfully', async () => {
     const logger = makeLogger();
 
     const listAccountsMock = jest
@@ -35,7 +35,7 @@ describe('account plugin - clear command (ADR-003)', () => {
       args: {},
     };
 
-    const result = clearAccounts(args as CommandHandlerArgs);
+    const result = await clearAccounts(args as CommandHandlerArgs);
 
     expect(MockedHelper).toHaveBeenCalledWith(args.api!.state, logger);
     expect(listAccountsMock).toHaveBeenCalledTimes(1);
@@ -49,7 +49,7 @@ describe('account plugin - clear command (ADR-003)', () => {
     expect(output.clearedCount).toBe(2);
   });
 
-  test('returns failure when clear fails', () => {
+  test('returns failure when clear fails', async () => {
     const logger = makeLogger();
 
     MockedHelper.mockImplementation(() => ({
@@ -65,7 +65,7 @@ describe('account plugin - clear command (ADR-003)', () => {
       args: {},
     };
 
-    const result = clearAccounts(args as CommandHandlerArgs);
+    const result = await clearAccounts(args as CommandHandlerArgs);
 
     expect(result.status).toBe(Status.Failure);
     expect(result.errorMessage).toBeDefined();

@@ -20,7 +20,7 @@ describe('account plugin - list command (ADR-003)', () => {
     jest.clearAllMocks();
   });
 
-  test('returns success with empty accounts list when no accounts exist', () => {
+  test('returns success with empty accounts list when no accounts exist', async () => {
     const logger = makeLogger();
 
     MockedHelper.mockImplementation(() => ({
@@ -30,7 +30,7 @@ describe('account plugin - list command (ADR-003)', () => {
     const api: Partial<CoreApi> = { state: {} as any, logger };
     const args = makeArgs(api, logger, {});
 
-    const result = listAccounts(args);
+    const result = await listAccounts(args);
 
     expect(result.status).toBe(Status.Success);
     expect(result.outputJson).toBeDefined();
@@ -40,7 +40,7 @@ describe('account plugin - list command (ADR-003)', () => {
     expect(output.accounts).toEqual([]);
   });
 
-  test('returns success with accounts list without private keys', () => {
+  test('returns success with accounts list without private keys', async () => {
     const logger = makeLogger();
     const accounts = [
       makeAccountData({ name: 'acc1', accountId: '0.0.1111' }),
@@ -54,7 +54,7 @@ describe('account plugin - list command (ADR-003)', () => {
     const api: Partial<CoreApi> = { state: {} as any, logger };
     const args = makeArgs(api, logger, {});
 
-    const result = listAccounts(args);
+    const result = await listAccounts(args);
 
     expect(result.status).toBe(Status.Success);
     expect(result.outputJson).toBeDefined();
@@ -70,7 +70,7 @@ describe('account plugin - list command (ADR-003)', () => {
     expect(output.accounts[1].keyRefId).toBeUndefined();
   });
 
-  test('returns success with accounts including keyRefId when --private flag is set', () => {
+  test('returns success with accounts including keyRefId when --private flag is set', async () => {
     const logger = makeLogger();
     const accounts = [makeAccountData({ name: 'acc3', accountId: '0.0.3333' })];
 
@@ -81,7 +81,7 @@ describe('account plugin - list command (ADR-003)', () => {
     const api: Partial<CoreApi> = { state: {} as any, logger };
     const args = makeArgs(api, logger, { private: true });
 
-    const result = listAccounts(args);
+    const result = await listAccounts(args);
 
     expect(result.status).toBe(Status.Success);
     expect(result.outputJson).toBeDefined();
@@ -95,7 +95,7 @@ describe('account plugin - list command (ADR-003)', () => {
     expect(output.accounts[0].keyRefId).toBe('kr_test123');
   });
 
-  test('returns failure when listAccounts throws', () => {
+  test('returns failure when listAccounts throws', async () => {
     const logger = makeLogger();
 
     MockedHelper.mockImplementation(() => ({
@@ -107,7 +107,7 @@ describe('account plugin - list command (ADR-003)', () => {
     const api: Partial<CoreApi> = { state: {} as any, logger };
     const args = makeArgs(api, logger, {});
 
-    const result = listAccounts(args);
+    const result = await listAccounts(args);
 
     expect(result.status).toBe(Status.Failure);
     expect(result.errorMessage).toBeDefined();

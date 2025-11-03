@@ -37,7 +37,7 @@ describe('topic plugin - list command', () => {
     const api: Partial<CoreApi> = { state: {} as any, logger };
     const args = makeArgs(api, logger, {});
 
-    const result = listTopics(args);
+    const result = await listTopics(args);
 
     expect(result.status).toBe(Status.Success);
     expect(result.outputJson).toBeDefined();
@@ -61,7 +61,7 @@ describe('topic plugin - list command', () => {
     const api: Partial<CoreApi> = { state: {} as any, logger };
     const args = makeArgs(api, logger, {});
 
-    const result = listTopics(args);
+    const result = await listTopics(args);
 
     expect(result.status).toBe(Status.Success);
     expect(result.outputJson).toBeDefined();
@@ -97,7 +97,7 @@ describe('topic plugin - list command', () => {
     const api: Partial<CoreApi> = { state: {} as any, logger };
     const args = makeArgs(api, logger, { keys: true });
 
-    const result = listTopics(args);
+    const result = await listTopics(args);
 
     expect(result.status).toBe(Status.Success);
     expect(result.outputJson).toBeDefined();
@@ -133,7 +133,7 @@ describe('topic plugin - list command', () => {
     const api: Partial<CoreApi> = { state: {} as any, logger };
     const args = makeArgs(api, logger, { network: 'mainnet' });
 
-    const result = listTopics(args);
+    const result = await listTopics(args);
 
     expect(result.status).toBe(Status.Success);
     expect(result.outputJson).toBeDefined();
@@ -162,7 +162,7 @@ describe('topic plugin - list command', () => {
     const api: Partial<CoreApi> = { state: {} as any, logger };
     const args = makeArgs(api, logger, { network: 'mainnet' });
 
-    const result = listTopics(args);
+    const result = await listTopics(args);
 
     expect(result.status).toBe(Status.Success);
     expect(result.outputJson).toBeDefined();
@@ -204,7 +204,7 @@ describe('topic plugin - list command', () => {
     const api: Partial<CoreApi> = { state: {} as any, logger };
     const args = makeArgs(api, logger, {});
 
-    const result = listTopics(args);
+    const result = await listTopics(args);
 
     expect(result.status).toBe(Status.Success);
     expect(result.outputJson).toBeDefined();
@@ -234,7 +234,7 @@ describe('topic plugin - list command', () => {
     const api: Partial<CoreApi> = { state: {} as any, logger };
     const args = makeArgs(api, logger, {});
 
-    const result = listTopics(args);
+    const result = await listTopics(args);
 
     expect(result.status).toBe(Status.Success);
     expect(result.outputJson).toBeDefined();
@@ -255,7 +255,7 @@ describe('topic plugin - list command', () => {
     const api: Partial<CoreApi> = { state: {} as any, logger };
     const args = makeArgs(api, logger, {});
 
-    const result = listTopics(args);
+    const result = await listTopics(args);
 
     expect(result.status).toBe(Status.Failure);
     expect(result.errorMessage).toContain('Failed to list topics');

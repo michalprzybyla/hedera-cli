@@ -9,7 +9,9 @@ import { Status } from '../../../../core/shared/constants';
 import { formatError } from '../../../../utils/errors';
 import { ClearStateOutput } from './output';
 
-export function clearState(args: CommandHandlerArgs): CommandExecutionResult {
+export async function clearState(
+  args: CommandHandlerArgs,
+): Promise<CommandExecutionResult> {
   const { api, logger } = args;
 
   // Extract command arguments

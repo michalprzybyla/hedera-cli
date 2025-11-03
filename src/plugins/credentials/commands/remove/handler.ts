@@ -8,9 +8,9 @@ import { Status } from '../../../../core/shared/constants';
 import { formatError } from '../../../../utils/errors';
 import { RemoveCredentialsOutput } from './output';
 
-export function removeCredentials(
+export async function removeCredentials(
   args: CommandHandlerArgs,
-): CommandExecutionResult {
+): Promise<CommandExecutionResult> {
   const { logger, api } = args;
   const { keyRefId } = args.args as { keyRefId: string };
 

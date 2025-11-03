@@ -12,7 +12,9 @@ import { BackupPayload } from '../../../../core/types/shared.types';
 import * as fs from 'fs';
 import * as path from 'path';
 
-export function stateBackup(args: CommandHandlerArgs): CommandExecutionResult {
+export async function stateBackup(
+  args: CommandHandlerArgs,
+): Promise<CommandExecutionResult> {
   const { api, logger } = args;
 
   // Extract command arguments

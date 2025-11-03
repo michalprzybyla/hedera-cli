@@ -90,12 +90,12 @@ export interface CommandExecutionResult {
 
 /**
  * Command handler function type
- * - Handlers without output spec can return void (legacy behavior)
- * - Handlers with output spec must return CommandExecutionResult (ADR-003)
+ * - All handlers are asynchronous and must return Promise<CommandExecutionResult>
+ * - Enforces ADR-003 contract (structured status/error/output handling)
  */
 export type CommandHandler = (
   args: CommandHandlerArgs,
-) => CommandExecutionResult | Promise<CommandExecutionResult>;
+) => Promise<CommandExecutionResult>;
 
 /**
  * Plugin state schema

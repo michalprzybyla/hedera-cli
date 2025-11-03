@@ -172,7 +172,9 @@ function displayStatistics(
   }
 }
 
-export function listTokens(args: CommandHandlerArgs): CommandExecutionResult {
+export async function listTokens(
+  args: CommandHandlerArgs,
+): Promise<CommandExecutionResult> {
   const { api, logger } = args;
 
   // Initialize token state helper

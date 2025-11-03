@@ -9,9 +9,9 @@ import { SupportedNetwork } from '../../../../core/types/shared.types';
 import { formatError } from '../../../../utils/errors';
 import { SetCredentialsOutput } from './output';
 
-export function setCredentials(
+export async function setCredentials(
   args: CommandHandlerArgs,
-): CommandExecutionResult {
+): Promise<CommandExecutionResult> {
   const { logger, api } = args;
   const { accountId, privateKey, network } = args.args as {
     accountId: string;

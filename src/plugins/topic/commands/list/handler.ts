@@ -14,7 +14,9 @@ import { ListTopicsOutput } from './output';
  * @param args - Command handler arguments from CLI core
  * @returns Promise resolving to CommandExecutionResult with structured output
  */
-export function listTopics(args: CommandHandlerArgs): CommandExecutionResult {
+export async function listTopics(
+  args: CommandHandlerArgs,
+): Promise<CommandExecutionResult> {
   const { api, logger } = args;
 
   // Initialize Zustand state helper for topic state management

@@ -10,7 +10,9 @@ import { formatError } from '../../../../utils/errors';
 import { StateStatsOutput } from './output';
 import { NamespaceInfo } from '../../schema';
 
-export function stateStats(args: CommandHandlerArgs): CommandExecutionResult {
+export async function stateStats(
+  args: CommandHandlerArgs,
+): Promise<CommandExecutionResult> {
   const { api, logger } = args;
 
   logger.log('📊 Getting state statistics...');

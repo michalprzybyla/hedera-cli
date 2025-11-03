@@ -24,7 +24,7 @@ describe('account plugin - delete command (ADR-003)', () => {
     jest.clearAllMocks();
   });
 
-  test('deletes account successfully by name', () => {
+  test('deletes account successfully by name', async () => {
     const logger = makeLogger();
     const account = makeAccountData({ name: 'acc1', accountId: '0.0.1111' });
 
@@ -41,7 +41,7 @@ describe('account plugin - delete command (ADR-003)', () => {
     const api: Partial<CoreApi> = { state: {} as any, logger, alias, network };
     const args = makeArgs(api, logger, { name: 'acc1' });
 
-    const result = deleteAccount(args);
+    const result = await deleteAccount(args);
 
     expect(deleteAccountMock).toHaveBeenCalledWith('acc1');
     expect(result.status).toBe(Status.Success);
@@ -52,7 +52,7 @@ describe('account plugin - delete command (ADR-003)', () => {
     expect(output.deletedAccount.accountId).toBe('0.0.1111');
   });
 
-  test('deletes account successfully by id', () => {
+  test('deletes account successfully by id', async () => {
     const logger = makeLogger();
     const account = makeAccountData({ name: 'acc2', accountId: '0.0.2222' });
 
@@ -69,7 +69,7 @@ describe('account plugin - delete command (ADR-003)', () => {
     const api: Partial<CoreApi> = { state: {} as any, logger, alias, network };
     const args = makeArgs(api, logger, { id: '0.0.2222' });
 
-    const result = deleteAccount(args);
+    const result = await deleteAccount(args);
 
     expect(deleteAccountMock).toHaveBeenCalledWith('acc2');
     expect(result.status).toBe(Status.Success);
@@ -80,7 +80,7 @@ describe('account plugin - delete command (ADR-003)', () => {
     expect(output.deletedAccount.accountId).toBe('0.0.2222');
   });
 
-  test('returns failure when no name or id provided', () => {
+  test('returns failure when no name or id provided', async () => {
     const logger = makeLogger();
 
     MockedHelper.mockImplementation(() => ({
@@ -100,14 +100,14 @@ describe('account plugin - delete command (ADR-003)', () => {
     };
     const args = makeArgs(api, logger, {});
 
-    const result = deleteAccount(args);
+    const result = await deleteAccount(args);
 
     expect(result.status).toBe(Status.Failure);
     expect(result.errorMessage).toBeDefined();
     expect(result.errorMessage).toContain('Either name or id must be provided');
   });
 
-  test('returns failure when account with given name not found', () => {
+  test('returns failure when account with given name not found', async () => {
     const logger = makeLogger();
 
     MockedHelper.mockImplementation(() => ({
@@ -127,7 +127,7 @@ describe('account plugin - delete command (ADR-003)', () => {
     };
     const args = makeArgs(api, logger, { name: 'missingAcc' });
 
-    const result = deleteAccount(args);
+    const result = await deleteAccount(args);
 
     expect(result.status).toBe(Status.Failure);
     expect(result.errorMessage).toBeDefined();
@@ -136,7 +136,7 @@ describe('account plugin - delete command (ADR-003)', () => {
     );
   });
 
-  test('returns failure when account with given id not found', () => {
+  test('returns failure when account with given id not found', async () => {
     const logger = makeLogger();
 
     MockedHelper.mockImplementation(() => ({
@@ -158,7 +158,7 @@ describe('account plugin - delete command (ADR-003)', () => {
     };
     const args = makeArgs(api, logger, { id: '0.0.4444' });
 
-    const result = deleteAccount(args);
+    const result = await deleteAccount(args);
 
     expect(result.status).toBe(Status.Failure);
     expect(result.errorMessage).toBeDefined();
@@ -167,7 +167,7 @@ describe('account plugin - delete command (ADR-003)', () => {
     );
   });
 
-  test('returns failure when deleteAccount throws', () => {
+  test('returns failure when deleteAccount throws', async () => {
     const logger = makeLogger();
     const account = makeAccountData({ name: 'acc5', accountId: '0.0.5555' });
 
@@ -190,7 +190,7 @@ describe('account plugin - delete command (ADR-003)', () => {
     };
     const args = makeArgs(api, logger, { name: 'acc5' });
 
-    const result = deleteAccount(args);
+    const result = await deleteAccount(args);
 
     expect(result.status).toBe(Status.Failure);
     expect(result.errorMessage).toBeDefined();
@@ -198,7 +198,7 @@ describe('account plugin - delete command (ADR-003)', () => {
     expect(result.errorMessage).toContain('db error');
   });
 
-  test('removes aliases of the account only for current network and type', () => {
+  test('removes aliases of the account only for current network and type', async () => {
     const logger = makeLogger();
     const account = makeAccountData({
       name: 'acc-alias',
@@ -221,7 +221,7 @@ describe('account plugin - delete command (ADR-003)', () => {
     const api: Partial<CoreApi> = { state: {} as any, logger, alias, network };
     const args = makeArgs(api, logger, { name: 'acc-alias' });
 
-    const result = deleteAccount(args);
+    const result = await deleteAccount(args);
 
     // Ensure list was requested with the correct filters
     expect(alias.list).toHaveBeenCalledWith({

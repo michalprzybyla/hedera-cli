@@ -267,14 +267,14 @@ describe('ADR-003 Compliance - Token Plugin', () => {
   });
 
   describe('listTokensHandler', () => {
-    test('returns CommandExecutionResult with empty list', () => {
+    test('returns CommandExecutionResult with empty list', async () => {
       // Arrange
       const { api } = makeApiMocks();
 
       const args = {};
 
       // Act
-      const result = listTokens({
+      const result = await listTokens({
         api,
         logger: makeLogger(),
         state: {} as any,
@@ -293,7 +293,7 @@ describe('ADR-003 Compliance - Token Plugin', () => {
       expect(output.stats).toBeDefined();
     });
 
-    test('returns CommandExecutionResult with token list', () => {
+    test('returns CommandExecutionResult with token list', async () => {
       // Arrange
       MockedHelper.mockImplementation(() => ({
         listTokens: jest.fn().mockReturnValue([
@@ -321,7 +321,7 @@ describe('ADR-003 Compliance - Token Plugin', () => {
       const args = {};
 
       // Act
-      const result = listTokens({
+      const result = await listTokens({
         api,
         logger: makeLogger(),
         state: {} as any,

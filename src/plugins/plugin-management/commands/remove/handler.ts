@@ -9,7 +9,9 @@ import { Status } from '../../../../core/shared/constants';
 import { formatError } from '../../../../utils/errors';
 import { RemovePluginOutput } from './output';
 
-export function removePlugin(args: CommandHandlerArgs): CommandExecutionResult {
+export async function removePlugin(
+  args: CommandHandlerArgs,
+): Promise<CommandExecutionResult> {
   const { logger } = args;
   const { name } = args.args as { name: string };
 

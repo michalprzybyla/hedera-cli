@@ -9,9 +9,9 @@ import { Status } from '../../../../core/shared/constants';
 import { formatError } from '../../../../utils/errors';
 import { PluginInfoOutput } from './output';
 
-export function getPluginInfo(
+export async function getPluginInfo(
   args: CommandHandlerArgs,
-): CommandExecutionResult {
+): Promise<CommandExecutionResult> {
   const { logger } = args;
   const { name } = args.args as { name: string };
 

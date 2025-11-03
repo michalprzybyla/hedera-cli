@@ -5,7 +5,9 @@ import { UseNetworkOutput } from './output';
 import { SupportedNetwork } from '../../../../core/types/shared.types';
 import { Status } from '../../../../core/shared/constants';
 
-export function useHandler(args: CommandHandlerArgs): CommandExecutionResult {
+export async function useHandler(
+  args: CommandHandlerArgs,
+): Promise<CommandExecutionResult> {
   const { logger, api } = args;
 
   const network = args.args.network as SupportedNetwork | undefined;
