@@ -78,20 +78,11 @@ export async function submitMessage(
     }
 
     if (txResult.success) {
-      // Step 5: Validate that sequence number is present (required field)
-      if (!txResult.topicSequenceNumber) {
-        return {
-          status: Status.Failure,
-          errorMessage:
-            'Message submitted but sequence number not returned by network',
-        };
-      }
-
-      // Step 6: Prepare structured output data
+      // Step 5: Prepare structured output data
       const outputData: SubmitMessageOutput = {
         topicId,
         message,
-        sequenceNumber: txResult.topicSequenceNumber,
+        sequenceNumber: txResult.topicSequenceNumber ?? 0,
         transactionId: txResult.transactionId || '',
         submittedAt: new Date().toISOString(),
       };

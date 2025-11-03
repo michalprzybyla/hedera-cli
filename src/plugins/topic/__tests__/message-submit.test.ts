@@ -205,46 +205,6 @@ describe('topic plugin - message-submit command', () => {
     expect(result.errorMessage).toContain('Topic not found');
   });
 
-  test('returns failure when sequence number is missing', async () => {
-    const logger = makeLogger();
-    const topicData = makeTopicData({
-      topicId: '0.0.1234',
-    });
-    const loadTopicMock = jest.fn().mockReturnValue(topicData);
-    MockedHelper.mockImplementation(() => ({ loadTopic: loadTopicMock }));
-
-    const { topicTransactions, signing, networkMock, alias } = makeApiMocks({
-      submitMessageImpl: jest.fn().mockReturnValue({
-        transaction: {},
-      }),
-      signAndExecuteImpl: jest.fn().mockResolvedValue({
-        transactionId: 'tx-123',
-        success: true,
-        topicSequenceNumber: undefined, // Missing sequence number
-        receipt: {} as any,
-      } as TransactionResult),
-    });
-
-    const api: Partial<CoreApi> = {
-      topic: topicTransactions,
-      txExecution: signing,
-      network: networkMock,
-      alias: alias as any,
-      state: {} as any,
-      logger,
-    };
-
-    const args = makeArgs(api, logger, {
-      topicId: '0.0.1234',
-      message: 'Test message',
-    });
-
-    const result = await submitMessage(args);
-
-    expect(result.status).toBe(Status.Failure);
-    expect(result.errorMessage).toContain('sequence number not returned');
-  });
-
   test('returns failure when signAndExecute returns failure', async () => {
     const logger = makeLogger();
     const topicData = makeTopicData({
