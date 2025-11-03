@@ -3,7 +3,7 @@
  * Tests the token association functionality of the token plugin
  */
 import type { CommandHandlerArgs } from '../../../../core/plugins/plugin.interface';
-import { associateTokenHandler } from '../../commands/associate';
+import { associateToken } from '../../commands/associate';
 import { ZustandTokenStateHelper } from '../../zustand-state-helper';
 import type { TransactionResult } from '../../../../core/services/tx-execution/tx-execution-service.interface';
 import type { AssociateTokenOutput } from '../../commands/associate';
@@ -70,7 +70,7 @@ describe('associateTokenHandler', () => {
       };
 
       // Act
-      const result = await associateTokenHandler(args);
+      const result = await associateToken(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -143,7 +143,7 @@ describe('associateTokenHandler', () => {
       };
 
       // Act
-      const result = await associateTokenHandler(args);
+      const result = await associateToken(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -213,7 +213,7 @@ describe('associateTokenHandler', () => {
       };
 
       // Act
-      const result = await associateTokenHandler(args);
+      const result = await associateToken(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -245,7 +245,7 @@ describe('associateTokenHandler', () => {
       };
 
       // Act
-      const result = await associateTokenHandler(args);
+      const result = await associateToken(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -270,7 +270,7 @@ describe('associateTokenHandler', () => {
       };
 
       // Act
-      const result = await associateTokenHandler(args);
+      const result = await associateToken(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -295,7 +295,7 @@ describe('associateTokenHandler', () => {
       };
 
       // Act
-      const result = await associateTokenHandler(args);
+      const result = await associateToken(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -350,7 +350,7 @@ describe('associateTokenHandler', () => {
       };
 
       // Act
-      const result = await associateTokenHandler(args);
+      const result = await associateToken(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -390,7 +390,7 @@ describe('associateTokenHandler', () => {
       };
 
       // Act
-      const result = await associateTokenHandler(args);
+      const result = await associateToken(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -435,7 +435,7 @@ describe('associateTokenHandler', () => {
       };
 
       // Act
-      const result = await associateTokenHandler(args);
+      const result = await associateToken(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -490,7 +490,7 @@ describe('associateTokenHandler', () => {
       };
 
       // Act
-      const result = await associateTokenHandler(args);
+      const result = await associateToken(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -574,7 +574,7 @@ describe('associateTokenHandler', () => {
       };
 
       // Act
-      const result = await associateTokenHandler(args);
+      const result = await associateToken(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();

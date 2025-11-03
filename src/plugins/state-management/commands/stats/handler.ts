@@ -10,9 +10,7 @@ import { formatError } from '../../../../utils/errors';
 import { StateStatsOutput } from './output';
 import { NamespaceInfo } from '../../schema';
 
-export default function stateStats(
-  args: CommandHandlerArgs,
-): CommandExecutionResult {
+export function stateStats(args: CommandHandlerArgs): CommandExecutionResult {
   const { api, logger } = args;
 
   logger.log('📊 Getting state statistics...');

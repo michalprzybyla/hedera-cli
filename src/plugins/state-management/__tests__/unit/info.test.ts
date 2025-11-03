@@ -1,8 +1,8 @@
 /**
  * Unit Tests for State Info Command
  */
-import stateInfo from '../../commands/info/handler';
 import { Status } from '../../../../core/shared/constants';
+import { stateInfo } from '../../commands/info/handler';
 import {
   makeArgs,
   makeLogger,

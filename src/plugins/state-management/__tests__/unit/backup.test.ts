@@ -1,8 +1,8 @@
 /**
  * Unit Tests for State Backup Command
  */
-import stateBackup from '../../commands/backup/handler';
 import { Status } from '../../../../core/shared/constants';
+import { stateBackup } from '../../commands/backup/handler';
 import {
   makeArgs,
   makeLogger,

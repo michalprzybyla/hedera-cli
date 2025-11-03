@@ -139,9 +139,7 @@ function displayStatistics(
   }
 }
 
-export default function listTokensHandler(
-  args: CommandHandlerArgs,
-): CommandExecutionResult {
+export function listTokens(args: CommandHandlerArgs): CommandExecutionResult {
   const { api, logger } = args;
 
   // Initialize token state helper
@@ -300,5 +298,3 @@ export default function listTokensHandler(
     };
   }
 }
-
-export { listTokensHandler };

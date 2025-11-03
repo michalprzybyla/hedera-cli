@@ -8,7 +8,7 @@ import { Status } from '../../../../core/shared/constants';
 import { formatError } from '../../../../utils/errors';
 import { ListCredentialsOutput } from './output';
 
-export default function listCredentials(
+export function listCredentials(
   args: CommandHandlerArgs,
 ): CommandExecutionResult {
   const { logger, api } = args;

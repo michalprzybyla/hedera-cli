@@ -3,11 +3,11 @@
  * Tests that all command handlers return CommandExecutionResult according to ADR-003
  */
 import type { CommandHandlerArgs } from '../../../../core/plugins/plugin.interface';
-import { createTokenHandler } from '../../commands/create';
-import { transferTokenHandler } from '../../commands/transfer';
-import { associateTokenHandler } from '../../commands/associate';
-import { listTokensHandler } from '../../commands/list';
-import { createTokenFromFileHandler } from '../../commands/createFromFile';
+import { createToken } from '../../commands/create';
+import { transferToken } from '../../commands/transfer';
+import { associateToken } from '../../commands/associate';
+import { listTokens } from '../../commands/list';
+import { createTokenFromFile } from '../../commands/createFromFile';
 import { ZustandTokenStateHelper } from '../../zustand-state-helper';
 import type { CreateTokenOutput } from '../../commands/create';
 import type { TransferTokenOutput } from '../../commands/transfer';
@@ -76,7 +76,7 @@ describe('ADR-003 Compliance - Token Plugin', () => {
       };
 
       // Act
-      const result = await createTokenHandler({
+      const result = await createToken({
         api,
         logger: makeLogger(),
         state: {} as any,
@@ -105,7 +105,7 @@ describe('ADR-003 Compliance - Token Plugin', () => {
       };
 
       // Act
-      const result = await createTokenHandler({
+      const result = await createToken({
         api,
         logger: makeLogger(),
         state: {} as any,
@@ -173,7 +173,7 @@ describe('ADR-003 Compliance - Token Plugin', () => {
       };
 
       // Act
-      const result = await transferTokenHandler({
+      const result = await transferToken({
         api,
         logger: makeLogger(),
         state: {} as any,
@@ -203,7 +203,7 @@ describe('ADR-003 Compliance - Token Plugin', () => {
       };
 
       // Act
-      const result = await transferTokenHandler({
+      const result = await transferToken({
         api,
         logger: makeLogger(),
         state: {} as any,
@@ -246,7 +246,7 @@ describe('ADR-003 Compliance - Token Plugin', () => {
       };
 
       // Act
-      const result = await associateTokenHandler({
+      const result = await associateToken({
         api,
         logger: makeLogger(),
         state: {} as any,
@@ -274,7 +274,7 @@ describe('ADR-003 Compliance - Token Plugin', () => {
       const args = {};
 
       // Act
-      const result = listTokensHandler({
+      const result = listTokens({
         api,
         logger: makeLogger(),
         state: {} as any,
@@ -321,7 +321,7 @@ describe('ADR-003 Compliance - Token Plugin', () => {
       const args = {};
 
       // Act
-      const result = listTokensHandler({
+      const result = listTokens({
         api,
         logger: makeLogger(),
         state: {} as any,
@@ -345,11 +345,11 @@ describe('ADR-003 Compliance - Token Plugin', () => {
     test('all handlers return CommandExecutionResult interface', async () => {
       // This test verifies that all handlers return the correct interface type
       const handlers = [
-        createTokenHandler,
-        transferTokenHandler,
-        associateTokenHandler,
-        listTokensHandler,
-        createTokenFromFileHandler,
+        createToken,
+        transferToken,
+        associateToken,
+        listTokens,
+        createTokenFromFile,
       ];
 
       const { api } = makeApiMocks();

@@ -3,7 +3,7 @@
  * Tests the token transfer functionality of the token plugin
  */
 import type { CommandHandlerArgs } from '../../../../core/plugins/plugin.interface';
-import { transferTokenHandler } from '../../commands/transfer';
+import { transferToken } from '../../commands/transfer';
 import type { TransferTokenOutput } from '../../commands/transfer';
 import type { TransactionResult } from '../../../../core/services/tx-execution/tx-execution-service.interface';
 import { makeLogger, makeApiMocks } from './helpers/mocks';
@@ -61,7 +61,7 @@ describe('transferTokenHandler', () => {
       };
 
       // Act
-      const result = await transferTokenHandler(args);
+      const result = await transferToken(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -138,7 +138,7 @@ describe('transferTokenHandler', () => {
       };
 
       // Act
-      const result = await transferTokenHandler(args);
+      const result = await transferToken(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -223,7 +223,7 @@ describe('transferTokenHandler', () => {
       };
 
       // Act
-      const result = await transferTokenHandler(args);
+      const result = await transferToken(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -264,7 +264,7 @@ describe('transferTokenHandler', () => {
       };
 
       // Act
-      const result = await transferTokenHandler(args);
+      const result = await transferToken(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -322,7 +322,7 @@ describe('transferTokenHandler', () => {
       };
 
       // Act
-      const result = await transferTokenHandler(args);
+      const result = await transferToken(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -354,7 +354,7 @@ describe('transferTokenHandler', () => {
       };
 
       // Act
-      const result = await transferTokenHandler(args);
+      const result = await transferToken(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -381,7 +381,7 @@ describe('transferTokenHandler', () => {
       };
 
       // Act
-      const result = await transferTokenHandler(args);
+      const result = await transferToken(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -408,7 +408,7 @@ describe('transferTokenHandler', () => {
       };
 
       // Act
-      const result = await transferTokenHandler(args);
+      const result = await transferToken(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -465,7 +465,7 @@ describe('transferTokenHandler', () => {
       };
 
       // Act
-      const result = await transferTokenHandler(args);
+      const result = await transferToken(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -509,7 +509,7 @@ describe('transferTokenHandler', () => {
       };
 
       // Act
-      const result = await transferTokenHandler(args);
+      const result = await transferToken(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -562,7 +562,7 @@ describe('transferTokenHandler', () => {
       };
 
       // Act
-      const result = await transferTokenHandler(args);
+      const result = await transferToken(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -618,7 +618,7 @@ describe('transferTokenHandler', () => {
       };
 
       // Act
-      const result = await transferTokenHandler(args);
+      const result = await transferToken(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -689,7 +689,7 @@ describe('transferTokenHandler', () => {
       };
 
       // Act
-      const result = await transferTokenHandler(args);
+      const result = await transferToken(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -751,7 +751,7 @@ describe('transferTokenHandler', () => {
       };
 
       // Act
-      const result = await transferTokenHandler(args);
+      const result = await transferToken(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -792,7 +792,7 @@ describe('transferTokenHandler', () => {
       };
 
       // Act
-      const result = await transferTokenHandler(args);
+      const result = await transferToken(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();

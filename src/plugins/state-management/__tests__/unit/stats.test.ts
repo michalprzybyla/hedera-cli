@@ -1,8 +1,8 @@
 /**
  * Unit Tests for State Stats Command
  */
-import stateStats from '../../commands/stats/handler';
 import { Status } from '../../../../core/shared/constants';
+import { stateStats } from '../../commands/stats/handler';
 import {
   makeArgs,
   makeLogger,

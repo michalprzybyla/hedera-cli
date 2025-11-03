@@ -141,7 +141,7 @@ async function fetchFilteredMessages(
  * @param args - Command handler arguments from CLI core
  * @returns Promise resolving to CommandExecutionResult with structured output
  */
-export default async function findMessageHandler(
+export async function findMessage(
   args: CommandHandlerArgs,
 ): Promise<CommandExecutionResult> {
   const { api, logger } = args;

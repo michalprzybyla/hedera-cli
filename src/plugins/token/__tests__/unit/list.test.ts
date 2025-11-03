@@ -1,4 +1,4 @@
-import { listTokensHandler } from '../../commands/list';
+import { listTokens } from '../../commands/list';
 import { ZustandTokenStateHelper } from '../../zustand-state-helper';
 import { Status } from '../../../../core/shared/constants';
 import {
@@ -40,7 +40,7 @@ describe('token plugin - list command', () => {
     });
     const args = makeArgs(api, logger, {});
 
-    const result = await listTokensHandler(args);
+    const result = listTokens(args);
 
     // ADR-003 compliance: check CommandExecutionResult
     expect(result).toBeDefined();
@@ -70,7 +70,7 @@ describe('token plugin - list command', () => {
     });
     const args = makeArgs(api, logger, {});
 
-    const result = await listTokensHandler(args);
+    const result = listTokens(args);
 
     // ADR-003 compliance: check CommandExecutionResult
     expect(result).toBeDefined();
@@ -103,7 +103,7 @@ describe('token plugin - list command', () => {
     });
     const args = makeArgs(api, logger, { keys: true });
 
-    listTokensHandler(args);
+    listTokens(args);
 
     expect(logger.log).toHaveBeenCalledWith('1. Token 3 (TK3)');
     expect(logger.log).toHaveBeenCalledWith('   Admin Key: ✅ Present');
@@ -126,7 +126,7 @@ describe('token plugin - list command', () => {
     });
     const args = makeArgs(api, logger, {});
 
-    listTokensHandler(args);
+    listTokens(args);
 
     expect(logger.log).toHaveBeenCalledWith(
       expect.stringContaining('Found 1 token(s) for network testnet'),
@@ -151,7 +151,7 @@ describe('token plugin - list command', () => {
     });
     const args = makeArgs(api, logger, { network: 'mainnet' });
 
-    listTokensHandler(args);
+    listTokens(args);
 
     expect(logger.log).toHaveBeenCalledWith(
       expect.stringContaining('Found 1 token(s) for network mainnet'),
@@ -187,7 +187,7 @@ describe('token plugin - list command', () => {
     });
     const args = makeArgs(api, logger, { network: 'mainnet' });
 
-    listTokensHandler(args);
+    listTokens(args);
 
     expect(logger.log).toHaveBeenCalledWith(
       expect.stringContaining('No tokens found for network: mainnet'),
@@ -228,7 +228,7 @@ describe('token plugin - list command', () => {
     });
     const args = makeArgs(api, logger, {});
 
-    listTokensHandler(args);
+    listTokens(args);
 
     expect(logger.log).toHaveBeenCalledWith(
       '1. My Token (MTK) - alias: my-token',
@@ -251,7 +251,7 @@ describe('token plugin - list command', () => {
     });
     const args = makeArgs(api, logger, {});
 
-    listTokensHandler(args);
+    listTokens(args);
 
     expect(logger.log).toHaveBeenCalledWith('Total Tokens: 2');
     expect(logger.log).toHaveBeenCalledWith(
@@ -281,7 +281,7 @@ describe('token plugin - list command', () => {
     });
     const args = makeArgs(api, logger, {});
 
-    listTokensHandler(args);
+    listTokens(args);
 
     expect(logger.log).toHaveBeenCalledWith('   Supply Type: FINITE');
     expect(logger.log).toHaveBeenCalledWith('   Max Supply: 500000');
@@ -305,7 +305,7 @@ describe('token plugin - list command', () => {
     });
     const args = makeArgs(api, logger, {});
 
-    const result = await listTokensHandler(args);
+    const result = await listTokens(args);
 
     // ADR-003 compliance: check CommandExecutionResult
     expect(result).toBeDefined();

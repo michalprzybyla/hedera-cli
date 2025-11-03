@@ -1,8 +1,8 @@
 /**
  * Unit Tests for State Clear Command
  */
-import clearState from '../../commands/clear/handler';
 import { Status } from '../../../../core/shared/constants';
+import { clearState } from '../../commands/clear/handler';
 import {
   makeArgs,
   makeLogger,

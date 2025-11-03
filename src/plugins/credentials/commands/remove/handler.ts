@@ -8,7 +8,7 @@ import { Status } from '../../../../core/shared/constants';
 import { formatError } from '../../../../utils/errors';
 import { RemoveCredentialsOutput } from './output';
 
-export default function removeCredentials(
+export function removeCredentials(
   args: CommandHandlerArgs,
 ): CommandExecutionResult {
   const { logger, api } = args;

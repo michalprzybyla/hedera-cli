@@ -1,8 +1,8 @@
 /**
  * Unit Tests for State List Command
  */
-import listState from '../../commands/list/handler';
 import { Status } from '../../../../core/shared/constants';
+import { listState } from '../../commands/list/handler';
 import {
   makeArgs,
   makeLogger,

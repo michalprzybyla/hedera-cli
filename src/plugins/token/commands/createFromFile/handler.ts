@@ -323,7 +323,7 @@ async function processTokenAssociations(
   return successfulAssociations;
 }
 
-export default async function createTokenFromFileHandler(
+export async function createTokenFromFile(
   args: CommandHandlerArgs,
 ): Promise<CommandExecutionResult> {
   const { api, logger } = args;
@@ -444,5 +444,3 @@ export default async function createTokenFromFileHandler(
     };
   }
 }
-
-export { createTokenFromFileHandler };

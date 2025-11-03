@@ -9,7 +9,7 @@ import { Status } from '../../../../core/shared/constants';
 import { formatError } from '../../../../utils/errors';
 import { ListPluginsOutput } from './output';
 
-export default function getPluginList(
+export function getPluginList(
   args: CommandHandlerArgs,
 ): CommandExecutionResult {
   const { logger } = args;

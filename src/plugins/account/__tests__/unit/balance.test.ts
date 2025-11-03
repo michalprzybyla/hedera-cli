@@ -1,4 +1,4 @@
-import getAccountBalanceHandler from '../../commands/balance/handler';
+import { getAccountBalance } from '../../commands/balance/handler';
 import type { AccountBalanceOutput } from '../../commands/balance';
 import { ZustandAccountStateHelper } from '../../zustand-state-helper';
 import type { CoreApi } from '../../../../core/core-api/core-api.interface';
@@ -45,7 +45,7 @@ describe('account plugin - balance command (ADR-003)', () => {
       'only-hbar': true,
     });
 
-    const result = await getAccountBalanceHandler(args);
+    const result = await getAccountBalance(args);
 
     expect(mirrorMock.getAccountHBarBalance).toHaveBeenCalledWith('0.0.1001');
     expect(result.status).toBe(Status.Success);
@@ -83,7 +83,7 @@ describe('account plugin - balance command (ADR-003)', () => {
     };
     const args = makeArgs(api, logger, { accountIdOrNameOrAlias: 'acc2' });
 
-    const result = await getAccountBalanceHandler(args);
+    const result = await getAccountBalance(args);
 
     expect(mirrorMock.getAccountHBarBalance).toHaveBeenCalledWith('0.0.2002');
     expect(mirrorMock.getAccountTokenBalances).toHaveBeenCalledWith('0.0.2002');
@@ -126,7 +126,7 @@ describe('account plugin - balance command (ADR-003)', () => {
     };
     const args = makeArgs(api, logger, { accountIdOrNameOrAlias: 'acc3' });
 
-    const result = await getAccountBalanceHandler(args);
+    const result = await getAccountBalance(args);
 
     expect(result.status).toBe(Status.Success);
     expect(result.outputJson).toBeDefined();
@@ -160,7 +160,7 @@ describe('account plugin - balance command (ADR-003)', () => {
     };
     const args = makeArgs(api, logger, { accountIdOrNameOrAlias: 'acc4' });
 
-    const result = await getAccountBalanceHandler(args);
+    const result = await getAccountBalance(args);
 
     expect(result.status).toBe(Status.Failure);
     expect(result.errorMessage).toBeDefined();
@@ -188,7 +188,7 @@ describe('account plugin - balance command (ADR-003)', () => {
     };
     const args = makeArgs(api, logger, { accountIdOrNameOrAlias: 'broken' });
 
-    const result = await getAccountBalanceHandler(args);
+    const result = await getAccountBalance(args);
 
     expect(result.status).toBe(Status.Failure);
     expect(result.errorMessage).toBeDefined();

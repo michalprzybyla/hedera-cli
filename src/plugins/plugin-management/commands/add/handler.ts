@@ -9,9 +9,7 @@ import { Status } from '../../../../core/shared/constants';
 import { formatError } from '../../../../utils/errors';
 import { AddPluginOutput } from './output';
 
-export default function addPlugin(
-  args: CommandHandlerArgs,
-): CommandExecutionResult {
+export function addPlugin(args: CommandHandlerArgs): CommandExecutionResult {
   const { logger } = args;
   const { path } = args.args as { path: string };
 

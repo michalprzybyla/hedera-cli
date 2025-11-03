@@ -1,4 +1,4 @@
-import viewAccountHandler from '../../commands/view/handler';
+import { viewAccount } from '../../commands/view/handler';
 import type { ViewAccountOutput } from '../../commands/view';
 import { ZustandAccountStateHelper } from '../../zustand-state-helper';
 import type { CoreApi } from '../../../../core/core-api/core-api.interface';
@@ -45,7 +45,7 @@ describe('account plugin - view command (ADR-003)', () => {
     };
     const args = makeArgs(api, logger, { accountIdOrNameOrAlias: 'acc1' });
 
-    const result = await viewAccountHandler(args);
+    const result = await viewAccount(args);
 
     expect(logger.log).toHaveBeenCalledWith('Viewing account details: acc1');
     expect(logger.log).toHaveBeenCalledWith('Found account in state: acc1');
@@ -81,7 +81,7 @@ describe('account plugin - view command (ADR-003)', () => {
     };
     const args = makeArgs(api, logger, { accountIdOrNameOrAlias: '0.0.2222' });
 
-    const result = await viewAccountHandler(args);
+    const result = await viewAccount(args);
 
     expect(logger.log).toHaveBeenCalledWith(
       'Viewing account details: 0.0.2222',
@@ -112,7 +112,7 @@ describe('account plugin - view command (ADR-003)', () => {
     };
     const args = makeArgs(api, logger, { accountIdOrNameOrAlias: '0.0.3333' });
 
-    const result = await viewAccountHandler(args);
+    const result = await viewAccount(args);
 
     expect(result.status).toBe(Status.Failure);
     expect(result.errorMessage).toBeDefined();
@@ -137,7 +137,7 @@ describe('account plugin - view command (ADR-003)', () => {
     };
     const args = makeArgs(api, logger, { accountIdOrNameOrAlias: 'broken' });
 
-    const result = await viewAccountHandler(args);
+    const result = await viewAccount(args);
 
     expect(result.status).toBe(Status.Failure);
     expect(result.errorMessage).toBeDefined();

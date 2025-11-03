@@ -3,7 +3,7 @@
  * Tests the token creation from file functionality of the token plugin
  */
 import type { CommandHandlerArgs } from '../../../../core/plugins/plugin.interface';
-import { createTokenFromFileHandler } from '../../commands/createFromFile';
+import { createTokenFromFile } from '../../commands/createFromFile';
 import { ZustandTokenStateHelper } from '../../zustand-state-helper';
 import type { TransactionResult } from '../../../../core/services/tx-execution/tx-execution-service.interface';
 import { Status } from '../../../../core/shared/constants';
@@ -142,7 +142,7 @@ describe('createTokenFromFileHandler', () => {
       };
 
       // Act
-      const result = await createTokenFromFileHandler(args);
+      const result = await createTokenFromFile(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -231,7 +231,7 @@ describe('createTokenFromFileHandler', () => {
       };
 
       // Act
-      const result = await createTokenFromFileHandler(args);
+      const result = await createTokenFromFile(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -322,7 +322,7 @@ describe('createTokenFromFileHandler', () => {
       };
 
       // Act
-      const result = await createTokenFromFileHandler(args);
+      const result = await createTokenFromFile(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -359,7 +359,7 @@ describe('createTokenFromFileHandler', () => {
       };
 
       // Act & Assert
-      const result = await createTokenFromFileHandler(args);
+      const result = await createTokenFromFile(args);
 
       // ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -393,7 +393,7 @@ describe('createTokenFromFileHandler', () => {
       };
 
       // Act & Assert
-      const result = await createTokenFromFileHandler(args);
+      const result = await createTokenFromFile(args);
 
       // ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -427,7 +427,7 @@ describe('createTokenFromFileHandler', () => {
       };
 
       // Act & Assert
-      const result = await createTokenFromFileHandler(args);
+      const result = await createTokenFromFile(args);
 
       // ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -478,7 +478,7 @@ describe('createTokenFromFileHandler', () => {
       };
 
       // Act & Assert
-      const result = await createTokenFromFileHandler(args);
+      const result = await createTokenFromFile(args);
 
       // ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -518,7 +518,7 @@ describe('createTokenFromFileHandler', () => {
       };
 
       // Act & Assert
-      const result = await createTokenFromFileHandler(args);
+      const result = await createTokenFromFile(args);
 
       // ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -555,7 +555,7 @@ describe('createTokenFromFileHandler', () => {
       };
 
       // Act & Assert
-      const result = await createTokenFromFileHandler(args);
+      const result = await createTokenFromFile(args);
 
       // ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -592,7 +592,7 @@ describe('createTokenFromFileHandler', () => {
       };
 
       // Act & Assert
-      const result = await createTokenFromFileHandler(args);
+      const result = await createTokenFromFile(args);
 
       // ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -658,7 +658,7 @@ describe('createTokenFromFileHandler', () => {
       };
 
       // Act & Assert
-      const result = await createTokenFromFileHandler(args);
+      const result = await createTokenFromFile(args);
 
       // ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -736,7 +736,7 @@ describe('createTokenFromFileHandler', () => {
       };
 
       // Act
-      const result = await createTokenFromFileHandler(args);
+      const result = await createTokenFromFile(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
@@ -813,7 +813,7 @@ describe('createTokenFromFileHandler', () => {
       };
 
       // Act
-      const result = await createTokenFromFileHandler(args);
+      const result = await createTokenFromFile(args);
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
