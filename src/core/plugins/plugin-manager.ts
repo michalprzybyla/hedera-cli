@@ -10,6 +10,7 @@ import { CommandHandlerArgs, PluginManifest } from './plugin.interface';
 import { CommandSpec } from './plugin.types';
 import { formatError } from '../../utils/errors';
 import { logger } from '../../utils/logger';
+import { Status } from '../shared/constants';
 
 interface LoadedPlugin {
   manifest: PluginManifest;
@@ -295,12 +296,12 @@ export class PluginManager {
 
       const executionResult = result;
 
-      // Handle failure or partial success
-      if (executionResult.status !== 'success') {
+      // Handle non-success statuses
+      if (executionResult.status !== Status.Success) {
         if (executionResult.errorMessage) {
           logger.error(executionResult.errorMessage);
         }
-        // Exit with code 1 for both 'failure' and 'partial' status
+        // Exit with code 1 for non-success status
         process.exit(1);
       }
 
