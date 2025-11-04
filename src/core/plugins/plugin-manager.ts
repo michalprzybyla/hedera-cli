@@ -11,7 +11,6 @@ import { CommandSpec } from './plugin.types';
 import { formatError } from '../../utils/errors';
 import { logger } from '../../utils/logger';
 import { Status } from '../shared/constants';
-import { isJsonOutput } from '../../utils/output';
 import { filterReservedOptions } from '../utils/filter-reserved-options';
 
 interface LoadedPlugin {
@@ -285,42 +284,48 @@ export class PluginManager {
       config: this.coreApi.config,
       logger: this.coreApi.logger,
     };
+
     const result = await commandSpec.handler(handlerArgs);
 
-    if (commandSpec.output) {
-      // ADR-003: If command has output spec, expect handler to return result
-      if (!result) {
-        throw new Error(
-          `Handler for ${commandSpec.name} must return CommandExecutionResult when output spec is defined`,
-        );
-      }
-
-      const executionResult = result;
-
-      if (executionResult.status !== Status.Success) {
-        throw new Error(
-          executionResult.errorMessage ||
-            `Command ${commandSpec.name} failed with status: ${executionResult.status}`,
-        );
-      }
-
-      if (executionResult.outputJson) {
-        try {
-          this.coreApi.output.handleCommandOutput({
-            outputJson: executionResult.outputJson,
-            schema: commandSpec.output.schema,
-            template: commandSpec.output.humanTemplate,
-            format: isJsonOutput() ? 'json' : 'human',
-          });
-        } catch (error) {
-          throw new Error(
-            `Failed to handle output from ${commandSpec.name}: ${formatError('', error)}`,
-          );
-        }
-      }
+    // Validate that output spec is present (required per CommandSpec type)
+    if (!commandSpec.output) {
+      throw new Error(
+        `Command ${commandSpec.name} must define an output specification`,
+      );
     }
 
-    
+    // ADR-003: If command has output spec, expect handler to return result
+    if (!result) {
+      throw new Error(
+        `Handler for ${commandSpec.name} must return CommandExecutionResult when output spec is defined`,
+      );
+    }
+
+    const executionResult = result;
+
+    // Handle non-success statuses
+    if (executionResult.status !== Status.Success) {
+      throw new Error(
+        executionResult.errorMessage ||
+          `Command ${commandSpec.name} failed with status: ${executionResult.status}`,
+      );
+    }
+
+    // Handle successful execution with output
+    if (executionResult.outputJson) {
+      try {
+        // Use OutputHandlerService to format and display output
+        this.coreApi.output.handleCommandOutput({
+          outputJson: executionResult.outputJson,
+          schema: commandSpec.output.schema,
+          template: commandSpec.output.humanTemplate,
+          format: this.coreApi.output.getFormat(),
+        });
+      } catch (error) {
+        throw new Error(
+          `Failed to handle output from ${commandSpec.name}: ${formatError('', error)}`,
+        );
+      }
+    }
   }
-  
 }

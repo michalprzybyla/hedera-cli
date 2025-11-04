@@ -85,7 +85,6 @@ export const topicPluginManifest: PluginManifest = {
         schema: CreateTopicOutputSchema,
         humanTemplate: CREATE_TOPIC_TEMPLATE,
       },
-    
     },
     {
       name: 'list',
@@ -105,7 +104,6 @@ export const topicPluginManifest: PluginManifest = {
         schema: ListTopicsOutputSchema,
         humanTemplate: LIST_TOPICS_TEMPLATE,
       },
-    
     },
     {
       name: 'submit-message',
@@ -132,7 +130,6 @@ export const topicPluginManifest: PluginManifest = {
         schema: SubmitMessageOutputSchema,
         humanTemplate: SUBMIT_MESSAGE_TEMPLATE,
       },
-    
     },
     {
       name: 'find-message',

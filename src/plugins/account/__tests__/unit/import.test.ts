@@ -123,7 +123,7 @@ describe('account plugin - import command (ADR-003)', () => {
     expect(result.status).toBe(Status.Failure);
     expect(result.errorMessage).toBeDefined();
     expect(result.errorMessage).toContain(
-      "Account with name 'test' already exists",
+      "Account with name 'imported-0-0-1111' already exists",
     );
   });
 

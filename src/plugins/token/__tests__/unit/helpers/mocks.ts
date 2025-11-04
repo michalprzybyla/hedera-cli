@@ -186,7 +186,10 @@ export const makeApiMocks = (config?: ApiMocksConfig) => {
     kms,
     alias,
     state,
-    mirror: (config?.mirror || {}) as unknown as any,
+    mirror: {
+      getTokenInfo: jest.fn().mockResolvedValue({ decimals: 6 }),
+      ...(config?.mirror || {}),
+    } as unknown as any,
     network: {
       getCurrentNetwork: jest
         .fn()

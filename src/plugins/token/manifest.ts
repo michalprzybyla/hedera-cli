@@ -86,7 +86,6 @@ export const tokenPluginManifest: PluginManifest = {
         schema: TransferTokenOutputSchema,
         humanTemplate: TRANSFER_TOKEN_TEMPLATE,
       },
-    
     },
     {
       name: 'create',
@@ -142,7 +141,6 @@ export const tokenPluginManifest: PluginManifest = {
         schema: CreateTokenOutputSchema,
         humanTemplate: CREATE_TOKEN_TEMPLATE,
       },
-    
     },
     {
       name: 'associate',
@@ -170,7 +168,6 @@ export const tokenPluginManifest: PluginManifest = {
         schema: AssociateTokenOutputSchema,
         humanTemplate: ASSOCIATE_TOKEN_TEMPLATE,
       },
-    
     },
     {
       name: 'create-from-file',
@@ -186,7 +183,6 @@ export const tokenPluginManifest: PluginManifest = {
         schema: CreateTokenFromFileOutputSchema,
         humanTemplate: CREATE_TOKEN_FROM_FILE_TEMPLATE,
       },
-    
     },
     {
       name: 'list',
@@ -216,7 +212,6 @@ export const tokenPluginManifest: PluginManifest = {
         schema: ListTokensOutputSchema,
         humanTemplate: LIST_TOKENS_TEMPLATE,
       },
-    
     },
   ],
   stateSchemas: [

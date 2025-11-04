@@ -59,7 +59,6 @@ export const hbarPluginManifest: PluginManifest = {
         schema: TransferOutputSchema,
         humanTemplate: TRANSFER_TEMPLATE,
       },
-    
     },
   ],
 };

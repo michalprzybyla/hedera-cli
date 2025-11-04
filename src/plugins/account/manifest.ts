@@ -87,7 +87,6 @@ export const accountPluginManifest: PluginManifest = {
         schema: CreateAccountOutputSchema,
         humanTemplate: CREATE_ACCOUNT_TEMPLATE,
       },
-    
     },
     {
       name: 'balance',
@@ -115,7 +114,6 @@ export const accountPluginManifest: PluginManifest = {
         schema: AccountBalanceOutputSchema,
         humanTemplate: ACCOUNT_BALANCE_TEMPLATE,
       },
-    
     },
     {
       name: 'list',
@@ -150,7 +148,6 @@ export const accountPluginManifest: PluginManifest = {
         schema: ImportAccountOutputSchema,
         humanTemplate: IMPORT_ACCOUNT_TEMPLATE,
       },
-    
     },
     {
       name: 'clear',
@@ -162,7 +159,6 @@ export const accountPluginManifest: PluginManifest = {
         schema: ClearAccountsOutputSchema,
         humanTemplate: CLEAR_ACCOUNTS_TEMPLATE,
       },
-    
     },
     {
       name: 'delete',
@@ -177,7 +173,6 @@ export const accountPluginManifest: PluginManifest = {
         schema: DeleteAccountOutputSchema,
         humanTemplate: DELETE_ACCOUNT_TEMPLATE,
       },
-    
     },
     {
       name: 'view',

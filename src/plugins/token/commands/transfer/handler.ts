@@ -178,7 +178,7 @@ export async function transferToken(
         tokenId,
         from: fromAccountId,
         to: toAccountId,
-        amount: rawAmount.toString(),
+        amount: BigInt(rawAmount.toString()),
       };
 
       return {
@@ -200,4 +200,3 @@ export async function transferToken(
     };
   }
 }
-

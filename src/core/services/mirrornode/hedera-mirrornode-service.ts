@@ -22,7 +22,6 @@ import {
   TopicMessageQueryParams,
 } from './types';
 import { formatError } from '../../../utils/errors';
-import { BigNumber } from 'bignumber.js';
 
 export class HederaMirrornodeServiceDefaultImpl
   implements HederaMirrornodeService

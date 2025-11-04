@@ -3,11 +3,11 @@
  * Tests that all command handlers return CommandExecutionResult according to ADR-003
  */
 import type { CommandHandlerArgs } from '../../../../core/plugins/plugin.interface';
-import { createToken } from '../../commands/create';
-import { transferToken } from '../../commands/transfer';
-import { associateToken } from '../../commands/associate';
-import { listTokens } from '../../commands/list';
-import { createTokenFromFile } from '../../commands/createFromFile';
+import { createToken } from '../../commands/create/handler';
+import { transferToken } from '../../commands/transfer/handler';
+import { associateToken } from '../../commands/associate/handler';
+import { listTokens } from '../../commands/list/handler';
+import { createTokenFromFile } from '../../commands/createFromFile/handler';
 import { ZustandTokenStateHelper } from '../../zustand-state-helper';
 import type { CreateTokenOutput } from '../../commands/create';
 import type { TransferTokenOutput } from '../../commands/transfer';
@@ -68,10 +68,10 @@ describe('ADR-003 Compliance - Token Plugin', () => {
       });
 
       const args = {
-        name: 'TestToken',
+        tokenName: 'TestToken',
         symbol: 'TTK',
         decimals: 2,
-        initialSupply: 1000,
+        initialSupply: '1000',
         supplyType: 'INFINITE',
       };
 
@@ -169,7 +169,7 @@ describe('ADR-003 Compliance - Token Plugin', () => {
         token: '0.0.12345',
         from: '0.0.111',
         to: '0.0.222',
-        balance: 100,
+        balance: '100t',
       };
 
       // Act

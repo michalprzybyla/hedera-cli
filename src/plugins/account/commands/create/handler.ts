@@ -3,14 +3,6 @@
  * Handles account creation using the Core API
  * Follows ADR-003 contract: returns CommandExecutionResult
  */
-<<<<<<< HEAD:src/plugins/account/commands/create.ts
-import { CommandHandlerArgs } from '../../../core/plugins/plugin.interface';
-import type { AccountData } from '../schema';
-import { AliasType } from '../../../core/services/alias/alias-service.interface';
-import { formatError } from '../../../utils/errors';
-import { ZustandAccountStateHelper } from '../zustand-state-helper';
-import { processBalanceInput } from '../../../core/utils/process-balance-input';
-=======
 import { CommandHandlerArgs } from '../../../../core/plugins/plugin.interface';
 import { CommandExecutionResult } from '../../../../core/plugins/plugin.types';
 import { Status } from '../../../../core/shared/constants';
@@ -18,8 +10,8 @@ import type { AccountData } from '../../schema';
 import { AliasType } from '../../../../core/services/alias/alias-service.interface';
 import { formatError } from '../../../../utils/errors';
 import { ZustandAccountStateHelper } from '../../zustand-state-helper';
+import { processBalanceInput } from '../../../../core/utils/process-balance-input';
 import { CreateAccountOutput } from './output';
->>>>>>> c952bb56 (ADR003 implementation prototype - account plugin):src/plugins/account/commands/create/handler.ts
 
 export async function createAccount(
   args: CommandHandlerArgs,
@@ -30,7 +22,6 @@ export async function createAccount(
   const accountState = new ZustandAccountStateHelper(api.state, logger);
 
   // Extract command arguments
-<<<<<<< HEAD:src/plugins/account/commands/create.ts
   const rawBalance =
     args.args.balance !== undefined
       ? (args.args.balance as string | number)
@@ -42,17 +33,12 @@ export async function createAccount(
     // HBAR uses 8 decimals
     balance = processBalanceInput(rawBalance, 8).toNumber();
   } catch (error) {
-    logger.error(
-      `Invalid balance parameter: ${error instanceof Error ? error.message : String(error)}`,
-    );
-    process.exit(1);
-    return;
+    return {
+      status: Status.Failure,
+      errorMessage: formatError('Invalid balance parameter', error),
+    };
   }
 
-=======
-  const balance =
-    args.args.balance !== undefined ? (args.args.balance as number) : 1;
->>>>>>> c952bb56 (ADR003 implementation prototype - account plugin):src/plugins/account/commands/create/handler.ts
   const autoAssociations = (args.args['auto-associations'] as number) || 0;
   const alias = (args.args.name as string) || '';
 
@@ -112,16 +98,6 @@ export async function createAccount(
 
       accountState.saveAccount(name, accountData);
 
-<<<<<<< HEAD:src/plugins/account/commands/create.ts
-      logger.log(`✅ Account created successfully: ${accountData.accountId}`);
-      logger.log(`   Name: ${accountData.name}`);
-      logger.log(`   Type: ${accountData.type}`);
-      if (alias) {
-        logger.log(`   Name: ${alias}`);
-      }
-      logger.log(`   Network: ${accountData.network}`);
-      logger.log(`   Transaction ID: ${result.transactionId}`);
-=======
       // Prepare output data
       const outputData: CreateAccountOutput = {
         accountId: accountData.accountId,
@@ -133,7 +109,6 @@ export async function createAccount(
         evmAddress: accountData.evmAddress,
         publicKey: accountData.publicKey,
       };
->>>>>>> c952bb56 (ADR003 implementation prototype - account plugin):src/plugins/account/commands/create/handler.ts
 
       return {
         status: Status.Success,

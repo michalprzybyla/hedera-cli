@@ -7,7 +7,10 @@ import { PluginManifest } from '../../core/plugins/plugin.interface';
 import { ListStateOutputSchema, LIST_STATE_TEMPLATE } from './commands/list';
 import { ClearStateOutputSchema, CLEAR_STATE_TEMPLATE } from './commands/clear';
 import { StateInfoOutputSchema, STATE_INFO_TEMPLATE } from './commands/info';
-import { StateBackupOutputSchema, STATE_BACKUP_TEMPLATE } from './commands/backup';
+import {
+  StateBackupOutputSchema,
+  STATE_BACKUP_TEMPLATE,
+} from './commands/backup';
 import { StateStatsOutputSchema, STATE_STATS_TEMPLATE } from './commands/stats';
 import { listState } from './commands/list/handler';
 import { clearState } from './commands/clear/handler';
@@ -39,7 +42,6 @@ export const stateManagementManifest: PluginManifest = {
         schema: ListStateOutputSchema,
         humanTemplate: LIST_STATE_TEMPLATE,
       },
-    
     },
     {
       name: 'clear',
@@ -54,7 +56,6 @@ export const stateManagementManifest: PluginManifest = {
         schema: ClearStateOutputSchema,
         humanTemplate: CLEAR_STATE_TEMPLATE,
       },
-    
     },
     {
       name: 'info',
@@ -88,7 +89,6 @@ export const stateManagementManifest: PluginManifest = {
         schema: StateStatsOutputSchema,
         humanTemplate: STATE_STATS_TEMPLATE,
       },
-    },
     },
   ],
 };

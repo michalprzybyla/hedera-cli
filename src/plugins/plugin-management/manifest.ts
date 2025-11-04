@@ -3,10 +3,6 @@
  * A plugin for managing other plugins
  */
 import { PluginManifest } from '../../core/plugins/plugin.interface';
-import { AddPluginOutputSchema, ADD_PLUGIN_TEMPLATE } from './commands/add/output';
-import { RemovePluginOutputSchema, REMOVE_PLUGIN_TEMPLATE } from './commands/remove/output';
-import { ListPluginsOutputSchema, LIST_PLUGINS_TEMPLATE } from './commands/list/output';
-import { PluginInfoOutputSchema, PLUGIN_INFO_TEMPLATE } from './commands/info/output';
 import {
   AddPluginOutputSchema,
   ADD_PLUGIN_TEMPLATE,
@@ -50,7 +46,6 @@ export const pluginManagementManifest: PluginManifest = {
         schema: AddPluginOutputSchema,
         humanTemplate: ADD_PLUGIN_TEMPLATE,
       },
-    
     },
     {
       name: 'remove',
@@ -62,7 +57,6 @@ export const pluginManagementManifest: PluginManifest = {
         schema: RemovePluginOutputSchema,
         humanTemplate: REMOVE_PLUGIN_TEMPLATE,
       },
-    
     },
     {
       name: 'list',
@@ -73,7 +67,6 @@ export const pluginManagementManifest: PluginManifest = {
         schema: ListPluginsOutputSchema,
         humanTemplate: LIST_PLUGINS_TEMPLATE,
       },
-    
     },
     {
       name: 'info',

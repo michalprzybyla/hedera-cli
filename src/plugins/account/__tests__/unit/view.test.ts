@@ -44,7 +44,7 @@ describe('account plugin - view command (ADR-003)', () => {
       logger,
       state: {} as any,
     };
-    const args = makeArgs(api, logger, { account: 'acc1' });
+    const args = makeArgs(api, logger, { accountIdOrNameOrAlias: 'acc1' });
 
     const result = await viewAccount(args);
 

@@ -75,7 +75,7 @@ describe('transferTokenHandler', () => {
       expect(output.tokenId).toBe('0.0.123456');
       expect(output.from).toBe('0.0.345678');
       expect(output.to).toBe('0.0.789012');
-      expect(output.amount).toBe('100');
+      expect(output.amount).toBe('100000000');
       expect(output.transactionId).toBe('0.0.123@1234567890.123456789');
 
       expect(tokens.createTransferTransaction).toHaveBeenCalledWith({
@@ -155,7 +155,7 @@ describe('transferTokenHandler', () => {
       expect(output.tokenId).toBe('0.0.123456');
       expect(output.from).toBe('0.0.345678');
       expect(output.to).toBe('0.0.789012');
-      expect(output.amount).toBe('100');
+      expect(output.amount).toBe('100000000');
       expect(output.transactionId).toBe('0.0.123@1234567890.123456789');
 
       expect(alias.resolve).toHaveBeenCalledWith('alice', 'account', 'testnet');
@@ -447,14 +447,6 @@ describe('transferTokenHandler', () => {
         signing: _signing,
         kms: _kms,
       } = makeApiMocks({
-<<<<<<< HEAD
-        createTransferImpl: jest
-          .fn()
-          .mockResolvedValue(mockTransferTransaction),
-        signAndExecuteImpl: jest.fn().mockResolvedValue(mockSignResult),
-        mirror: {
-          getTokenInfo: jest.fn().mockResolvedValue({ decimals: 6 }),
-=======
         tokenTransactions: {
           createTransferTransaction: jest
             .fn()
@@ -462,7 +454,6 @@ describe('transferTokenHandler', () => {
         },
         signing: {
           signAndExecuteWith: jest.fn().mockResolvedValue(mockSignResult),
->>>>>>> 46d82aac (Feat/scripting adr 003 implementation token (#49))
         },
         kms: {
           importPrivateKey: jest.fn().mockReturnValue({
@@ -664,7 +655,7 @@ describe('transferTokenHandler', () => {
           tokenId: '0.0.123456',
           fromAccountId: '0.0.345678',
           toAccountId: '0.0.789012',
-          amount: 999999999,
+          amount: 999999999000000,
         },
       );
     });
@@ -803,49 +794,14 @@ describe('transferTokenHandler', () => {
           tokenId: '0.0.123456',
           fromAccountId: '0.0.345678',
           toAccountId: '0.0.345678',
-          amount: 100,
+          amount: 100000000,
         },
       );
     });
 
     test('should handle decimal amounts', async () => {
       // Arrange
-<<<<<<< HEAD
-      const mockTransferTransaction = { test: 'transfer-transaction' };
-      const mockSignResult: TransactionResult = {
-        success: true,
-        transactionId: '0.0.123@1234567890.123456789',
-        receipt: {} as any,
-      };
-
-      const {
-        api,
-        tokens,
-        signing: _signing,
-        kms: _kms,
-      } = makeApiMocks({
-        tokens: {
-          createTransferTransaction: jest
-            .fn()
-            .mockReturnValue(mockTransferTransaction),
-        },
-        signing: {
-          signAndExecuteWith: jest.fn().mockResolvedValue(mockSignResult),
-        },
-        mirror: {
-          getTokenInfo: jest.fn().mockResolvedValue({ decimals: 6 }),
-        },
-        kms: {
-          importPrivateKey: jest.fn().mockReturnValue({
-            keyRefId: 'imported-key-ref-id',
-            publicKey: 'imported-public-key',
-          }),
-        },
-      });
-
-=======
       const { api } = makeApiMocks({});
->>>>>>> 46d82aac (Feat/scripting adr 003 implementation token (#49))
       const logger = makeLogger();
       const args: CommandHandlerArgs = {
         args: {
@@ -865,10 +821,10 @@ describe('transferTokenHandler', () => {
 
       // Assert - ADR-003 compliance: check CommandExecutionResult
       expect(result).toBeDefined();
-      expect(result.status).toBe(Status.Failure);
-      expect(result.errorMessage).toBeDefined();
-      expect(result.errorMessage).toContain('cannot be converted to a BigInt');
-      expect(result.outputJson).toBeUndefined();
+      expect(result.status).toBe(Status.Success);
+      expect(result.outputJson).toBeDefined();
+      const output = JSON.parse(result.outputJson!);
+      expect(output.amount).toBe('100500000');
     });
   });
 });

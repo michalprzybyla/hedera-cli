@@ -79,7 +79,6 @@ export const credentialsManifest: PluginManifest = {
         schema: RemoveCredentialsOutputSchema,
         humanTemplate: REMOVE_CREDENTIALS_TEMPLATE,
       },
-    
     },
   ],
 };

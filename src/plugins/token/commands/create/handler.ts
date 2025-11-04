@@ -13,7 +13,10 @@ import { SupportedNetwork } from '../../../../core/types/shared.types';
 import { Transaction as HederaTransaction } from '@hashgraph/sdk';
 import { ZustandTokenStateHelper } from '../../zustand-state-helper';
 import { TokenData, safeValidateTokenCreateParams } from '../../schema';
-import { resolveTreasuryParameter, resolveKeyParameter } from '../../resolver-helper';
+import {
+  resolveTreasuryParameter,
+  resolveKeyParameter,
+} from '../../resolver-helper';
 import { formatError } from '../../../../utils/errors';
 import { CreateTokenOutput } from './output';
 import { processBalanceInput } from '../../../../core/utils/process-balance-input';
@@ -397,4 +400,3 @@ export async function createToken(
     };
   }
 }
-
