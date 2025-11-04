@@ -15,7 +15,6 @@ import {
   makeMirrorMock,
   setupExitSpy,
 } from '../../../../../__tests__/helpers/plugin';
-import BigNumber from 'bignumber.js';
 
 jest.mock('../../zustand-state-helper', () => ({
   ZustandAccountStateHelper: jest.fn(),
@@ -131,7 +130,7 @@ describe('account plugin - create command (ADR-003)', () => {
 
     expect(kms.createLocalPrivateKey).toHaveBeenCalled();
     expect(account.createAccount).toHaveBeenCalledWith({
-      balanceRaw: new BigNumber(500000000000),
+      balanceRaw: 500000000000n,
       maxAutoAssociations: 3,
       publicKey: 'pub-key-test',
       keyType: 'ECDSA',
@@ -202,7 +201,7 @@ describe('account plugin - create command (ADR-003)', () => {
       logger,
     };
 
-    const args = makeArgs(api, logger, { name: 'failAccount' });
+    const args = makeArgs(api, logger, { name: 'failAccount', balance: 100 });
 
     const result = await createAccount(args);
 
@@ -230,7 +229,7 @@ describe('account plugin - create command (ADR-003)', () => {
       logger,
     };
 
-    const args = makeArgs(api, logger, { name: 'errorAccount' });
+    const args = makeArgs(api, logger, { name: 'errorAccount', balance: 100 });
 
     const result = await createAccount(args);
 

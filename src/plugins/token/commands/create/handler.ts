@@ -29,9 +29,9 @@ import type { TokenCreateParams } from '../../../../core/types/token.types';
  * @returns The calculated final max supply (defaults to initialSupply if not provided)
  */
 function determineFiniteMaxSupply(
-  maxSupply: number | undefined,
-  initialSupply: number,
-): number {
+  maxSupply: bigint | undefined,
+  initialSupply: bigint,
+): bigint {
   if (maxSupply !== undefined) {
     if (maxSupply < initialSupply) {
       throw new Error(
@@ -136,7 +136,7 @@ function buildTokenData(
     symbol: string;
     treasuryId: string;
     decimals: number;
-    initialSupply: number;
+    initialSupply: bigint;
     supplyType: string;
     adminPublicKey: string;
     treasuryPublicKey?: string;
@@ -149,10 +149,12 @@ function buildTokenData(
     symbol: params.symbol,
     treasuryId: params.treasuryId,
     decimals: params.decimals,
-    initialSupply: params.initialSupply,
+    initialSupply: Number(params.initialSupply),
     supplyType: params.supplyType.toUpperCase() as 'FINITE' | 'INFINITE',
     maxSupply:
-      params.supplyType.toUpperCase() === 'FINITE' ? params.initialSupply : 0,
+      params.supplyType.toUpperCase() === 'FINITE'
+        ? Number(params.initialSupply)
+        : 0,
     keys: {
       adminKey: params.adminPublicKey,
       supplyKey: '',
@@ -196,13 +198,10 @@ export async function createToken(
   const decimals = validatedParams.decimals || 0;
   const rawInitialSupply = validatedParams.initialSupply || 1000000;
   // Convert display units to raw token units
-  const initialSupply = processBalanceInput(
-    rawInitialSupply,
-    decimals,
-  ).toNumber();
+  const initialSupply = processBalanceInput(rawInitialSupply, decimals);
   const supplyType = validatedParams.supplyType || 'INFINITE';
   const maxSupply = validatedParams.maxSupply
-    ? processBalanceInput(validatedParams.maxSupply, decimals).toNumber()
+    ? processBalanceInput(validatedParams.maxSupply, decimals)
     : undefined;
   const alias = validatedParams.name;
 
@@ -241,7 +240,7 @@ export async function createToken(
   }
 
   // Validate and determine maxSupply
-  let finalMaxSupply: number | undefined = undefined;
+  let finalMaxSupply: bigint | undefined = undefined;
   if (supplyType.toUpperCase() === 'FINITE') {
     finalMaxSupply = determineFiniteMaxSupply(maxSupply, initialSupply);
   } else if (maxSupply !== undefined) {

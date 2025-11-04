@@ -82,7 +82,7 @@ describe('transferTokenHandler', () => {
         tokenId: '0.0.123456',
         fromAccountId: '0.0.345678',
         toAccountId: '0.0.789012',
-        amount: 100000000,
+        amount: 100000000n,
       });
       expect(signing.signAndExecuteWith).toHaveBeenCalledWith(
         mockTransferTransaction,
@@ -163,7 +163,7 @@ describe('transferTokenHandler', () => {
         tokenId: '0.0.123456',
         fromAccountId: '0.0.345678',
         toAccountId: '0.0.789012',
-        amount: 100000000,
+        amount: 100000000n,
       });
       expect(signing.signAndExecuteWith).toHaveBeenCalledWith(
         mockTransferTransaction,
@@ -250,7 +250,7 @@ describe('transferTokenHandler', () => {
         tokenId: '0.0.123456',
         fromAccountId: '0.0.345678',
         toAccountId: '0.0.789012',
-        amount: 100000000,
+        amount: 100000000n,
       });
     });
 
@@ -655,7 +655,7 @@ describe('transferTokenHandler', () => {
           tokenId: '0.0.123456',
           fromAccountId: '0.0.345678',
           toAccountId: '0.0.789012',
-          amount: 999999999000000,
+          amount: 999999999000000n,
         },
       );
     });
@@ -794,7 +794,7 @@ describe('transferTokenHandler', () => {
           tokenId: '0.0.123456',
           fromAccountId: '0.0.345678',
           toAccountId: '0.0.345678',
-          amount: 100000000,
+          amount: 100000000n,
         },
       );
     });
