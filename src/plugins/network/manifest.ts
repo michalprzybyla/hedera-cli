@@ -10,6 +10,16 @@ import {
 import { UseNetworkOutputSchema, USE_NETWORK_TEMPLATE } from './commands/use';
 import { listHandler } from './commands/list/handler';
 import { useHandler } from './commands/use/handler';
+import {
+  GetOperatorOutputSchema,
+  GET_OPERATOR_TEMPLATE,
+} from './commands/get-operator/index';
+import { getOperatorHandler } from './commands/get-operator/handler';
+import {
+  SetOperatorOutputSchema,
+  SET_OPERATOR_TEMPLATE,
+} from './commands/set-operator/index';
+import { setOperatorHandler } from './commands/set-operator/handler';
 
 export const networkPluginManifest: PluginManifest = {
   name: 'network',
@@ -42,7 +52,7 @@ export const networkPluginManifest: PluginManifest = {
       options: [
         {
           name: 'network',
-          short: 'n',
+          short: 'N',
           type: 'string',
           required: true,
           description: 'Network name (testnet, mainnet, previewnet, localnet)',
@@ -52,6 +62,52 @@ export const networkPluginManifest: PluginManifest = {
       output: {
         schema: UseNetworkOutputSchema,
         humanTemplate: USE_NETWORK_TEMPLATE,
+      },
+    },
+    {
+      name: 'get-operator',
+      summary: 'Get operator for a network',
+      description: 'Get operator credentials for a specific network',
+      options: [
+        {
+          name: 'network',
+          short: 'N',
+          type: 'string',
+          required: false,
+          description: 'Target network (defaults to current network)',
+        },
+      ],
+      handler: getOperatorHandler,
+      output: {
+        schema: GetOperatorOutputSchema,
+        humanTemplate: GET_OPERATOR_TEMPLATE,
+      },
+    },
+    {
+      name: 'set-operator',
+      summary: 'Set operator for a network',
+      description:
+        'Set operator credentials for signing transactions on a specific network',
+      options: [
+        {
+          name: 'operator',
+          type: 'string',
+          required: true,
+          description:
+            'Operator credentials: name or account-id:private-key pair',
+        },
+        {
+          name: 'network',
+          short: 'N',
+          type: 'string',
+          required: false,
+          description: 'Target network (defaults to current network)',
+        },
+      ],
+      handler: setOperatorHandler,
+      output: {
+        schema: SetOperatorOutputSchema,
+        humanTemplate: SET_OPERATOR_TEMPLATE,
       },
     },
   ],
