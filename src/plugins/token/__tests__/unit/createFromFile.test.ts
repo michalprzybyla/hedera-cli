@@ -261,9 +261,9 @@ describe('createTokenFromFileHandler', () => {
         symbol: 'TEST',
         treasuryId: '0.0.123456',
         decimals: 2,
-        initialSupplyRaw: 1000,
+        initialSupplyRaw: 1000n,
         supplyType: 'INFINITE',
-        maxSupplyRaw: 0,
+        maxSupplyRaw: 0n,
         adminKey: 'admin-key',
         customFees: [
           {

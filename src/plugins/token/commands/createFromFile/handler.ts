@@ -334,11 +334,11 @@ export async function createTokenFromFile(
       symbol: tokenDefinition.symbol,
       treasuryId: treasury.treasuryId,
       decimals: tokenDefinition.decimals,
-      initialSupplyRaw: tokenDefinition.initialSupply,
+      initialSupplyRaw: BigInt(tokenDefinition.initialSupply),
       supplyType: tokenDefinition.supplyType.toUpperCase() as
         | 'FINITE'
         | 'INFINITE',
-      maxSupplyRaw: tokenDefinition.maxSupply,
+      maxSupplyRaw: BigInt(tokenDefinition.maxSupply),
       adminKey: tokenDefinition.keys.adminKey,
       customFees: tokenDefinition.customFees.map((fee) => ({
         type: fee.type,

@@ -20,15 +20,15 @@ import { Hbar } from '@hashgraph/sdk';
  *
  * @param availableBalance - Available balance in tinybars
  * @param requiredBalance - Required balance in tinybars
- * @param context - Context for error message (account type and ID)
+ * @param accountId - Context for error message
  * @throws Error if balance is insufficient
  */
 function validateSufficientBalance(
-  availableBalance: BigNumber,
-  requiredBalance: BigNumber,
-  context: { accountType: string; accountId: string },
+  availableBalance: bigint,
+  requiredBalance: bigint,
+  accountId: string,
 ): void {
-  const isBalanceSufficient = availableBalance.gt(requiredBalance);
+  const isBalanceSufficient = availableBalance > requiredBalance;
 
   if (!isBalanceSufficient) {
     // Convert to HBAR only for display purposes
@@ -36,7 +36,7 @@ function validateSufficientBalance(
     const availableHbar = Hbar.fromTinybars(availableBalance).toString();
 
     throw new Error(
-      `Insufficient balance in ${context.accountType} account ${context.accountId}.\n` +
+      `Insufficient balance in account ${accountId}.\n` +
         `   Required balance:  ${requiredHbar}\n` +
         `   Available balance: ${availableHbar}`,
     );
@@ -52,8 +52,8 @@ export async function createAccount(
   const accountState = new ZustandAccountStateHelper(api.state, logger);
 
   // Extract command arguments
-  const rawBalance = args.args.balance as number;
-  let balance: BigNumber;
+  const rawBalance = args.args.balance as string;
+  let balance: bigint;
 
   try {
     // Convert balance input: display units (default) or base units (with 't' suffix)
@@ -88,10 +88,7 @@ export async function createAccount(
   );
 
   // Validate operator has sufficient balance to create the account
-  validateSufficientBalance(operatorBalance, balance, {
-    accountType: 'operator',
-    accountId: operator.accountId,
-  });
+  validateSufficientBalance(operatorBalance, balance, operator.accountId);
 
   const name = alias || `account-${Date.now()}`;
 
