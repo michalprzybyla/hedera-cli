@@ -1,6 +1,6 @@
 /**
  * Token Plugin Parameter Resolvers
- * Helper functions to resolve command parameters (names, account IDs, keys)
+ * Helper functions to resolve command parameters (aliases, account IDs, keys)
  * using CoreApi services
  */
 import { CoreApi } from '../../core';
@@ -15,6 +15,47 @@ export interface ResolvedTreasury {
   treasuryId: string;
   treasuryKeyRefId: string;
   treasuryPublicKey: string;
+}
+
+/**
+ * Parse and validate an account-id:private-key pair
+ *
+ * @param idKeyPair - The colon-separated account-id:private-key string
+ * @param api - Core API instance for importing the key
+ * @param entityType - The type of entity (for error messages)
+ * @returns Object with accountId, keyRefId, and publicKey
+ * @throws Error if the format is invalid or account ID doesn't match expected pattern
+ */
+function parseAccountIdKeyPair(
+  idKeyPair: string,
+  api: CoreApi,
+  entityType: 'treasury' | 'account',
+): { accountId: string; keyRefId: string; publicKey: string } {
+  const parts = idKeyPair.split(':');
+  if (parts.length !== 2) {
+    throw new Error(
+      `Invalid ${entityType} format. Expected either an alias or ${entityType}-id:${entityType}-key`,
+    );
+  }
+
+  const [accountId, privateKey] = parts;
+
+  // Validate account ID format
+  const accountIdPattern = /^0\.0\.\d+$/;
+  if (!accountIdPattern.test(accountId)) {
+    throw new Error(
+      `Invalid ${entityType} ID format: ${accountId}. Expected format: 0.0.123456`,
+    );
+  }
+
+  // Import the private key
+  const imported = api.kms.importPrivateKey(privateKey);
+
+  return {
+    accountId,
+    keyRefId: imported.keyRefId,
+    publicKey: imported.publicKey,
+  };
 }
 
 /**

@@ -4,13 +4,41 @@
  */
 import { PluginManifest } from '../../core';
 import { ACCOUNT_JSON_SCHEMA, ACCOUNT_NAMESPACE } from './schema';
-import { createAccountHandler } from './commands/create';
-import { getAccountBalanceHandler } from './commands/balance';
-import { listAccountsHandler } from './commands/list';
-import { importAccountHandler } from './commands/import';
-import { clearAccountsHandler } from './commands/clear';
-import { deleteAccountHandler } from './commands/delete';
-import { viewAccountHandler } from './commands/view';
+import {
+  ListAccountsOutputSchema,
+  LIST_ACCOUNTS_TEMPLATE,
+} from './commands/list';
+import {
+  CreateAccountOutputSchema,
+  CREATE_ACCOUNT_TEMPLATE,
+} from './commands/create';
+import {
+  AccountBalanceOutputSchema,
+  ACCOUNT_BALANCE_TEMPLATE,
+} from './commands/balance';
+import {
+  ClearAccountsOutputSchema,
+  CLEAR_ACCOUNTS_TEMPLATE,
+} from './commands/clear';
+import {
+  DeleteAccountOutputSchema,
+  DELETE_ACCOUNT_TEMPLATE,
+} from './commands/delete';
+import {
+  ViewAccountOutputSchema,
+  VIEW_ACCOUNT_TEMPLATE,
+} from './commands/view';
+import {
+  ImportAccountOutputSchema,
+  IMPORT_ACCOUNT_TEMPLATE,
+} from './commands/import';
+import { createAccount } from './commands/create/handler';
+import { getAccountBalance } from './commands/balance/handler';
+import { listAccounts } from './commands/list/handler';
+import { importAccount } from './commands/import/handler';
+import { clearAccounts } from './commands/clear/handler';
+import { deleteAccount } from './commands/delete/handler';
+import { viewAccount } from './commands/view/handler';
 
 export const accountPluginManifest: PluginManifest = {
   name: 'account',
@@ -42,7 +70,7 @@ export const accountPluginManifest: PluginManifest = {
           required: false,
           default: 10000,
           description:
-            'Initial HBAR balance. Default: display units. Add "t" for base units. Default: 10000 display units (1000000000 tinybar)',
+            'Initial HBAR balance. Default: display units. Add "t" for base units. Default: 10000 display units (1000000000 tinybar)'
         },
         {
           name: 'auto-associations',
@@ -54,7 +82,11 @@ export const accountPluginManifest: PluginManifest = {
         { name: 'name', short: 'n', type: 'string', required: false },
         { name: 'payer', short: 'p', type: 'string', required: false },
       ],
-      handler: createAccountHandler,
+      handler: createAccount,
+      output: {
+        schema: CreateAccountOutputSchema,
+        humanTemplate: CREATE_ACCOUNT_TEMPLATE,
+      },
     },
     {
       name: 'balance',
@@ -77,7 +109,11 @@ export const accountPluginManifest: PluginManifest = {
         },
         { name: 'token-id', short: 't', type: 'string', required: false },
       ],
-      handler: getAccountBalanceHandler,
+      handler: getAccountBalance,
+      output: {
+        schema: AccountBalanceOutputSchema,
+        humanTemplate: ACCOUNT_BALANCE_TEMPLATE,
+      },
     },
     {
       name: 'list',
@@ -92,7 +128,11 @@ export const accountPluginManifest: PluginManifest = {
           default: false,
         },
       ],
-      handler: listAccountsHandler,
+      handler: listAccounts,
+      output: {
+        schema: ListAccountsOutputSchema,
+        humanTemplate: LIST_ACCOUNTS_TEMPLATE,
+      },
     },
     {
       name: 'import',
@@ -103,14 +143,22 @@ export const accountPluginManifest: PluginManifest = {
         { name: 'key', short: 'k', type: 'string', required: false },
         { name: 'name', short: 'n', type: 'string', required: false },
       ],
-      handler: importAccountHandler,
+      handler: importAccount,
+      output: {
+        schema: ImportAccountOutputSchema,
+        humanTemplate: IMPORT_ACCOUNT_TEMPLATE,
+      },
     },
     {
       name: 'clear',
       summary: 'Clear all accounts',
       description: 'Remove all account information from the address book',
       options: [],
-      handler: clearAccountsHandler,
+      handler: clearAccounts,
+      output: {
+        schema: ClearAccountsOutputSchema,
+        humanTemplate: CLEAR_ACCOUNTS_TEMPLATE,
+      },
     },
     {
       name: 'delete',
@@ -120,7 +168,11 @@ export const accountPluginManifest: PluginManifest = {
         { name: 'name', short: 'n', type: 'string', required: false },
         { name: 'id', short: 'i', type: 'string', required: false },
       ],
-      handler: deleteAccountHandler,
+      handler: deleteAccount,
+      output: {
+        schema: DeleteAccountOutputSchema,
+        humanTemplate: DELETE_ACCOUNT_TEMPLATE,
+      },
     },
     {
       name: 'view',
@@ -134,7 +186,11 @@ export const accountPluginManifest: PluginManifest = {
           required: true,
         },
       ],
-      handler: viewAccountHandler,
+      handler: viewAccount,
+      output: {
+        schema: ViewAccountOutputSchema,
+        humanTemplate: VIEW_ACCOUNT_TEMPLATE,
+      },
     },
   ],
   stateSchemas: [

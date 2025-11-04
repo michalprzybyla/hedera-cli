@@ -1,5 +1,6 @@
-import { listTokensHandler } from '../../commands/list';
+import { listTokens } from '../../commands/list';
 import { ZustandTokenStateHelper } from '../../zustand-state-helper';
+import { Status } from '../../../../core/shared/constants';
 import {
   makeLogger,
   makeApiMocks,
@@ -11,12 +12,7 @@ import {
   mockListTokens,
   mockTokenStats,
 } from './helpers/fixtures';
-import {
-  makeArgs,
-  setupExitSpy,
-} from '../../../../../__tests__/helpers/plugin';
-
-let exitSpy: jest.SpyInstance;
+import { makeArgs } from '../../../../../__tests__/helpers/plugin';
 
 jest.mock('../../zustand-state-helper', () => ({
   ZustandTokenStateHelper: jest.fn(),
@@ -24,20 +20,12 @@ jest.mock('../../zustand-state-helper', () => ({
 
 const MockedHelper = ZustandTokenStateHelper as jest.Mock;
 
-beforeAll(() => {
-  exitSpy = setupExitSpy();
-});
-
-afterAll(() => {
-  exitSpy.mockRestore();
-});
-
 describe('token plugin - list command', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  test('logs message when no tokens exist', () => {
+  test('logs message when no tokens exist', async () => {
     const logger = makeLogger();
     setupZustandHelperMock(MockedHelper, {
       tokens: mockListTokens.empty,
@@ -52,15 +40,22 @@ describe('token plugin - list command', () => {
     });
     const args = makeArgs(api, logger, {});
 
-    listTokensHandler(args);
+    const result = await listTokens(args);
 
-    expect(logger.log).toHaveBeenCalledWith(
-      expect.stringContaining('No tokens found for current network: testnet'),
-    );
-    expect(exitSpy).toHaveBeenCalledWith(0);
+    // ADR-003 compliance: check CommandExecutionResult
+    expect(result).toBeDefined();
+    expect(result.status).toBe(Status.Success);
+    expect(result.outputJson).toBeDefined();
+    expect(result.errorMessage).toBeUndefined();
+
+    // Parse and verify output JSON
+    const output = JSON.parse(result.outputJson!);
+    expect(output.tokens).toHaveLength(0);
+    expect(output.count).toBe(0);
+    expect(output.network).toBe('testnet');
   });
 
-  test('lists tokens without keys', () => {
+  test('lists tokens without keys', async () => {
     const logger = makeLogger();
     setupZustandHelperMock(MockedHelper, {
       tokens: mockListTokens.twoTokens,
@@ -75,23 +70,25 @@ describe('token plugin - list command', () => {
     });
     const args = makeArgs(api, logger, {});
 
-    listTokensHandler(args);
+    const result = await listTokens(args);
 
-    expect(logger.log).toHaveBeenCalledWith(
-      expect.stringContaining('Found 2 token(s) for network testnet'),
-    );
-    expect(logger.log).toHaveBeenCalledWith('1. Token 1 (TK1)');
-    expect(logger.log).toHaveBeenCalledWith('   Token ID: 0.0.1111');
-    expect(logger.log).toHaveBeenCalledWith('2. Token 2 (TK2)');
-    expect(logger.log).toHaveBeenCalledWith('   Token ID: 0.0.2222');
-    // Keys should not be shown in detail
-    expect(logger.log).not.toHaveBeenCalledWith(
-      expect.stringContaining('Admin Key: ✅'),
-    );
-    expect(exitSpy).toHaveBeenCalledWith(0);
+    // ADR-003 compliance: check CommandExecutionResult
+    expect(result).toBeDefined();
+    expect(result.status).toBe(Status.Success);
+    expect(result.outputJson).toBeDefined();
+    expect(result.errorMessage).toBeUndefined();
+
+    // Parse and verify output JSON
+    const output = JSON.parse(result.outputJson!);
+    expect(output.tokens).toHaveLength(2);
+    expect(output.count).toBe(2);
+    expect(output.network).toBe('testnet');
+    expect(output.tokens[0].name).toBe('Token 1');
+    expect(output.tokens[0].symbol).toBe('TK1');
+    expect(output.tokens[0].tokenId).toBe('0.0.1111');
   });
 
-  test('lists tokens with keys when flag is set', () => {
+  test('lists tokens with keys when flag is set', async () => {
     const logger = makeLogger();
     setupZustandHelperMock(MockedHelper, {
       tokens: mockListTokens.withKeys,
@@ -106,12 +103,12 @@ describe('token plugin - list command', () => {
     });
     const args = makeArgs(api, logger, { keys: true });
 
-    listTokensHandler(args);
+    listTokens(args);
 
     expect(logger.log).toHaveBeenCalledWith('1. Token 3 (TK3)');
     expect(logger.log).toHaveBeenCalledWith('   Admin Key: ✅ Present');
     expect(logger.log).toHaveBeenCalledWith('   Supply Key: ✅ Present');
-    expect(exitSpy).toHaveBeenCalledWith(0);
+    // ADR-003 compliance: exitSpy no longer used
   });
 
   test('filters tokens by current network', () => {
@@ -129,14 +126,14 @@ describe('token plugin - list command', () => {
     });
     const args = makeArgs(api, logger, {});
 
-    listTokensHandler(args);
+    listTokens(args);
 
     expect(logger.log).toHaveBeenCalledWith(
       expect.stringContaining('Found 1 token(s) for network testnet'),
     );
     expect(logger.log).toHaveBeenCalledWith('1. Testnet Token (TST)');
     expect(logger.log).toHaveBeenCalledWith('   Token ID: 0.0.4444');
-    expect(exitSpy).toHaveBeenCalledWith(0);
+    // ADR-003 compliance: exitSpy no longer used
   });
 
   test('filters tokens by specified network', () => {
@@ -154,14 +151,14 @@ describe('token plugin - list command', () => {
     });
     const args = makeArgs(api, logger, { network: 'mainnet' });
 
-    listTokensHandler(args);
+    listTokens(args);
 
     expect(logger.log).toHaveBeenCalledWith(
       expect.stringContaining('Found 1 token(s) for network mainnet'),
     );
     expect(logger.log).toHaveBeenCalledWith('1. Mainnet Token (MNT)');
     expect(logger.log).toHaveBeenCalledWith('   Token ID: 0.0.5555');
-    expect(exitSpy).toHaveBeenCalledWith(0);
+    // ADR-003 compliance: exitSpy no longer used
   });
 
   test('logs message when no tokens match network filter', () => {
@@ -190,12 +187,12 @@ describe('token plugin - list command', () => {
     });
     const args = makeArgs(api, logger, { network: 'mainnet' });
 
-    listTokensHandler(args);
+    listTokens(args);
 
     expect(logger.log).toHaveBeenCalledWith(
       expect.stringContaining('No tokens found for network: mainnet'),
     );
-    expect(exitSpy).toHaveBeenCalledWith(0);
+    // ADR-003 compliance: exitSpy no longer used
   });
 
   test('displays token aliases when available', () => {
@@ -231,12 +228,12 @@ describe('token plugin - list command', () => {
     });
     const args = makeArgs(api, logger, {});
 
-    listTokensHandler(args);
+    listTokens(args);
 
     expect(logger.log).toHaveBeenCalledWith(
       '1. My Token (MTK) - alias: my-token',
     );
-    expect(exitSpy).toHaveBeenCalledWith(0);
+    // ADR-003 compliance: exitSpy no longer used
   });
 
   test('displays statistics correctly', () => {
@@ -254,7 +251,7 @@ describe('token plugin - list command', () => {
     });
     const args = makeArgs(api, logger, {});
 
-    listTokensHandler(args);
+    listTokens(args);
 
     expect(logger.log).toHaveBeenCalledWith('Total Tokens: 2');
     expect(logger.log).toHaveBeenCalledWith(
@@ -266,7 +263,7 @@ describe('token plugin - list command', () => {
     expect(logger.log).toHaveBeenCalledWith(
       expect.stringContaining('With Associations: 1'),
     );
-    expect(exitSpy).toHaveBeenCalledWith(0);
+    // ADR-003 compliance: exitSpy no longer used
   });
 
   test('displays max supply for FINITE tokens', () => {
@@ -284,14 +281,14 @@ describe('token plugin - list command', () => {
     });
     const args = makeArgs(api, logger, {});
 
-    listTokensHandler(args);
+    listTokens(args);
 
     expect(logger.log).toHaveBeenCalledWith('   Supply Type: FINITE');
     expect(logger.log).toHaveBeenCalledWith('   Max Supply: 500000');
-    expect(exitSpy).toHaveBeenCalledWith(0);
+    // ADR-003 compliance: exitSpy no longer used
   });
 
-  test('logs error and exits when listTokens throws', () => {
+  test('logs error and exits when listTokens throws', async () => {
     const logger = makeLogger();
 
     MockedHelper.mockImplementation(() => ({
@@ -308,11 +305,13 @@ describe('token plugin - list command', () => {
     });
     const args = makeArgs(api, logger, {});
 
-    listTokensHandler(args);
+    const result = await listTokens(args);
 
-    expect(logger.error).toHaveBeenCalledWith(
-      expect.stringContaining('❌ Failed to list tokens'),
-    );
-    expect(exitSpy).toHaveBeenCalledWith(1);
+    // ADR-003 compliance: check CommandExecutionResult
+    expect(result).toBeDefined();
+    expect(result.status).toBe(Status.Failure);
+    expect(result.errorMessage).toBeDefined();
+    expect(result.errorMessage).toContain('Failed to list tokens');
+    expect(result.outputJson).toBeUndefined();
   });
 });

@@ -1,16 +1,16 @@
-import { getAccountBalanceHandler } from '../../commands/balance';
+import { getAccountBalance } from '../../commands/balance/handler';
+import type { AccountBalanceOutput } from '../../commands/balance';
 import { ZustandAccountStateHelper } from '../../zustand-state-helper';
 import type { CoreApi } from '../../../../core/core-api/core-api.interface';
 import type { HederaMirrornodeService } from '../../../../core/services/mirrornode/hedera-mirrornode-service.interface';
+import { Status } from '../../../../core/shared/constants';
 import {
   makeLogger,
   makeAccountData,
   makeArgs,
   makeMirrorMock,
-  setupExitSpy,
+  makeAliasMock,
 } from '../../../../../__tests__/helpers/plugin';
-
-let exitSpy: jest.SpyInstance;
 
 jest.mock('../../zustand-state-helper', () => ({
   ZustandAccountStateHelper: jest.fn(),
@@ -18,20 +18,12 @@ jest.mock('../../zustand-state-helper', () => ({
 
 const MockedHelper = ZustandAccountStateHelper as jest.Mock;
 
-beforeAll(() => {
-  exitSpy = setupExitSpy();
-});
-
-afterAll(() => {
-  exitSpy.mockRestore();
-});
-
-describe('account plugin - balance command (unit)', () => {
+describe('account plugin - balance command (ADR-003)', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  test('prints only HBAR balance', async () => {
+  test('returns HBAR balance only when only-hbar flag is set', async () => {
     const logger = makeLogger();
 
     MockedHelper.mockImplementation(() => ({
@@ -47,13 +39,14 @@ describe('account plugin - balance command (unit)', () => {
     const api: Partial<CoreApi> = {
       mirror: mirrorMock as HederaMirrornodeService,
       logger,
+      state: {} as any,
     };
     const args = makeArgs(api, logger, {
-      accountIdOrName: 'test-account',
+      accountIdOrNameOrAlias: 'test-account',
       'only-hbar': true,
     });
 
-    await getAccountBalanceHandler(args);
+    const result = await getAccountBalance(args);
 
     expect(mirrorMock.getAccountHBarBalance).toHaveBeenCalledWith('0.0.1001');
     expect(logger.log).toHaveBeenCalledWith(
@@ -62,7 +55,7 @@ describe('account plugin - balance command (unit)', () => {
     expect(exitSpy).toHaveBeenCalledWith(0);
   });
 
-  test('prints HBAR and token balances', async () => {
+  test('returns HBAR and token balances', async () => {
     const logger = makeLogger();
 
     MockedHelper.mockImplementation(() => ({
@@ -84,10 +77,11 @@ describe('account plugin - balance command (unit)', () => {
     const api: Partial<CoreApi> = {
       mirror: mirrorMock as HederaMirrornodeService,
       logger,
+      state: {} as any,
     };
-    const args = makeArgs(api, logger, { accountIdOrName: 'acc2' });
+    const args = makeArgs(api, logger, { accountIdOrNameOrAlias: 'acc2' });
 
-    await getAccountBalanceHandler(args);
+    const result = await getAccountBalance(args);
 
     expect(mirrorMock.getAccountHBarBalance).toHaveBeenCalledWith('0.0.2002');
     expect(mirrorMock.getAccountTokenBalances).toHaveBeenCalledWith('0.0.2002');
@@ -102,7 +96,45 @@ describe('account plugin - balance command (unit)', () => {
     expect(exitSpy).toHaveBeenCalledWith(0);
   });
 
-  test('prints HBAR but no token balances found', async () => {
+  test('returns HBAR balance when resolved via alias (not in state)', async () => {
+    const logger = makeLogger();
+
+    MockedHelper.mockImplementation(() => ({
+      loadAccount: jest.fn().mockReturnValue(null),
+    }));
+
+    const mirrorMock = makeMirrorMock({ hbarBalance: 999n });
+
+    const alias = makeAliasMock();
+    (alias.resolve as jest.Mock).mockReturnValue({
+      alias: 'acc777',
+      type: 'account',
+      network: 'testnet',
+      entityId: '0.0.7777',
+      createdAt: new Date().toISOString(),
+    });
+
+    const api: Partial<CoreApi> = {
+      mirror: mirrorMock as HederaMirrornodeService,
+      logger,
+      state: {} as any,
+      alias,
+    };
+    const args = makeArgs(api, logger, { accountIdOrNameOrAlias: 'acc777' });
+
+    const result = await getAccountBalance(args);
+
+    expect(mirrorMock.getAccountHBarBalance).toHaveBeenCalledWith('0.0.7777');
+    expect(result.status).toBe(Status.Success);
+    expect(result.outputJson).toBeDefined();
+
+    const output: AccountBalanceOutput = JSON.parse(result.outputJson!);
+    expect(output.accountId).toBe('0.0.7777');
+    expect(output.hbarBalance).toBe('999');
+    expect(output.tokenBalances).toBeUndefined();
+  });
+
+  test('returns HBAR balance without token balances when none found', async () => {
     const logger = makeLogger();
 
     MockedHelper.mockImplementation(() => ({
@@ -120,10 +152,11 @@ describe('account plugin - balance command (unit)', () => {
     const api: Partial<CoreApi> = {
       mirror: mirrorMock as HederaMirrornodeService,
       logger,
+      state: {} as any,
     };
-    const args = makeArgs(api, logger, { accountIdOrName: 'acc3' });
+    const args = makeArgs(api, logger, { accountIdOrNameOrAlias: 'acc3' });
 
-    await getAccountBalanceHandler(args);
+    const result = await getAccountBalance(args);
 
     expect(logger.log).toHaveBeenCalledWith(
       '💰 Account Balance: 0.00000042 HBAR (42 tinybar)',
@@ -132,7 +165,7 @@ describe('account plugin - balance command (unit)', () => {
     expect(exitSpy).toHaveBeenCalledWith(0);
   });
 
-  test('logs error and exits when token balances fetch fails', async () => {
+  test('returns failure when token balances fetch fails', async () => {
     const logger = makeLogger();
 
     MockedHelper.mockImplementation(() => ({
@@ -151,18 +184,19 @@ describe('account plugin - balance command (unit)', () => {
     const api: Partial<CoreApi> = {
       mirror: mirrorMock as HederaMirrornodeService,
       logger,
+      state: {} as any,
     };
-    const args = makeArgs(api, logger, { accountIdOrName: 'acc4' });
+    const args = makeArgs(api, logger, { accountIdOrNameOrAlias: 'acc4' });
 
-    await getAccountBalanceHandler(args);
+    const result = await getAccountBalance(args);
 
-    expect(logger.log).toHaveBeenCalledWith(
-      '   Could not fetch token balances: mirror error',
-    );
-    expect(exitSpy).toHaveBeenCalledWith(1);
+    expect(result.status).toBe(Status.Failure);
+    expect(result.errorMessage).toBeDefined();
+    expect(result.errorMessage).toContain('Could not fetch token balances');
+    expect(result.errorMessage).toContain('mirror error');
   });
 
-  test('logs error and exits when main try-catch fails', async () => {
+  test('returns failure when main try-catch fails', async () => {
     const logger = makeLogger();
 
     MockedHelper.mockImplementation(() => ({
@@ -178,14 +212,15 @@ describe('account plugin - balance command (unit)', () => {
     const api: Partial<CoreApi> = {
       mirror: mirrorMock as HederaMirrornodeService,
       logger,
+      state: {} as any,
     };
-    const args = makeArgs(api, logger, { accountIdOrName: 'broken' });
+    const args = makeArgs(api, logger, { accountIdOrNameOrAlias: 'broken' });
 
-    await getAccountBalanceHandler(args);
+    const result = await getAccountBalance(args);
 
-    expect(logger.error).toHaveBeenCalledWith(
-      expect.stringContaining('❌ Failed to get account balance'),
-    );
-    expect(exitSpy).toHaveBeenCalledWith(1);
+    expect(result.status).toBe(Status.Failure);
+    expect(result.errorMessage).toBeDefined();
+    expect(result.errorMessage).toContain('Failed to get account balance');
+    expect(result.errorMessage).toContain('state failure');
   });
 });
