@@ -3,7 +3,7 @@
  * Handles topic creation using the Core API
  */
 import { CommandHandlerArgs } from '../../../../core';
-import { CommandExecutionResult } from '../../../../core/plugins/plugin.types';
+import { CommandExecutionResult } from '../../../../core';
 import { Status } from '../../../../core/shared/constants';
 import { formatError } from '../../../../utils/errors';
 import { ZustandTopicStateHelper } from '../../zustand-state-helper';
@@ -28,6 +28,10 @@ export async function createTopic(
   const adminKey = args.args.adminKey as string | undefined;
   const submitKey = args.args.submitKey as string | undefined;
   const alias = args.args.alias as string | undefined;
+
+  // Check if alias already exists on the current network
+  const network = api.network.getCurrentNetwork();
+  api.alias.availableOrThrow(alias, network);
 
   // Generate default name if alias not provided
   const name = alias || `topic-${Date.now()}`;
