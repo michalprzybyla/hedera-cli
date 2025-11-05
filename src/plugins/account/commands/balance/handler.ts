@@ -4,10 +4,10 @@
  * Follows ADR-003 contract: returns CommandExecutionResult
  */
 import { TokenBalance } from '../../../../../types';
-import { CommandHandlerArgs } from '../../../../core/plugins/plugin.interface';
-import { CommandExecutionResult } from '../../../../core/plugins/plugin.types';
+import { CommandHandlerArgs } from '../../../../core';
+import { CommandExecutionResult } from '../../../../core';
 import { Status } from '../../../../core/shared/constants';
-import { CoreApi } from '../../../../core/core-api/core-api.interface';
+import { CoreApi } from '../../../../core';
 import { formatError } from '../../../../utils/errors';
 import { ZustandAccountStateHelper } from '../../zustand-state-helper';
 import { AccountBalanceOutput } from './output';
@@ -49,9 +49,11 @@ export async function getAccountBalance(
   const accountState = new ZustandAccountStateHelper(api.state, logger);
 
   // Extract command arguments
-  const accountIdOrNameOrAlias = args.args['accountIdOrNameOrAlias'] as string;
-  const onlyHbar = (args.args['only-hbar'] as boolean) || false;
-  const tokenId = args.args['token-id'] as string;
+  const accountIdOrNameOrAlias = args.args.account as string;
+  const onlyHbar = (args.args.onlyHbar as boolean) || false;
+  // @TODO Add handling for specific tokenId if provided, rn missing functionality
+  // @TODO Dont allow both onlyHbar and tokenId at the same time
+  const tokenId = args.args.tokenId as string;
 
   logger.log(`Getting balance for account: ${accountIdOrNameOrAlias}`);
 
@@ -108,7 +110,8 @@ export async function getAccountBalance(
 
     return {
       status: Status.Success,
-      outputJson: JSON.stringify(outputData, (key, value): unknown =>
+      // @TODO Remove all of these, in future PR comes serialization for bigint
+      outputJson: JSON.stringify(outputData, (_key, value): unknown =>
         typeof value === 'bigint' ? value.toString() : value,
       ),
     };

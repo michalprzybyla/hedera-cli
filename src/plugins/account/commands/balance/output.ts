@@ -6,7 +6,7 @@ import {
   EntityIdSchema,
   TinybarSchema,
   HtsBaseUnitSchema,
-} from '../../../../core/schemas/common-schemas';
+} from '../../../../core/schemas';
 
 /**
  * Account Balance Command Output Schema

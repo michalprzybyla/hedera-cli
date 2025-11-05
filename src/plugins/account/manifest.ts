@@ -93,7 +93,6 @@ export const accountPluginManifest: PluginManifest = {
       description: 'Retrieve the balance for an account ID or name',
       options: [
         {
-          // @TODO Find all long option names and rename
           name: 'account',
           short: 'a',
           type: 'string',
