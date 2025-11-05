@@ -72,7 +72,13 @@ export const stateManagementManifest: PluginManifest = {
       summary: 'Create state backup',
       description: 'Create a backup of all state data',
       options: [
-        { name: 'output', short: 'o', type: 'string', required: false },
+        {
+          name: 'dest',
+          short: 'd',
+          type: 'string',
+          required: false,
+          description: 'Destination file path for the backup file',
+        },
       ],
       handler: stateBackup,
       output: {

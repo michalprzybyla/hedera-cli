@@ -18,7 +18,7 @@ export async function stateBackup(
   const { api, logger } = args;
 
   // Extract command arguments
-  const output = args.args.output as string | undefined;
+  const outputPath = args.args.dest as string | undefined;
 
   logger.log('💾 Creating state backup...');
 
@@ -42,7 +42,7 @@ export async function stateBackup(
     }
 
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const filename = output || `hedera-cli-backup-${timestamp}.json`;
+    const filename = outputPath || `hedera-cli-backup-${timestamp}.json`;
     const filepath = path.resolve(filename);
 
     fs.writeFileSync(filepath, JSON.stringify(backup, null, 2));

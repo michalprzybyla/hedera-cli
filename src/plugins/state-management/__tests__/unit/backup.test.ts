@@ -57,7 +57,7 @@ describe('State Backup Command', () => {
 
     it('should use custom output filename when provided', async () => {
       const api = { state: stateService };
-      const args = makeArgs(api, logger, { output: 'custom-backup.json' });
+      const args = makeArgs(api, logger, { dest: 'custom-backup.json' });
 
       const result = await stateBackup(args);
 
