@@ -243,28 +243,6 @@ function buildTokenDataFromFile(
 }
 
 /**
- * Logs token creation success from file
- * @param result - Transaction result
- * @param tokenDefinition - Token definition from file
- * @param logger - Logger instance
- */
-function logTokenCreationSuccessFromFile(
-  result: TransactionResult,
-  tokenDefinition: TokenFileDefinition,
-  logger: Logger,
-): void {
-  logger.log(`✅ Token created successfully from file!`);
-  logger.log(`   Token ID: ${result.tokenId!}`);
-  logger.log(`   Name: ${tokenDefinition.name}`);
-  logger.log(`   Symbol: ${tokenDefinition.symbol}`);
-  logger.log(`   Decimals: ${tokenDefinition.decimals}`);
-  logger.log(`   Initial Supply: ${tokenDefinition.initialSupply}`);
-  logger.log(`   Supply Type: ${tokenDefinition.supplyType}`);
-  logger.log(`   Max Supply: ${tokenDefinition.maxSupply}`);
-  logger.log(`   Transaction ID: ${result.transactionId}`);
-}
-
-/**
  * Processes token associations from file definition
  * @param tokenId - Created token ID
  * @param associations - Association definitions from file
@@ -382,10 +360,7 @@ export async function createTokenFromFile(
       throw new Error('Token creation failed - no token ID returned');
     }
 
-    // 5. Log success
-    logTokenCreationSuccessFromFile(result, tokenDefinition, logger);
-
-    // 6. Build token data for state
+    // 5. Build token data for state
     const tokenData = buildTokenDataFromFile(
       result,
       tokenDefinition,

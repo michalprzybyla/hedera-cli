@@ -169,35 +169,6 @@ function buildTokenData(
   };
 }
 
-/**
- * Logs token creation success details
- * @param result - Transaction result
- * @param params - Token creation parameters
- * @param logger - Logger instance
- */
-function logTokenCreationSuccess(
-  result: TransactionResult,
-  params: {
-    name: string;
-    symbol: string;
-    treasuryId: string;
-    decimals: number;
-    initialSupply: number;
-    supplyType: string;
-  },
-  logger: Logger,
-): void {
-  logger.log(`✅ Token created successfully!`);
-  logger.log(`   Token ID: ${result.tokenId!}`);
-  logger.log(`   Name: ${params.name}`);
-  logger.log(`   Symbol: ${params.symbol}`);
-  logger.log(`   Treasury: ${params.treasuryId}`);
-  logger.log(`   Decimals: ${params.decimals}`);
-  logger.log(`   Initial Supply: ${params.initialSupply}`);
-  logger.log(`   Supply Type: ${params.supplyType}`);
-  logger.log(`   Transaction ID: ${result.transactionId}`);
-}
-
 export async function createToken(
   args: CommandHandlerArgs,
 ): Promise<CommandExecutionResult> {
@@ -333,19 +304,6 @@ export async function createToken(
     if (!result.success || !result.tokenId) {
       throw new Error('Token creation failed - no token ID returned');
     }
-
-    logTokenCreationSuccess(
-      result,
-      {
-        name,
-        symbol,
-        treasuryId: treasury.treasuryId,
-        decimals,
-        initialSupply,
-        supplyType,
-      },
-      logger,
-    );
 
     const tokenData = buildTokenData(result, {
       name,

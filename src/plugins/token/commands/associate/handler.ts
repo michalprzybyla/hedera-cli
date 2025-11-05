@@ -102,11 +102,6 @@ export async function associateToken(
     );
 
     if (result.success) {
-      logger.log(`✅ Token association successful!`);
-      logger.log(`   Token ID: ${tokenId}`);
-      logger.log(`   Account ID: ${accountId}`);
-      logger.log(`   Transaction ID: ${result.transactionId}`);
-
       // 3. Update token state with association
       tokenState.addTokenAssociation(tokenId, accountId, accountName);
       logger.log(`   Association saved to token state`);

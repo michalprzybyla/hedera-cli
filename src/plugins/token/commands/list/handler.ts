@@ -57,14 +57,6 @@ function displayToken(
   }
   logger.log(header);
 
-  // Display core information
-  logger.log(`   Token ID: ${token.tokenId}`);
-  logger.log(`   Network: ${token.network}`);
-  logger.log(`   Treasury: ${token.treasuryId}`);
-  logger.log(`   Decimals: ${token.decimals}`);
-  logger.log(`   Initial Supply: ${token.initialSupply}`);
-  logger.log(`   Supply Type: ${token.supplyType}`);
-
   // Show max supply for FINITE tokens
   if (token.supplyType === 'FINITE' && token.maxSupply > 0) {
     logger.log(`   Max Supply: ${token.maxSupply}`);

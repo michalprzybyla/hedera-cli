@@ -162,13 +162,6 @@ export async function transferToken(
     );
 
     if (result.success) {
-      logger.log(`✅ Token transfer successful!`);
-      logger.log(`   Token ID: ${tokenId}`);
-      logger.log(`   From: ${fromAccountId}`);
-      logger.log(`   To: ${toAccountId}`);
-      logger.log(`   Amount: ${rawAmount.toString()}`);
-      logger.log(`   Transaction ID: ${result.transactionId}`);
-
       // 3. Optionally update token state if needed
       // (e.g., update associations, balances, etc.)
 

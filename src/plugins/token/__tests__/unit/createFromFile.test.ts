@@ -4,6 +4,7 @@
  */
 import type { CommandHandlerArgs } from '../../../../core/plugins/plugin.interface';
 import { createTokenFromFile } from '../../commands/createFromFile';
+import type { CreateTokenFromFileOutput } from '../../commands/createFromFile';
 import { ZustandTokenStateHelper } from '../../zustand-state-helper';
 import type { TransactionResult } from '../../../../core/services/tx-execution/tx-execution-service.interface';
 import { Status } from '../../../../core/shared/constants';
@@ -150,6 +151,17 @@ describe('createTokenFromFileHandler', () => {
       expect(result.outputJson).toBeDefined();
       expect(result.errorMessage).toBeUndefined();
 
+      const output: CreateTokenFromFileOutput = JSON.parse(result.outputJson!);
+      expect(output.tokenId).toBe('0.0.123456');
+      expect(output.name).toBe('TestToken');
+      expect(output.symbol).toBe('TEST');
+      expect(output.treasuryId).toBe('0.0.123456');
+      expect(output.decimals).toBe(2);
+      expect(output.initialSupply).toBe('1000');
+      expect(output.supplyType).toBe('FINITE');
+      expect(output.transactionId).toBe('0.0.123@1234567890.123456789');
+      expect(output.network).toBe('testnet');
+
       expect(mockFs.readFile).toHaveBeenCalledWith(
         '/path/to/token.test.json',
         'utf-8',
@@ -162,9 +174,6 @@ describe('createTokenFromFileHandler', () => {
         { keyRefId: 'treasury-key-ref-id' },
       );
       expect(mockAddToken).toHaveBeenCalled();
-      expect(logger.log).toHaveBeenCalledWith(
-        '✅ Token created successfully from file!',
-      );
     });
 
     test('should handle infinite supply type', async () => {
@@ -238,6 +247,14 @@ describe('createTokenFromFileHandler', () => {
       expect(result.status).toBe(Status.Success);
       expect(result.outputJson).toBeDefined();
       expect(result.errorMessage).toBeUndefined();
+
+      const output: CreateTokenFromFileOutput = JSON.parse(result.outputJson!);
+      expect(output.name).toBe('TestToken');
+      expect(output.symbol).toBe('TEST');
+      expect(output.treasuryId).toBe('0.0.123456');
+      expect(output.decimals).toBe(2);
+      expect(output.initialSupply).toBe('1000');
+      expect(output.supplyType).toBe('INFINITE');
 
       expect(tokenTransactions.createTokenTransaction).toHaveBeenCalledWith({
         name: 'TestToken',
@@ -329,6 +346,11 @@ describe('createTokenFromFileHandler', () => {
       expect(result.status).toBe(Status.Success);
       expect(result.outputJson).toBeDefined();
       expect(result.errorMessage).toBeUndefined();
+
+      const output: CreateTokenFromFileOutput = JSON.parse(result.outputJson!);
+      expect(output.tokenId).toBe('0.0.123456');
+      expect(output.associations).toBeDefined();
+      expect(output.associations.length).toBeGreaterThan(0);
 
       expect(
         tokenTransactions.createTokenAssociationTransaction,
@@ -744,12 +766,13 @@ describe('createTokenFromFileHandler', () => {
       expect(result.outputJson).toBeDefined();
       expect(result.errorMessage).toBeUndefined();
 
+      const output: CreateTokenFromFileOutput = JSON.parse(result.outputJson!);
+      expect(output.tokenId).toBe('0.0.123456');
+      expect(output.name).toBe('TestToken');
+
       // Should continue despite association failure
       expect(logger.warn).toHaveBeenCalledWith(
         expect.stringContaining('⚠️  Failed to associate account 0.0.789012:'),
-      );
-      expect(logger.log).toHaveBeenCalledWith(
-        '✅ Token created successfully from file!',
       );
     });
   });
@@ -821,12 +844,13 @@ describe('createTokenFromFileHandler', () => {
       expect(result.outputJson).toBeDefined();
       expect(result.errorMessage).toBeUndefined();
 
+      const output: CreateTokenFromFileOutput = JSON.parse(result.outputJson!);
+      expect(output.tokenId).toBe('0.0.123456');
+      expect(output.name).toBe('TestToken');
+
       expect(logger.log).toHaveBeenCalledWith('Creating token from file: test');
       expect(logger.log).toHaveBeenCalledWith(
         '🔑 Using treasury key for signing transaction',
-      );
-      expect(logger.log).toHaveBeenCalledWith(
-        '✅ Token created successfully from file!',
       );
     });
   });
