@@ -33,8 +33,6 @@ export type ListCredentialsOutput = z.infer<typeof ListCredentialsOutputSchema>;
 export const LIST_CREDENTIALS_TEMPLATE = `
 {{#if (eq totalCount 0)}}
 🔐 No credentials stored
-   Use "hedera credentials set" to add credentials
-   Or set HEDERA_ACCOUNT_ID and HEDERA_PRIVATE_KEY environment variables
 {{else}}
 🔐 Found {{totalCount}} stored credential(s):
 
