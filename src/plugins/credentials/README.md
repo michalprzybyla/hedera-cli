@@ -4,40 +4,11 @@ A plugin for managing operator credentials and keys in the Hedera CLI.
 
 ## Features
 
-- **Set Credentials**: Import and configure operator credentials for transaction signing
 - **List Credentials**: View all stored credentials and their metadata
 - **Remove Credentials**: Delete stored credentials by key reference ID
 - **ADR-003 Compliant**: Structured outputs with human-readable templates and machine-readable formats
 
 ## Commands
-
-### `hedera credentials set`
-
-Set the default operator credentials for signing transactions.
-
-**Options:**
-
-- `--account-id, -a` (required): Account ID in format `0.0.123456`
-- `--private-key, -p` (required): Private key (ECDSA or ED25519)
-- `--network, -n` (optional): Target network (defaults to current network)
-
-**Example:**
-
-```bash
-hedera credentials set --account-id 0.0.123456 --private-key 302e020100300506032b657004220420...
-```
-
-**Output:**
-
-```json
-{
-  "accountId": "0.0.123456",
-  "network": "testnet",
-  "keyRefId": "key-ref-123",
-  "publicKey": "02a1b2c3...",
-  "success": true
-}
-```
 
 ### `hedera credentials list`
 

@@ -5,10 +5,6 @@
  */
 import { PluginManifest } from '../../core/plugins/plugin.interface';
 import {
-  SetCredentialsOutputSchema,
-  SET_CREDENTIALS_TEMPLATE,
-} from './commands/set/output';
-import {
   ListCredentialsOutputSchema,
   LIST_CREDENTIALS_TEMPLATE,
 } from './commands/list/output';
@@ -17,7 +13,6 @@ import {
   REMOVE_CREDENTIALS_TEMPLATE,
 } from './commands/remove/output';
 import { CREDENTIALS_JSON_SCHEMA, CREDENTIALS_NAMESPACE } from './schema';
-import { setCredentials } from './commands/set/handler';
 import { listCredentials } from './commands/list/handler';
 import { removeCredentials } from './commands/remove/handler';
 
@@ -31,7 +26,7 @@ export const credentialsManifest: PluginManifest = {
     core: '>=1.0.0',
     api: '>=1.0.0',
   },
-  capabilities: ['credentials:manage', 'credentials:set', 'credentials:list'],
+  capabilities: ['credentials:manage', 'credentials:list'],
   stateSchemas: [
     {
       namespace: CREDENTIALS_NAMESPACE,
@@ -41,22 +36,6 @@ export const credentialsManifest: PluginManifest = {
     },
   ],
   commands: [
-    {
-      name: 'set',
-      summary: 'Set operator credentials',
-      description:
-        'Set the default operator credentials for signing transactions',
-      options: [
-        { name: 'account-id', short: 'a', type: 'string', required: true },
-        { name: 'private-key', short: 'p', type: 'string', required: true },
-        { name: 'network', short: 'n', type: 'string', required: false },
-      ],
-      handler: setCredentials,
-      output: {
-        schema: SetCredentialsOutputSchema,
-        humanTemplate: SET_CREDENTIALS_TEMPLATE,
-      },
-    },
     {
       name: 'list',
       summary: 'List all credentials',
