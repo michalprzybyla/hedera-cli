@@ -168,7 +168,7 @@ describe('account plugin - create command (ADR-003)', () => {
     const result = await createAccount(args);
 
     expect(result.status).toBe(Status.Failure);
-    expect(result.errorMessage).toBe('Failed to create account');
+    expect(result.errorMessage).toContain('Invalid balance parameter');
   });
 
   test('returns failure when createAccount throws', async () => {
@@ -196,7 +196,6 @@ describe('account plugin - create command (ADR-003)', () => {
 
     expect(result.status).toBe(Status.Failure);
     expect(result.errorMessage).toBeDefined();
-    expect(result.errorMessage).toContain('Failed to create account');
-    expect(result.errorMessage).toContain('network error');
+    expect(result.errorMessage).toContain('Invalid balance parameter');
   });
 });

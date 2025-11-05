@@ -3,8 +3,8 @@
  * Handles account creation using the Core API
  * Follows ADR-003 contract: returns CommandExecutionResult
  */
-import { CommandHandlerArgs } from '../../../../core/plugins/plugin.interface';
-import { CommandExecutionResult } from '../../../../core/plugins/plugin.types';
+import { CommandHandlerArgs } from '../../../../core';
+import { CommandExecutionResult } from '../../../../core';
 import { Status } from '../../../../core/shared/constants';
 import type { AccountData } from '../../schema';
 import { AliasType } from '../../../../core/services/alias/alias-service.interface';
@@ -22,15 +22,13 @@ export async function createAccount(
   const accountState = new ZustandAccountStateHelper(api.state, logger);
 
   // Extract command arguments
-  const rawBalance =
-    args.args.balance !== undefined
-      ? (args.args.balance as string | number)
-      : 10000;
+  const rawBalance = args.args.balance as number;
   let balance: number;
 
   try {
     // Convert balance input: display units (default) or base units (with 't' suffix)
     // HBAR uses 8 decimals
+    // @TODO Ensure every balance variable is typeof bigint
     balance = processBalanceInput(rawBalance, 8).toNumber();
   } catch (error) {
     return {
@@ -56,7 +54,6 @@ export async function createAccount(
     const { keyRefId, publicKey } = api.kms.createLocalPrivateKey();
 
     // 2. Create transaction using Core API
-    // Convert HBAR to tinybar (8 decimals: multiply by 10^8)
     const accountCreateResult = await api.account.createAccount({
       balanceRaw: balance,
       maxAutoAssociations: autoAssociations,
