@@ -17,44 +17,7 @@ import { CoreApi } from '../../../../core';
 import { Logger } from '../../../../core';
 import { SupportedNetwork } from '../../../../core/types/shared.types';
 import { processBalanceInput } from '../../../../core/utils/process-balance-input';
-
-/**
- * Parse and import an account-id:private-key pair
- *
- * @param idKeyPair - The colon-separated account-id:private-key string
- * @param api - Core API instance for importing the key
- * @returns Object with accountId, keyRefId, and publicKey
- * @throws Error if the format is invalid or account ID doesn't match expected pattern
- */
-function parseAndImportAccountIdKeyPair(
-  idKeyPair: string,
-  api: CoreApi,
-): { accountId: string; keyRefId: string; publicKey: string } {
-  const parts = idKeyPair.split(':');
-  if (parts.length !== 2) {
-    throw new Error(
-      'Invalid account format. Expected either an alias or account-id:account-key',
-    );
-  }
-
-  const [accountId, privateKey] = parts;
-
-  // Validate account ID format using shared schema
-  if (!EntityIdSchema.safeParse(accountId).success) {
-    throw new Error(
-      `Invalid account ID format: ${accountId}. Expected format: 0.0.123456`,
-    );
-  }
-
-  // Import the private key
-  const imported = api.kms.importPrivateKey(privateKey);
-
-  return {
-    accountId,
-    keyRefId: imported.keyRefId,
-    publicKey: imported.publicKey,
-  };
-}
+import { parseIdKeyPair } from '../../../../core/utils/id-key-parser';
 
 /**
  * Maps validation error paths to user-friendly error messages
@@ -130,20 +93,23 @@ function resolveFromAccount(
 
   if (AccountIdKeyPairSchema.safeParse(from).success) {
     try {
-      const parsed = parseAndImportAccountIdKeyPair(from, api);
+      const { accountId, privateKey } = parseIdKeyPair(from);
+
+      const imported = api.kms.importPrivateKey(privateKey);
+
       logger.log(
-        `[HBAR] Using from as account ID with private key: ${parsed.accountId}`,
+        `[HBAR] Using from as account ID with private key: ${accountId}`,
       );
       return {
         success: true,
-        fromAccountId: parsed.accountId,
-        fromKeyRefId: parsed.keyRefId,
+        fromAccountId: accountId,
+        fromKeyRefId: imported.keyRefId,
       };
     } catch (error) {
       return {
         success: false,
         error: {
-          status: Status.Success,
+          status: Status.Failure,
           errorMessage: `Invalid from account format: ${error instanceof Error ? error.message : 'Unknown error'}`,
         },
       };
