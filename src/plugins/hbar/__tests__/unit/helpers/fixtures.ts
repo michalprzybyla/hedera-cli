@@ -117,11 +117,11 @@ export const mockDefaultCredentials = {
  * Mock Transfer Amounts (in tinybars)
  */
 export const mockAmounts = {
-  small: 100,
-  medium: 50000000,
-  large: 100000000,
-  zero: 0,
-  negative: -100,
+  small: '100',
+  medium: '50000000',
+  large: '100000000',
+  zero: '0',
+  negative: '-100',
 };
 
 /**
@@ -138,9 +138,18 @@ export const mockAccountLists = {
  * Test Balance Values
  */
 export const mockBalances = {
-  valid: 100000000,
-  small: 100,
-  zero: 0,
-  negative: -100,
+  valid: '100000000',
+  small: '100',
+  zero: '0',
+  negative: '-100',
   invalid: NaN,
+};
+
+/**
+ * Parsed Balance Values
+ */
+export const mockParsedBalances = {
+  valid: 10000000000000000,
+  medium: 5000000000000000,
+  small: 10000000000,
 };

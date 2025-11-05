@@ -11,6 +11,7 @@ import {
   mockDefaultCredentials,
   mockBalances,
   mockAmounts,
+  mockParsedBalances,
 } from './helpers/fixtures';
 
 jest.mock('../../../account/zustand-state-helper', () => ({
@@ -45,7 +46,7 @@ describe('hbar plugin - transfer command (unit)', () => {
     expect(result.outputJson).toBeDefined();
 
     expect(hbar.transferTinybar).toHaveBeenCalledWith({
-      amount: mockBalances.valid,
+      amount: mockParsedBalances.valid,
       from: mockAccountIds.sender,
       to: mockAccountIds.receiver,
       memo: 'test-transfer',
@@ -196,7 +197,7 @@ describe('hbar plugin - transfer command (unit)', () => {
 
     // The transfer command uses the default operator from the signing service
     expect(hbar.transferTinybar).toHaveBeenCalledWith({
-      amount: mockAmounts.medium,
+      amount: mockParsedBalances.medium,
       from: mockAccountIds.default,
       to: mockAccountIds.receiver,
       memo: undefined,

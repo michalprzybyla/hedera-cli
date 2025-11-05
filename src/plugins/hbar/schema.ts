@@ -3,15 +3,11 @@
  * Single source of truth for HBAR plugin data structure and validation
  */
 import { z } from 'zod';
-import { AccountIdKeyPairSchema } from '../../core/schemas/common-schemas';
+import { AccountIdKeyPairSchema } from '../../core/schemas';
 
 // Input schema for HBAR transfer command
 export const TransferInputSchema = z.object({
-  balance: z
-    .number()
-    .positive()
-    .int()
-    .describe('Amount of tinybars to transfer'),
+  balance: z.string().describe('Amount to transfer'),
   to: z.string().min(1).describe('Account ID or name to transfer to'),
   from: z
     .union([AccountIdKeyPairSchema, z.string().min(1)])

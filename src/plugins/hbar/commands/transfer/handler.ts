@@ -3,19 +3,20 @@
  * Handles HBAR transfers using the Core API
  * Follows ADR-003 contract: returns CommandExecutionResult
  */
-import { CommandHandlerArgs } from '../../../../core/plugins/plugin.interface';
-import { CommandExecutionResult } from '../../../../core/plugins/plugin.types';
+import { CommandHandlerArgs } from '../../../../core';
+import { CommandExecutionResult } from '../../../../core';
 import { formatError } from '../../../../utils/errors';
 import {
   AccountIdKeyPairSchema,
   EntityIdSchema,
-} from '../../../../core/schemas/common-schemas';
-import { Status } from '../../../../core/shared/constants';
+} from '../../../../core/schemas';
+import { HBAR_DECIMALS, Status } from '../../../../core/shared/constants';
 import { TransferInputSchema } from '../../schema';
 import { TransferOutput } from './output';
 import { CoreApi } from '../../../../core';
-import { Logger } from '../../../../core/services/logger/logger-service.interface';
+import { Logger } from '../../../../core';
 import { SupportedNetwork } from '../../../../core/types/shared.types';
+import { processBalanceInput } from '../../../../core/utils/process-balance-input';
 
 /**
  * Parse and import an account-id:private-key pair
@@ -76,15 +77,16 @@ function getDefaultFromAccount(
   api: CoreApi,
   logger: Logger,
 ):
-  | { success: true; accountId: string }
+  | { success: true; accountId: string; keyRefId: string }
   | { success: false; error: CommandExecutionResult } {
   const currentNetwork = api.network.getCurrentNetwork();
   const operator = api.network.getOperator(currentNetwork);
 
   if (operator) {
-    const accountId = operator.accountId;
+    const { accountId, keyRefId } = operator;
+
     logger.log(`[HBAR] Using default operator as from: ${accountId}`);
-    return { success: true, accountId };
+    return { success: true, accountId, keyRefId };
   }
 
   return {
@@ -103,13 +105,29 @@ function getDefaultFromAccount(
  * Handles both account-id:private-key pairs and alias lookups
  */
 function resolveFromAccount(
-  from: string,
+  from: string | undefined,
   api: CoreApi,
   logger: Logger,
   currentNetwork: SupportedNetwork,
 ):
   | { success: true; fromAccountId: string; fromKeyRefId: string }
   | { success: false; error: CommandExecutionResult } {
+  if (!from) {
+    const result = getDefaultFromAccount(api, logger);
+    if (!result.success) {
+      return {
+        success: false,
+        error: result.error,
+      };
+    } else {
+      return {
+        success: true,
+        fromAccountId: result.accountId,
+        fromKeyRefId: result.keyRefId,
+      };
+    }
+  }
+
   if (AccountIdKeyPairSchema.safeParse(from).success) {
     try {
       const parsed = parseAndImportAccountIdKeyPair(from, api);
@@ -125,7 +143,7 @@ function resolveFromAccount(
       return {
         success: false,
         error: {
-          status: Status.Failure,
+          status: Status.Success,
           errorMessage: `Invalid from account format: ${error instanceof Error ? error.message : 'Unknown error'}`,
         },
       };
@@ -173,10 +191,29 @@ export async function transferHandler(
     }
 
     const validatedInput = validationResult.data;
-    const amount = validatedInput.balance;
     const to = validatedInput.to;
     const fromInput = validatedInput.from;
     const memo = validatedInput.memo;
+
+    let amount: BigNumber;
+
+    try {
+      // Convert balance input: display units (default) or base units (with 't' suffix)
+      amount = processBalanceInput(validatedInput.balance, HBAR_DECIMALS);
+    } catch {
+      return {
+        status: Status.Failure,
+        errorMessage: 'Invalid balance input',
+      };
+    }
+
+    if (amount.lte(0)) {
+      return {
+        status: Status.Failure,
+        // @TODO Include that validation in future zod schema for inputs
+        errorMessage: 'Transfer amount must be greater than zero',
+      };
+    }
 
     if (fromInput && fromInput === to) {
       return {
@@ -185,18 +222,14 @@ export async function transferHandler(
       };
     }
 
-    let from = fromInput;
-    if (!from) {
-      const result = getDefaultFromAccount(api, logger);
-      if (!result.success) {
-        return result.error;
-      }
-      from = result.accountId;
-    }
-
     const currentNetwork = api.network.getCurrentNetwork();
 
-    const fromResult = resolveFromAccount(from, api, logger, currentNetwork);
+    const fromResult = resolveFromAccount(
+      fromInput,
+      api,
+      logger,
+      currentNetwork,
+    );
     if (!fromResult.success) {
       return fromResult.error;
     }
@@ -220,11 +253,12 @@ export async function transferHandler(
     }
 
     logger.log(
-      `[HBAR] Transferring ${amount} tinybars from ${fromAccountId} to ${toAccountId}`,
+      `[HBAR] Transferring ${amount.toString()} tinybars from ${fromAccountId} to ${toAccountId}`,
     );
 
     const transferResult = await api.hbar.transferTinybar({
-      amount,
+      //@TODO After merge BigNumber -> bigint migration pass as bigint
+      amount: amount.toNumber(),
       from: fromAccountId,
       to: toAccountId,
       memo,
@@ -251,7 +285,7 @@ export async function transferHandler(
       transactionId: result.transactionId || '',
       fromAccountId,
       toAccountId,
-      amountTinybar: BigInt(amount),
+      amountTinybar: BigInt(amount.toString()),
       network: currentNetwork,
       ...(memo && { memo }),
       ...(result.receipt?.status && {
