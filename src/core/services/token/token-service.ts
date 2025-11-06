@@ -46,12 +46,12 @@ export class TokenServiceImpl implements TokenService {
       .addTokenTransfer(
         TokenId.fromString(tokenId),
         AccountId.fromString(fromAccountId),
-        -amount.toString(), // Negative for sender
+        -amount, // Negative for sender
       )
       .addTokenTransfer(
         TokenId.fromString(tokenId),
         AccountId.fromString(toAccountId),
-        amount.toString(), // Positive for receiver
+        amount, // Positive for receiver
       );
 
     this.logger.debug(

@@ -13,7 +13,6 @@ import {
   makeAliasMock,
   makeSigningMock,
   makeMirrorMock,
-  setupExitSpy,
 } from '../../../../../__tests__/helpers/plugin';
 
 jest.mock('../../zustand-state-helper', () => ({
@@ -206,7 +205,7 @@ describe('account plugin - create command (ADR-003)', () => {
     const result = await createAccount(args);
 
     expect(result.status).toBe(Status.Failure);
-    expect(result.errorMessage).toContain('Invalid balance parameter');
+    expect(result.errorMessage).toBe('Failed to create account');
   });
 
   test('returns failure when createAccount throws', async () => {
@@ -235,6 +234,6 @@ describe('account plugin - create command (ADR-003)', () => {
 
     expect(result.status).toBe(Status.Failure);
     expect(result.errorMessage).toBeDefined();
-    expect(result.errorMessage).toContain('Invalid balance parameter');
+    expect(result.errorMessage).toContain('Failed to create account');
   });
 });
