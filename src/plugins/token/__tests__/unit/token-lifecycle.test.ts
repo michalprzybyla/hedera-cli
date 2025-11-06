@@ -521,6 +521,7 @@ describe('Token Lifecycle Integration', () => {
       const stateHelper = {
         addToken: mockAddToken,
         addAssociation: mockAddAssociation,
+        getToken: jest.fn().mockReturnValue(null),
       };
 
       MockedHelper.mockImplementation(() => stateHelper);
