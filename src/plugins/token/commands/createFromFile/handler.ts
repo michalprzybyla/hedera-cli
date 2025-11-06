@@ -104,11 +104,17 @@ function validateTokenFile(raw: unknown): TokenValidationResult {
 }
 
 function resolveTokenFilePath(filename: string): string {
+  const hasPathSeparator = filename.includes('/') || filename.includes('\\');
+
+  if (hasPathSeparator) {
+    return filename;
+  }
+
   const overrideDir = process.env.HCLI_TOKEN_INPUT_DIR;
   if (overrideDir && overrideDir.trim() !== '') {
-    return path.join(overrideDir, `token.${filename}.json`);
+    return path.join(overrideDir, `${filename}.json`);
   }
-  return path.join(process.cwd(), 'src', 'input', `token.${filename}.json`);
+  return path.join(process.cwd(), 'src', 'input', `${filename}.json`);
 }
 
 /**
