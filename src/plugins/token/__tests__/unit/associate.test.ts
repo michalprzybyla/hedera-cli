@@ -26,6 +26,70 @@ describe('associateTokenHandler', () => {
   });
 
   describe('success scenarios', () => {
+    test('should return success when token is already associated', async () => {
+      const tokenId = '0.0.123456';
+      const accountId = '0.0.789012';
+      const accountName = 'test-account';
+
+      const mockGetToken = jest.fn().mockReturnValue({
+        tokenId,
+        name: 'TestToken',
+        symbol: 'TEST',
+        associations: [
+          {
+            name: accountName,
+            accountId: accountId,
+          },
+        ],
+      });
+
+      mockZustandTokenStateHelper(MockedHelper, {
+        getToken: mockGetToken,
+      });
+
+      const { api } = makeApiMocks({
+        alias: {
+          resolve: jest.fn().mockReturnValue({
+            entityId: tokenId,
+          }),
+        },
+        kms: {
+          importPrivateKey: jest.fn().mockReturnValue({
+            keyRefId: 'imported-key-ref-id',
+            publicKey: 'imported-public-key',
+          }),
+        },
+      });
+
+      const logger = makeLogger();
+      const args: CommandHandlerArgs = {
+        args: {
+          token: tokenId,
+          account: `${accountId}:test-account-key`,
+        },
+        api,
+        state: {} as any,
+        config: {} as any,
+        logger,
+      };
+
+      const result = await associateToken(args);
+
+      expect(result).toBeDefined();
+      expect(result.status).toBe(Status.Success);
+      expect(result.outputJson).toBeDefined();
+
+      const output = JSON.parse(result.outputJson!) as AssociateTokenOutput;
+      expect(output.tokenId).toBe(tokenId);
+      expect(output.accountId).toBe(accountId);
+      expect(output.associated).toBe(true);
+      expect(output.transactionId).toBeUndefined();
+      expect(mockGetToken).toHaveBeenCalledWith(tokenId);
+      expect(
+        api.token.createTokenAssociationTransaction,
+      ).not.toHaveBeenCalled();
+    });
+
     test('should associate token with account using account-id:account-key format', async () => {
       // Arrange
       const mockAddAssociation = jest.fn();
