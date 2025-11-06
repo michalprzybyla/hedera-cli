@@ -83,6 +83,25 @@ export async function associateToken(
   logger.log(`🔑 Using account: ${accountId}`);
   logger.log(`🔑 Will sign with account key`);
 
+  // Check if token is already associated with this account in state
+  const tokenData = tokenState.getToken(tokenId);
+  if (tokenData?.associations?.some((assoc) => assoc.accountId === accountId)) {
+    logger.log(
+      `Token ${tokenId} is already associated with account ${accountId}`,
+    );
+
+    const outputData: AssociateTokenOutput = {
+      accountId,
+      tokenId,
+      associated: true,
+    };
+
+    return {
+      status: Status.Success,
+      outputJson: JSON.stringify(outputData),
+    };
+  }
+
   logger.log(`Associating token ${tokenId} with account ${accountId}`);
 
   try {

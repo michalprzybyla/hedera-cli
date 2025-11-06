@@ -11,7 +11,7 @@ import {
  * Associate Token Command Output Schema
  */
 export const AssociateTokenOutputSchema = z.object({
-  transactionId: TransactionIdSchema,
+  transactionId: TransactionIdSchema.optional(),
   accountId: EntityIdSchema,
   tokenId: EntityIdSchema,
   associated: z.boolean().describe('Whether the association was successful'),
