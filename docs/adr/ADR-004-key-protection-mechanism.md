@@ -112,6 +112,8 @@ Permissions:
 - Windows: NTFS ACL for current user only
 ```
 
+The CLI verifies these permissions (and file ownership) at startup and before any cryptographic operation; if they are too permissive or owned incorrectly, it emits a warning with remediation steps (and, in strict mode, aborts execution until permissions are fixed).
+
 ### Opt-Out Configuration for Development Environments
 
 Users can disable encryption entirely for development and testing scenarios:
@@ -119,7 +121,7 @@ Users can disable encryption entirely for development and testing scenarios:
 **Configuration Method:**
 
 - First-run wizard will prompt: "Enable key encryption? (Recommended for production, can be disabled for local development)"
-- In the future, it can be toggled via: `hedera config set encryption false`
+- In the future, it can be toggled via: `hedera config set encryption true|false`
 
 **When Encryption is Disabled:**
 
@@ -133,7 +135,7 @@ Users can disable encryption entirely for development and testing scenarios:
 - Opt-out is global (affects all keys)
 - Intended for development environments only
 - Clear warnings prevent accidental production use
-- Can be re-enabled at any time (will encrypt existing plaintext keys on next use)
+- Can be re-enabled at any time (will encrypt existing plaintext keys)
 
 ## Implementation Strategy
 
@@ -201,7 +203,7 @@ It is still unclear how the backup and remote restore functionality should opera
 
 Potential approaches under consideration:
 
-1. Export encrypted keys with user-defined password (password-based key wrapping)
+1. Export encrypted keys with user-defined password (password-based key wrapping) or encrypt whole backup
 2. Backup both `.secret` and encrypted keys together with additional encryption layer
 3. Provide key export command that re-encrypts with user password for portability
 
