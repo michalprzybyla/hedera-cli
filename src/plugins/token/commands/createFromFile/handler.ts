@@ -215,11 +215,11 @@ function buildTokenDataFromFile(
     symbol: tokenDefinition.symbol,
     treasuryId: treasury.treasuryId,
     decimals: tokenDefinition.decimals,
-    initialSupply: tokenDefinition.initialSupply,
+    initialSupply: BigInt(tokenDefinition.initialSupply),
     supplyType: tokenDefinition.supplyType.toUpperCase() as
       | 'FINITE'
       | 'INFINITE',
-    maxSupply: tokenDefinition.maxSupply,
+    maxSupply: BigInt(tokenDefinition.maxSupply),
     keys: {
       adminKey: tokenDefinition.keys.adminKey,
       supplyKey: tokenDefinition.keys.supplyKey || '',

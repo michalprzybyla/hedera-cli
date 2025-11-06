@@ -256,9 +256,9 @@ export const validTokenDataForSchema = {
   name: 'TestToken',
   symbol: 'TEST',
   decimals: 2,
-  initialSupply: 1000,
+  initialSupply: 1000n,
   supplyType: 'FINITE' as const,
-  maxSupply: 10000,
+  maxSupply: 10000n,
   treasuryId: '0.0.789012',
   associations: [
     {
@@ -366,9 +366,9 @@ export const mockStateTokenData = {
     name: 'TestToken',
     symbol: 'TEST',
     decimals: 2,
-    initialSupply: 1000,
+    initialSupply: 1000n,
     supplyType: 'FINITE' as const,
-    maxSupply: 10000,
+    maxSupply: 10000n,
     treasuryId: '0.0.789012',
     keys: {
       adminKey: 'admin-key',
@@ -389,9 +389,9 @@ export const mockStateTokenData = {
     name: 'TestToken',
     symbol: 'TEST',
     decimals: 2,
-    initialSupply: 1000,
+    initialSupply: 1000n,
     supplyType: 'FINITE' as const,
-    maxSupply: 10000,
+    maxSupply: 10000n,
     treasuryId: '0.0.789012',
     keys: {
       adminKey: 'admin-key',
@@ -412,9 +412,9 @@ export const mockStateTokenData = {
     name: 'TestToken2',
     symbol: 'TEST2',
     decimals: 8,
-    initialSupply: 5000,
+    initialSupply: 5000n,
     supplyType: 'INFINITE' as const,
-    maxSupply: 0,
+    maxSupply: 0n,
     treasuryId: '0.0.111111',
     keys: {
       adminKey: 'admin-key2',
