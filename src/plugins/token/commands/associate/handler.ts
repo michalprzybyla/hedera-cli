@@ -100,6 +100,12 @@ export async function associateToken(
         `Token ${tokenId} is already associated with account ${accountId}`,
       );
 
+      const tokenData = tokenState.getToken(tokenId);
+      if (tokenData) {
+        tokenState.addTokenAssociation(tokenId, accountId, accountName);
+        logger.log(`   Association saved to token state`);
+      }
+
       const outputData: AssociateTokenOutput = {
         accountId,
         tokenId,
@@ -167,6 +173,12 @@ export async function associateToken(
       logger.log(
         `Token ${tokenId} is already associated with account ${accountId}`,
       );
+
+      const tokenData = tokenState.getToken(tokenId);
+      if (tokenData) {
+        tokenState.addTokenAssociation(tokenId, accountId, accountName);
+        logger.log(`   Association saved to token state`);
+      }
 
       const outputData: AssociateTokenOutput = {
         accountId,
