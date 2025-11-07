@@ -27,5 +27,7 @@ export const ASSOCIATE_TOKEN_TEMPLATE = `
    Token ID: {{tokenId}}
    Account ID: {{accountId}}
    Associated: {{associated}}
+{{#if transactionId}}
    Transaction ID: {{transactionId}}
+{{/if}}
 `.trim();
