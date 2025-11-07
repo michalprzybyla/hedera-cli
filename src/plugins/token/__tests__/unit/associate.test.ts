@@ -93,6 +93,7 @@ describe('associateTokenHandler', () => {
       expect(output.tokenId).toBe(tokenId);
       expect(output.accountId).toBe(accountId);
       expect(output.associated).toBe(true);
+      expect(output.alreadyAssociated).toBe(true);
       expect(output.transactionId).toBeUndefined();
       expect(api.token.createTokenAssociationTransaction).toHaveBeenCalled();
     });
@@ -159,6 +160,7 @@ describe('associateTokenHandler', () => {
       expect(output.tokenId).toBe(tokenId);
       expect(output.accountId).toBe(accountId);
       expect(output.associated).toBe(true);
+      expect(output.alreadyAssociated).toBe(true);
       expect(output.transactionId).toBeUndefined();
 
       // Verify that addTokenAssociation was NOT called since token doesn't exist in state

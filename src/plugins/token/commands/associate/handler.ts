@@ -110,6 +110,7 @@ export async function associateToken(
         accountId,
         tokenId,
         associated: true,
+        alreadyAssociated: true,
       };
 
       return {
@@ -184,6 +185,7 @@ export async function associateToken(
         accountId,
         tokenId,
         associated: true,
+        alreadyAssociated: true,
       };
 
       return {
