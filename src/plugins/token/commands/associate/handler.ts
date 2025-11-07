@@ -85,6 +85,17 @@ export async function associateToken(
   logger.log(`🔑 Will sign with account key`);
   logger.log(`Associating token ${tokenId} with account ${accountId}`);
 
+  const saveAssociationToState = () => {
+    const tokenData = tokenState.getToken(tokenId);
+    if (tokenData) {
+      tokenState.addTokenAssociation(tokenId, accountId, accountName);
+      logger.log(`   Association saved to token state`);
+    }
+  };
+
+  let alreadyAssociated = false;
+  let transactionId: string | undefined;
+
   // Check if token is already associated on chain via Mirror Node
   try {
     const tokenBalances = await api.mirror.getAccountTokenBalances(
@@ -100,23 +111,8 @@ export async function associateToken(
         `Token ${tokenId} is already associated with account ${accountId}`,
       );
 
-      const tokenData = tokenState.getToken(tokenId);
-      if (tokenData) {
-        tokenState.addTokenAssociation(tokenId, accountId, accountName);
-        logger.log(`   Association saved to token state`);
-      }
-
-      const outputData: AssociateTokenOutput = {
-        accountId,
-        tokenId,
-        associated: true,
-        alreadyAssociated: true,
-      };
-
-      return {
-        status: Status.Success,
-        outputJson: JSON.stringify(outputData),
-      };
+      saveAssociationToState();
+      alreadyAssociated = true;
     }
   } catch (mirrorError) {
     logger.debug(
@@ -124,79 +120,74 @@ export async function associateToken(
     );
   }
 
-  try {
-    // 1. Create association transaction using Core API
-    const associateTransaction = api.token.createTokenAssociationTransaction({
-      tokenId,
-      accountId,
-    });
-
-    // 2. Sign and execute transaction using the account key
-    logger.debug(`Using key ${accountKeyRefId} for signing transaction`);
-    const result = await api.txExecution.signAndExecuteWith(
-      associateTransaction,
-      {
-        keyRefId: accountKeyRefId,
-      },
-    );
-
-    if (result.success) {
-      // 3. Update token state with association only if token exists in state
-      const tokenData = tokenState.getToken(tokenId);
-      if (tokenData) {
-        tokenState.addTokenAssociation(tokenId, accountId, accountName);
-        logger.log(`   Association saved to token state`);
-      }
-
-      // Prepare output data
-      const outputData: AssociateTokenOutput = {
-        transactionId: result.transactionId,
-        accountId,
+  if (!alreadyAssociated) {
+    try {
+      // 1. Create association transaction using Core API
+      const associateTransaction = api.token.createTokenAssociationTransaction({
         tokenId,
-        associated: true,
-      };
+        accountId,
+      });
 
-      return {
-        status: Status.Success,
-        outputJson: JSON.stringify(outputData),
-      };
-    } else {
-      return {
-        status: Status.Failure,
-        errorMessage: 'Token association failed',
-      };
-    }
-  } catch (error: unknown) {
-    if (
-      error instanceof ReceiptStatusError &&
-      error.status === HederaStatus.TokenAlreadyAssociatedToAccount
-    ) {
-      logger.log(
-        `Token ${tokenId} is already associated with account ${accountId}`,
+      // 2. Sign and execute transaction using the account key
+      logger.debug(`Using key ${accountKeyRefId} for signing transaction`);
+      const result = await api.txExecution.signAndExecuteWith(
+        associateTransaction,
+        {
+          keyRefId: accountKeyRefId,
+        },
       );
 
-      const tokenData = tokenState.getToken(tokenId);
-      if (tokenData) {
-        tokenState.addTokenAssociation(tokenId, accountId, accountName);
-        logger.log(`   Association saved to token state`);
+      if (result.success) {
+        transactionId = result.transactionId;
+        saveAssociationToState();
+      } else {
+        return {
+          status: Status.Failure,
+          errorMessage: 'Token association failed',
+        };
       }
-
-      const outputData: AssociateTokenOutput = {
-        accountId,
-        tokenId,
-        associated: true,
-        alreadyAssociated: true,
-      };
-
-      return {
-        status: Status.Success,
-        outputJson: JSON.stringify(outputData),
-      };
+    } catch (error: unknown) {
+      if (
+        error instanceof ReceiptStatusError &&
+        error.status === HederaStatus.TokenAlreadyAssociatedToAccount
+      ) {
+        logger.log(
+          `Token ${tokenId} is already associated with account ${accountId}`,
+        );
+        saveAssociationToState();
+        alreadyAssociated = true;
+      } else {
+        return {
+          status: Status.Failure,
+          errorMessage: formatError('Failed to associate token', error),
+        };
+      }
     }
+  }
 
+  if (!alreadyAssociated && !transactionId) {
     return {
       status: Status.Failure,
-      errorMessage: formatError('Failed to associate token', error),
+      errorMessage: 'Failed to associate token',
     };
   }
+
+  const outputData: AssociateTokenOutput = {
+    accountId,
+    tokenId,
+    associated: true,
+  };
+
+  if (transactionId) {
+    outputData.transactionId = transactionId;
+  }
+
+  if (alreadyAssociated) {
+    outputData.alreadyAssociated = true;
+  }
+
+  return {
+    status: Status.Success,
+    outputJson: JSON.stringify(outputData),
+  };
 }
