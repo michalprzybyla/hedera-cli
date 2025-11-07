@@ -181,7 +181,7 @@ export const tokenPluginManifest: PluginManifest = {
           type: 'string',
           required: true,
           description:
-            'Token file path or filename. Can be a full path (absolute or relative) or just a filename (will look in src/input/{filename}.json)',
+            'Token definition file path (absolute or relative) to a JSON file',
         },
         { name: 'args', short: 'a', type: 'string', required: false },
       ],

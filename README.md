@@ -612,18 +612,15 @@ token transfer
 
 **1. Create Token from File:**
 
-This command allows users to create a new token by specifying a JSON file that contains the token's configuration. You can provide either:
-
-- A full path (absolute or relative) to the JSON file: `hcli token create-from-file -f /path/to/token.json`
-- Just a filename (will look in `src/input/<filename>.json`): `hcli token create-from-file -f mytoken`
+This command allows users to create a new token by specifying a JSON file that contains the token's configuration. Provide an absolute or relative path to the JSON file, for example: `hcli token create-from-file -f ./tokens/my-token.json`
 
 ```sh
-hcli token create-from-file -f,--file <filename-or-path>
+hcli token create-from-file -f,--file <file-path>
 ```
 
 Flags:
 
-- **File:** (required) Filename or full path containing the token information in JSON format. If a simple filename is provided, it will look for `<filename>.json` in the `src/input` directory (or the directory specified by `HCLI_TOKEN_INPUT_DIR` environment variable).
+- **File:** (required) Absolute or relative path to a JSON file containing the token information.
 
 A token input file looks like below. You can define all properties you would normally define when using using the SDK to create a token. All of the properties are required except for the min/max values for custom fractional fees. If you don't need a key, leave it as an empty string.
 

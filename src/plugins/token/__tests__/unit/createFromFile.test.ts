@@ -91,7 +91,6 @@ describe('createTokenFromFileHandler', () => {
 
       mockFs.readFile.mockResolvedValue(JSON.stringify(validTokenFile));
       mockFs.access.mockResolvedValue(undefined); // File exists
-      mockPath.join.mockReturnValue('/path/to/test.json');
       mockPath.resolve.mockReturnValue('/resolved/path/to/test.json');
 
       const mockAssociationTransaction = mockTransactions.association;
@@ -158,9 +157,10 @@ describe('createTokenFromFileHandler', () => {
       expect(output.network).toBe('testnet');
 
       expect(mockFs.readFile).toHaveBeenCalledWith(
-        '/path/to/test.json',
+        '/resolved/path/to/test.json',
         'utf-8',
       );
+      expect(mockPath.join).not.toHaveBeenCalled();
       expect(tokenTransactions.createTokenTransaction).toHaveBeenCalledWith(
         expectedTokenTransactionParamsFromFile,
       );
@@ -261,7 +261,6 @@ describe('createTokenFromFileHandler', () => {
         JSON.stringify(infiniteSupplyTokenFile),
       );
       mockFs.access.mockResolvedValue(undefined);
-      mockPath.join.mockReturnValue('/path/to/test.json');
       mockPath.resolve.mockReturnValue('/resolved/path/to/test.json');
 
       const {
@@ -347,7 +346,6 @@ describe('createTokenFromFileHandler', () => {
 
       mockFs.readFile.mockResolvedValue(JSON.stringify(validTokenFile));
       mockFs.access.mockResolvedValue(undefined);
-      mockPath.join.mockReturnValue('/path/to/test.json');
       mockPath.resolve.mockReturnValue('/resolved/path/to/test.json');
 
       const {
@@ -412,7 +410,6 @@ describe('createTokenFromFileHandler', () => {
     test('should handle file not found', async () => {
       // Arrange
       mockFs.readFile.mockRejectedValue(new Error('File not found'));
-      mockPath.join.mockReturnValue('/path/to/token.test.json');
       mockPath.resolve.mockReturnValue('/resolved/path/to/token.test.json');
 
       const { api } = makeApiMocks({});
@@ -446,7 +443,6 @@ describe('createTokenFromFileHandler', () => {
       // Arrange
       mockFs.access.mockResolvedValue(undefined);
       mockFs.readFile.mockRejectedValue(new Error('Permission denied'));
-      mockPath.join.mockReturnValue('/path/to/token.test.json');
       mockPath.resolve.mockReturnValue('/resolved/path/to/token.test.json');
 
       const { api } = makeApiMocks({});
@@ -480,7 +476,6 @@ describe('createTokenFromFileHandler', () => {
       // Arrange
       mockFs.readFile.mockResolvedValue('invalid json content');
       mockFs.access.mockResolvedValue(undefined);
-      mockPath.join.mockReturnValue('/path/to/token.test.json');
       mockPath.resolve.mockReturnValue('/resolved/path/to/token.test.json');
 
       const { api } = makeApiMocks({});
@@ -531,7 +526,6 @@ describe('createTokenFromFileHandler', () => {
 
       mockFs.readFile.mockResolvedValue(JSON.stringify(invalidFile));
       mockFs.access.mockResolvedValue(undefined);
-      mockPath.join.mockReturnValue('/path/to/token.test.json');
       mockPath.resolve.mockReturnValue('/resolved/path/to/token.test.json');
 
       const { api } = makeApiMocks({});
@@ -571,7 +565,6 @@ describe('createTokenFromFileHandler', () => {
 
       mockFs.readFile.mockResolvedValue(JSON.stringify(invalidFile));
       mockFs.access.mockResolvedValue(undefined);
-      mockPath.join.mockReturnValue('/path/to/token.test.json');
       mockPath.resolve.mockReturnValue('/resolved/path/to/token.test.json');
 
       const { api } = makeApiMocks({});
@@ -608,7 +601,6 @@ describe('createTokenFromFileHandler', () => {
 
       mockFs.readFile.mockResolvedValue(JSON.stringify(invalidFile));
       mockFs.access.mockResolvedValue(undefined);
-      mockPath.join.mockReturnValue('/path/to/token.test.json');
       mockPath.resolve.mockReturnValue('/resolved/path/to/token.test.json');
 
       const { api } = makeApiMocks({});
@@ -645,7 +637,6 @@ describe('createTokenFromFileHandler', () => {
 
       mockFs.readFile.mockResolvedValue(JSON.stringify(invalidFile));
       mockFs.access.mockResolvedValue(undefined);
-      mockPath.join.mockReturnValue('/path/to/token.test.json');
       mockPath.resolve.mockReturnValue('/resolved/path/to/token.test.json');
 
       const { api } = makeApiMocks({});
@@ -687,7 +678,6 @@ describe('createTokenFromFileHandler', () => {
 
       mockFs.readFile.mockResolvedValue(JSON.stringify(validTokenFile));
       mockFs.access.mockResolvedValue(undefined);
-      mockPath.join.mockReturnValue('/path/to/test.json');
       mockPath.resolve.mockReturnValue('/resolved/path/to/test.json');
 
       const {
@@ -749,7 +739,6 @@ describe('createTokenFromFileHandler', () => {
 
       mockFs.readFile.mockResolvedValue(JSON.stringify(validTokenFile));
       mockFs.access.mockResolvedValue(undefined);
-      mockPath.join.mockReturnValue('/path/to/test.json');
       mockPath.resolve.mockReturnValue('/resolved/path/to/test.json');
 
       const {
@@ -822,7 +811,6 @@ describe('createTokenFromFileHandler', () => {
 
       mockFs.readFile.mockResolvedValue(JSON.stringify(validTokenFile));
       mockFs.access.mockResolvedValue(undefined);
-      mockPath.join.mockReturnValue('/path/to/test.json');
       mockPath.resolve.mockReturnValue('/resolved/path/to/test.json');
 
       const {
