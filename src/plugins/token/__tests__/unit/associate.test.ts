@@ -13,6 +13,11 @@ import {
   makeApiMocks,
   mockZustandTokenStateHelper,
 } from './helpers/mocks';
+import {
+  tokenAssociatedWithAccountFixture,
+  tokenAssociatedWithAliasFixture,
+  tokenWithoutAssociationsFixture,
+} from './helpers/fixtures';
 import { ReceiptStatusError, Status as HederaStatus } from '@hashgraph/sdk';
 
 jest.mock('../../zustand-state-helper', () => ({
@@ -30,19 +35,9 @@ describe('associateTokenHandler', () => {
     test('should return success when token is already associated on chain (token exists in local state)', async () => {
       const tokenId = '0.0.123456';
       const accountId = '0.0.789012';
-      const accountName = accountId;
-
-      const mockGetToken = jest.fn().mockReturnValue({
-        tokenId,
-        name: 'TestToken',
-        symbol: 'TEST',
-        associations: [
-          {
-            name: accountName,
-            accountId: accountId,
-          },
-        ],
-      });
+      const mockGetToken = jest
+        .fn()
+        .mockReturnValue(tokenAssociatedWithAccountFixture);
 
       mockZustandTokenStateHelper(MockedHelper, {
         getToken: mockGetToken,
@@ -593,12 +588,9 @@ describe('associateTokenHandler', () => {
     test('should initialize token state helper and save association', async () => {
       // Arrange
       const mockAddTokenAssociation = jest.fn();
-      const mockGetToken = jest.fn().mockReturnValue({
-        tokenId: '0.0.123456',
-        name: 'TestToken',
-        symbol: 'TEST',
-        associations: [],
-      });
+      const mockGetToken = jest
+        .fn()
+        .mockReturnValue(tokenWithoutAssociationsFixture);
       const mockAssociationTransaction = { test: 'association-transaction' };
       const mockSignResult: TransactionResult = {
         success: true,
@@ -681,12 +673,9 @@ describe('associateTokenHandler', () => {
     test('should use alias name for state when using alias', async () => {
       // Arrange
       const mockAddTokenAssociation = jest.fn();
-      const mockGetToken = jest.fn().mockReturnValue({
-        tokenId: '0.0.123456',
-        name: 'TestToken',
-        symbol: 'TEST',
-        associations: [],
-      });
+      const mockGetToken = jest
+        .fn()
+        .mockReturnValue(tokenAssociatedWithAliasFixture);
       const mockAssociationTransaction = { test: 'association-transaction' };
       const mockSignResult: TransactionResult = {
         success: true,
