@@ -22,29 +22,8 @@ program
   .description('A CLI tool for managing Hedera environments')
   .option('-v, --verbose', 'Enable verbose logging')
   .option('-q, --quiet', 'Quiet mode (only errors)')
-  .option('--debug', 'Enable debug logging')
-  .option(
-    '--json',
-    'Machine-readable JSON output (deprecated, use --format json)',
-  )
   .option('--format <type>', 'Output format: human (default) or json')
   .option('--no-color', 'Disable ANSI colors');
-
-// Apply logging options and store format preference
-let globalFormat: 'human' | 'json' = 'human';
-
-program.hook('preAction', () => {
-  const opts = program.opts();
-
-  if (opts.debug) process.env.HCLI_DEBUG = 'true';
-  if (opts.verbose) logger.setLevel('verbose');
-  if (opts.quiet) logger.setLevel('quiet');
-
-  setColorEnabled(opts.color !== false);
-
-  // Set global output mode based on already parsed format
-  setGlobalOutputMode({ json: globalFormat === 'json' });
-});
 
 // Initialize the simplified plugin system
 async function initializeCLI() {
@@ -56,15 +35,17 @@ async function initializeCLI() {
     const opts = program.opts();
 
     const formatOption = opts.format as string | undefined;
-    const format: string = formatOption || (opts.json ? 'json' : 'human');
-    const initialFormat = format as 'human' | 'json';
+    const format = formatOption === 'json' ? 'json' : 'human';
 
-    // Update global format
-    globalFormat = initialFormat;
+    if (opts.verbose) logger.setLevel('verbose');
+    if (opts.quiet) logger.setLevel('quiet');
+
+    setColorEnabled(opts.color !== false);
+    setGlobalOutputMode({ json: format === 'json' });
 
     // Create core API config
     const coreApiConfig: CoreApiConfig = {
-      format: initialFormat,
+      format,
     };
 
     // Create plugin manager
