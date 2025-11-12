@@ -12,7 +12,7 @@ import {
   makeKmsMock,
   makeAliasMock,
   makeSigningMock,
-} from '../../../../../__tests__/helpers/plugin';
+} from '../../../../core/shared/__tests__/helpers/mocks';
 
 jest.mock('../../zustand-state-helper', () => ({
   ZustandAccountStateHelper: jest.fn(),

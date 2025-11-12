@@ -154,6 +154,8 @@ export const makeAliasServiceMock = (options?: {
   const records = options?.records ?? mockAliasLists.empty;
 
   return {
+    exists: jest.fn().mockReturnValue(false),
+    availableOrThrow: jest.fn().mockReturnValue(null),
     register: jest.fn(),
     resolve: jest.fn().mockReturnValue(null),
     list: jest
