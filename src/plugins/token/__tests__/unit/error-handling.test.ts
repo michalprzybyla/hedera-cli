@@ -148,7 +148,7 @@ describe('Token Plugin Error Handling', () => {
           token: '0.0.123456',
           from: '0.0.345678:test-key',
           to: '0.0.789012',
-          balance: 100,
+          amount: 100,
         },
         api,
         state: {} as any,
@@ -366,7 +366,7 @@ describe('Token Plugin Error Handling', () => {
           token: '0.0.123456',
           from: '0.0.345678:test-key',
           to: '0.0.789012',
-          balance: 1000000, // Large amount
+          amount: 1000000, // Large amount
         },
         api,
         state: {} as any,
@@ -752,7 +752,7 @@ describe('Token Plugin Error Handling', () => {
           token: '0.0.123456',
           from: '0.0.345678:test-key',
           to: '0.0.789012',
-          balance: 100,
+          amount: 100,
         },
         api,
         state: {} as any,

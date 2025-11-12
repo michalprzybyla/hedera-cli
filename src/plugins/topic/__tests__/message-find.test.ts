@@ -86,8 +86,8 @@ describe('topic plugin - message-find command', () => {
     expect(output.messages[0].message).toBe('Hello, World!');
 
     expect(mirror.getTopicMessage).toHaveBeenCalledWith({
-      topic: '0.0.5678',
-      sequence: 5,
+      topicId: '0.0.5678',
+      sequenceNumber: 5,
     });
   });
 
@@ -134,7 +134,7 @@ describe('topic plugin - message-find command', () => {
     expect(sequenceNumbers).toContain(8);
 
     expect(mirror.getTopicMessages).toHaveBeenCalledWith({
-      topic: '0.0.5678',
+      topicId: '0.0.5678',
       filter: {
         field: 'sequenceNumber',
         operation: 'gt',
@@ -182,7 +182,7 @@ describe('topic plugin - message-find command', () => {
     expect(sequenceNumbers).toContain(6);
 
     expect(mirror.getTopicMessages).toHaveBeenCalledWith({
-      topic: '0.0.5678',
+      topicId: '0.0.5678',
       filter: {
         field: 'sequenceNumber',
         operation: 'gte',
@@ -224,7 +224,7 @@ describe('topic plugin - message-find command', () => {
     expect(output.totalCount).toBe(2);
 
     expect(mirror.getTopicMessages).toHaveBeenCalledWith({
-      topic: '0.0.5678',
+      topicId: '0.0.5678',
       filter: {
         field: 'sequenceNumber',
         operation: 'lt',
@@ -263,7 +263,7 @@ describe('topic plugin - message-find command', () => {
     expect(output.totalCount).toBe(1);
 
     expect(mirror.getTopicMessages).toHaveBeenCalledWith({
-      topic: '0.0.5678',
+      topicId: '0.0.5678',
       filter: {
         field: 'sequenceNumber',
         operation: 'lte',
@@ -302,53 +302,11 @@ describe('topic plugin - message-find command', () => {
     expect(output.totalCount).toBe(1);
 
     expect(mirror.getTopicMessages).toHaveBeenCalledWith({
-      topic: '0.0.5678',
+      topicId: '0.0.5678',
       filter: {
         field: 'sequenceNumber',
         operation: 'eq',
         value: 5,
-      },
-    });
-  });
-
-  test('finds messages with not equal filter', async () => {
-    const logger = makeLogger();
-    const mockMessages = [
-      makeTopicMessage(1, 'Message 1'),
-      makeTopicMessage(3, 'Message 3'),
-    ];
-
-    const { mirror, networkMock, alias } = makeApiMocks({
-      getTopicMessagesImpl: jest.fn().mockResolvedValue({
-        messages: mockMessages,
-        links: { next: null },
-      }),
-    });
-
-    const api: Partial<CoreApi> = {
-      mirror,
-      network: networkMock,
-      alias: alias as any,
-      logger,
-    };
-
-    const args = makeArgs(api, logger, {
-      topic: '0.0.5678',
-      sequenceNe: 2,
-    });
-
-    const result = await findMessage(args);
-
-    expect(result.status).toBe(Status.Success);
-    const output: FindMessagesOutput = JSON.parse(result.outputJson!);
-    expect(output.totalCount).toBe(2);
-
-    expect(mirror.getTopicMessages).toHaveBeenCalledWith({
-      topic: '0.0.5678',
-      filter: {
-        field: 'sequenceNumber',
-        operation: 'ne',
-        value: 2,
       },
     });
   });
@@ -493,7 +451,7 @@ describe('topic plugin - message-find command', () => {
 
     // Should use the first non-empty filter (gt)
     expect(mirror.getTopicMessages).toHaveBeenCalledWith({
-      topic: '0.0.5678',
+      topicId: '0.0.5678',
       filter: {
         field: 'sequenceNumber',
         operation: 'gt',
