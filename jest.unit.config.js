@@ -7,10 +7,8 @@ module.exports = {
   testPathIgnorePatterns: [
     ...(base.testPathIgnorePatterns || []),
     // Ignore any e2e* tests (handled by jest.e2e.config.js)
-    '<rootDir>/__tests__/e2e.*\\.test\\.ts',
+    '.*/__tests__/e2e.*\\.test\\.ts$',
   ],
-  // Load test user config fixture before any modules
-  setupFiles: ['<rootDir>/__tests__/setup/jestSetup.ts'],
   // Optionally tighten timeout for unit tests
   testTimeout: 20000,
 };

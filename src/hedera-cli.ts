@@ -6,8 +6,6 @@ dotenv.config();
 
 import { program } from 'commander';
 import { setColorEnabled } from './utils/color';
-import { installGlobalErrorHandlers } from './utils/errors';
-import { Logger } from './utils/logger';
 import { setGlobalOutputMode } from './utils/output';
 import { PluginManager } from './core/plugins/plugin-manager';
 import { createCoreApi } from './core/core-api';
@@ -15,7 +13,6 @@ import { CoreApiConfig } from './core/core-api/core-api-config';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const pkg = require('../package.json') as { version?: string };
-const logger = Logger.getInstance();
 
 program
   .version(pkg.version || '0.0.0')
@@ -36,9 +33,6 @@ async function initializeCLI() {
 
     const formatOption = opts.format as string | undefined;
     const format = formatOption === 'json' ? 'json' : 'human';
-
-    if (opts.verbose) logger.setLevel('verbose');
-    if (opts.quiet) logger.setLevel('quiet');
 
     setColorEnabled(opts.color !== false);
     setGlobalOutputMode({ json: format === 'json' });
@@ -79,7 +73,6 @@ async function initializeCLI() {
 
   try {
     // Parse arguments and execute command
-    installGlobalErrorHandlers();
     await program.parseAsync(process.argv);
     process.exit(0);
   } catch (error) {
