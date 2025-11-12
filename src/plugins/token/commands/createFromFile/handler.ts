@@ -74,8 +74,15 @@ const tokenFileSchema = z
     symbol: z.string().min(1).max(20),
     decimals: z.number().int().min(0).max(18),
     supplyType: z.union([z.literal('finite'), z.literal('infinite')]),
-    initialSupply: z.number().int().nonnegative(),
-    maxSupply: z.number().int().nonnegative().default(0),
+    initialSupply: z
+      .union([z.number(), z.bigint()])
+      .transform((val) => BigInt(val))
+      .pipe(z.bigint().nonnegative()),
+    maxSupply: z
+      .union([z.number(), z.bigint()])
+      .transform((val) => BigInt(val))
+      .pipe(z.bigint().nonnegative())
+      .default(0n),
     treasury: treasurySchema,
     keys: keysSchema,
     associations: z.array(accountSchema).default([]),
@@ -217,11 +224,11 @@ function buildTokenDataFromFile(
     symbol: tokenDefinition.symbol,
     treasuryId: treasury.treasuryId,
     decimals: tokenDefinition.decimals,
-    initialSupply: BigInt(tokenDefinition.initialSupply),
+    initialSupply: tokenDefinition.initialSupply,
     supplyType: tokenDefinition.supplyType.toUpperCase() as
       | 'FINITE'
       | 'INFINITE',
-    maxSupply: BigInt(tokenDefinition.maxSupply),
+    maxSupply: tokenDefinition.maxSupply,
     keys: {
       adminKey: tokenDefinition.keys.adminKey,
       supplyKey: tokenDefinition.keys.supplyKey || '',
@@ -336,11 +343,11 @@ export async function createTokenFromFile(
       symbol: tokenDefinition.symbol,
       treasuryId: treasury.treasuryId,
       decimals: tokenDefinition.decimals,
-      initialSupplyRaw: BigInt(tokenDefinition.initialSupply),
+      initialSupplyRaw: tokenDefinition.initialSupply,
       supplyType: tokenDefinition.supplyType.toUpperCase() as
         | 'FINITE'
         | 'INFINITE',
-      maxSupplyRaw: BigInt(tokenDefinition.maxSupply),
+      maxSupplyRaw: tokenDefinition.maxSupply,
       adminKey: tokenDefinition.keys.adminKey,
       customFees: tokenDefinition.customFees.map((fee) => ({
         type: fee.type,

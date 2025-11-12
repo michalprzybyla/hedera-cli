@@ -260,9 +260,7 @@ export async function transferHandler(
 
     return {
       status: Status.Success,
-      outputJson: JSON.stringify(outputData, (_key: string, value: unknown) =>
-        typeof value === 'bigint' ? value.toString() : value,
-      ),
+      outputJson: JSON.stringify(outputData),
     };
   } catch (error) {
     return {

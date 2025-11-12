@@ -149,12 +149,10 @@ function buildTokenData(
     symbol: params.symbol,
     treasuryId: params.treasuryId,
     decimals: params.decimals,
-    initialSupply: BigInt(params.initialSupply),
+    initialSupply: params.initialSupply,
     supplyType: params.supplyType.toUpperCase() as 'FINITE' | 'INFINITE',
     maxSupply:
-      params.supplyType.toUpperCase() === 'FINITE'
-        ? BigInt(params.initialSupply)
-        : 0n,
+      params.supplyType.toUpperCase() === 'FINITE' ? params.initialSupply : 0n,
     keys: {
       adminKey: params.adminPublicKey,
       supplyKey: '',
