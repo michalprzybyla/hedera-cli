@@ -185,13 +185,6 @@ export const topicPluginManifest: PluginManifest = {
           required: false,
           description: 'Filter by sequence number equal to',
         },
-        {
-          name: 'sequence-ne',
-          short: 'E',
-          type: 'number',
-          required: false,
-          description: 'Filter by sequence number not equal to',
-        },
       ],
       handler: findMessage,
       output: {

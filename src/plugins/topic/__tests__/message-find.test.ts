@@ -69,8 +69,8 @@ describe('topic plugin - message-find command', () => {
     };
 
     const args = makeArgs(api, logger, {
-      topicId: '0.0.5678',
-      sequenceNumber: 5,
+      topic: '0.0.5678',
+      sequence: 5,
     });
 
     const result = await findMessage(args);
@@ -86,8 +86,8 @@ describe('topic plugin - message-find command', () => {
     expect(output.messages[0].message).toBe('Hello, World!');
 
     expect(mirror.getTopicMessage).toHaveBeenCalledWith({
-      topicId: '0.0.5678',
-      sequenceNumber: 5,
+      topic: '0.0.5678',
+      sequence: 5,
     });
   });
 
@@ -114,8 +114,8 @@ describe('topic plugin - message-find command', () => {
     };
 
     const args = makeArgs(api, logger, {
-      topicId: '0.0.5678',
-      sequenceNumberGt: 5,
+      topic: '0.0.5678',
+      sequenceGt: 5,
     });
 
     const result = await findMessage(args);
@@ -134,7 +134,7 @@ describe('topic plugin - message-find command', () => {
     expect(sequenceNumbers).toContain(8);
 
     expect(mirror.getTopicMessages).toHaveBeenCalledWith({
-      topicId: '0.0.5678',
+      topic: '0.0.5678',
       filter: {
         field: 'sequenceNumber',
         operation: 'gt',
@@ -165,8 +165,8 @@ describe('topic plugin - message-find command', () => {
     };
 
     const args = makeArgs(api, logger, {
-      topicId: '0.0.5678',
-      sequenceNumberGte: 5,
+      topic: '0.0.5678',
+      sequenceGte: 5,
     });
 
     const result = await findMessage(args);
@@ -182,7 +182,7 @@ describe('topic plugin - message-find command', () => {
     expect(sequenceNumbers).toContain(6);
 
     expect(mirror.getTopicMessages).toHaveBeenCalledWith({
-      topicId: '0.0.5678',
+      topic: '0.0.5678',
       filter: {
         field: 'sequenceNumber',
         operation: 'gte',
@@ -213,8 +213,8 @@ describe('topic plugin - message-find command', () => {
     };
 
     const args = makeArgs(api, logger, {
-      topicId: '0.0.5678',
-      sequenceNumberLt: 3,
+      topic: '0.0.5678',
+      sequenceLt: 3,
     });
 
     const result = await findMessage(args);
@@ -224,7 +224,7 @@ describe('topic plugin - message-find command', () => {
     expect(output.totalCount).toBe(2);
 
     expect(mirror.getTopicMessages).toHaveBeenCalledWith({
-      topicId: '0.0.5678',
+      topic: '0.0.5678',
       filter: {
         field: 'sequenceNumber',
         operation: 'lt',
@@ -252,8 +252,8 @@ describe('topic plugin - message-find command', () => {
     };
 
     const args = makeArgs(api, logger, {
-      topicId: '0.0.5678',
-      sequenceNumberLte: 3,
+      topic: '0.0.5678',
+      sequenceLte: 3,
     });
 
     const result = await findMessage(args);
@@ -263,7 +263,7 @@ describe('topic plugin - message-find command', () => {
     expect(output.totalCount).toBe(1);
 
     expect(mirror.getTopicMessages).toHaveBeenCalledWith({
-      topicId: '0.0.5678',
+      topic: '0.0.5678',
       filter: {
         field: 'sequenceNumber',
         operation: 'lte',
@@ -291,8 +291,8 @@ describe('topic plugin - message-find command', () => {
     };
 
     const args = makeArgs(api, logger, {
-      topicId: '0.0.5678',
-      sequenceNumberEq: 5,
+      topic: '0.0.5678',
+      sequenceEq: 5,
     });
 
     const result = await findMessage(args);
@@ -302,7 +302,7 @@ describe('topic plugin - message-find command', () => {
     expect(output.totalCount).toBe(1);
 
     expect(mirror.getTopicMessages).toHaveBeenCalledWith({
-      topicId: '0.0.5678',
+      topic: '0.0.5678',
       filter: {
         field: 'sequenceNumber',
         operation: 'eq',
@@ -333,8 +333,8 @@ describe('topic plugin - message-find command', () => {
     };
 
     const args = makeArgs(api, logger, {
-      topicId: '0.0.5678',
-      sequenceNumberNe: 2,
+      topic: '0.0.5678',
+      sequenceNe: 2,
     });
 
     const result = await findMessage(args);
@@ -344,7 +344,7 @@ describe('topic plugin - message-find command', () => {
     expect(output.totalCount).toBe(2);
 
     expect(mirror.getTopicMessages).toHaveBeenCalledWith({
-      topicId: '0.0.5678',
+      topic: '0.0.5678',
       filter: {
         field: 'sequenceNumber',
         operation: 'ne',
@@ -366,7 +366,7 @@ describe('topic plugin - message-find command', () => {
     };
 
     const args = makeArgs(api, logger, {
-      topicId: '0.0.5678',
+      topic: '0.0.5678',
     });
 
     const result = await findMessage(args);
@@ -394,8 +394,8 @@ describe('topic plugin - message-find command', () => {
     };
 
     const args = makeArgs(api, logger, {
-      topicId: '0.0.5678',
-      sequenceNumber: 5,
+      topic: '0.0.5678',
+      sequence: 5,
     });
 
     const result = await findMessage(args);
@@ -422,8 +422,8 @@ describe('topic plugin - message-find command', () => {
     };
 
     const args = makeArgs(api, logger, {
-      topicId: '0.0.5678',
-      sequenceNumberGte: 5,
+      topic: '0.0.5678',
+      sequenceGte: 5,
     });
 
     const result = await findMessage(args);
@@ -451,8 +451,8 @@ describe('topic plugin - message-find command', () => {
     };
 
     const args = makeArgs(api, logger, {
-      topicId: '0.0.5678',
-      sequenceNumberGte: 1000,
+      topic: '0.0.5678',
+      sequenceGte: 1000,
     });
 
     const result = await findMessage(args);
@@ -482,9 +482,9 @@ describe('topic plugin - message-find command', () => {
     };
 
     const args = makeArgs(api, logger, {
-      topicId: '0.0.5678',
-      sequenceNumberGt: 5,
-      sequenceNumberLt: 10,
+      topic: '0.0.5678',
+      sequenceGt: 5,
+      sequenceLt: 10,
     });
 
     const result = await findMessage(args);
@@ -493,7 +493,7 @@ describe('topic plugin - message-find command', () => {
 
     // Should use the first non-empty filter (gt)
     expect(mirror.getTopicMessages).toHaveBeenCalledWith({
-      topicId: '0.0.5678',
+      topic: '0.0.5678',
       filter: {
         field: 'sequenceNumber',
         operation: 'gt',
