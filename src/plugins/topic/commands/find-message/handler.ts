@@ -6,7 +6,7 @@ import { CommandHandlerArgs } from '../../../../core';
 import { CommandExecutionResult } from '../../../../core';
 import { Status } from '../../../../core/shared/constants';
 import { formatError } from '../../../../core/utils/errors';
-import { Filter } from '../../../../../types';
+import { Filter } from '../../../../core/services/mirrornode/types';
 import { FindMessagesOutput } from './output';
 
 /**
