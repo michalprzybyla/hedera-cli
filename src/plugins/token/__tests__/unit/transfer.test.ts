@@ -8,6 +8,7 @@ import type { TransferTokenOutput } from '../../commands/transfer';
 import type { TransactionResult } from '../../../../core/services/tx-execution/tx-execution-service.interface';
 import { makeLogger, makeApiMocks } from './helpers/mocks';
 import { Status } from '../../../../core/shared/constants';
+import '../../../../core/utils/json-serialize';
 
 describe('transferTokenHandler', () => {
   describe('success scenarios', () => {

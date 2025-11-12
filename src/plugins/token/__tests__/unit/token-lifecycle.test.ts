@@ -13,6 +13,7 @@ import {
   makeApiMocks,
   mockZustandTokenStateHelper,
 } from './helpers/mocks';
+import '../../../../core/utils/json-serialize';
 
 jest.mock('../../zustand-state-helper', () => ({
   ZustandTokenStateHelper: jest.fn(),
