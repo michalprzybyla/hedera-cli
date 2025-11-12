@@ -5,8 +5,6 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 import { program } from 'commander';
-import { setColorEnabled } from './utils/color';
-import { setGlobalOutputMode } from './utils/output';
 import { PluginManager } from './core/plugins/plugin-manager';
 import { createCoreApi } from './core/core-api';
 import { CoreApiConfig } from './core/core-api/core-api-config';
@@ -33,9 +31,6 @@ async function initializeCLI() {
 
     const formatOption = opts.format as string | undefined;
     const format = formatOption === 'json' ? 'json' : 'human';
-
-    setColorEnabled(opts.color !== false);
-    setGlobalOutputMode({ json: format === 'json' });
 
     // Create core API config
     const coreApiConfig: CoreApiConfig = {
