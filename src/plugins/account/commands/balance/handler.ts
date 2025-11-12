@@ -8,7 +8,7 @@ import { CommandHandlerArgs } from '../../../../core';
 import { CommandExecutionResult } from '../../../../core';
 import { Status } from '../../../../core/shared/constants';
 import { CoreApi } from '../../../../core';
-import { formatError } from '../../../../utils/errors';
+import { formatError } from '../../../../core/utils/errors';
 import { AccountBalanceOutput } from './output';
 import { EntityIdSchema } from '../../../../core/schemas';
 import { AliasType } from '../../../../core/services/alias/alias-service.interface';

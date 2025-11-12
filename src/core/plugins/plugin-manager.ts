@@ -8,7 +8,7 @@ import { Command } from 'commander';
 import { CoreApi } from '../core-api/core-api.interface';
 import { CommandHandlerArgs, PluginManifest } from './plugin.interface';
 import { CommandSpec } from './plugin.types';
-import { formatError } from '../../utils/errors';
+import { formatError } from '../utils/errors';
 import { Status } from '../shared/constants';
 import { filterReservedOptions } from '../utils/filter-reserved-options';
 import { Logger } from '../services/logger/logger-service.interface';
