@@ -5,7 +5,7 @@ Technical documentation for developers and contributors working on the Hedera CL
 ## 📚 Documentation Structure
 
 - **[Architecture Overview](./architecture.md)** - System architecture and design principles
-- **[Plugin Development Guide](./plugin-development.md)** - Complete guide to creating plugins
+- **[Plugin Development Guide](../PLUGIN_ARCHITECTURE_GUIDE.md)** - Complete guide to creating plugins
 - **[Core API Reference](./core-api.md)** - Detailed API documentation
 - **[Contributing Guide](./contributing.md)** - Development setup and contribution guidelines
 - **[ADR-001 Plugin Architecture](./adr/ADR-001-plugin-architecture.md)** - Architecture Decision Record
@@ -66,14 +66,14 @@ npm run dev
 
 ### Development
 
-- [Plugin Development Guide](./plugin-development.md) - Creating and developing plugins
+- [Plugin Development Guide](../PLUGIN_ARCHITECTURE_GUIDE.md) - Creating and developing plugins
 - [Core API Reference](./core-api.md) - API documentation and interfaces
 - [Contributing Guide](./contributing.md) - Development setup and guidelines
 
 ## 🔧 Development Workflow
 
 1. **Understanding the Architecture**: Start with [Architecture Overview](./architecture.md)
-2. **Plugin Development**: Follow the [Plugin Development Guide](./plugin-development.md)
+2. **Plugin Development**: Follow the [Plugin Development Guide](../PLUGIN_ARCHITECTURE_GUIDE.md)
 3. **API Reference**: Use [Core API Reference](./core-api.md) for implementation details
 4. **Contributing**: Check [Contributing Guide](./contributing.md) for development standards
 
