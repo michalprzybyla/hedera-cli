@@ -1,4 +1,4 @@
-name: AI Code Review (TypeScript)
+name: AI Code Review (TypeScript) - ChatGPT
 
 on:
   pull_request:
@@ -23,63 +23,91 @@ jobs:
       - name: Run AI code review
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
           python3 <<'PY'
           import os, json, requests
           from huggingface_hub import InferenceClient
 
           event = json.load(open(os.environ['GITHUB_EVENT_PATH']))
-          diff_url = event['pull_request']['diff_url']
-          comments_url = event['pull_request']['comments_url']
-          pr_number = event['number']
-          repo = os.environ['GITHUB_REPOSITORY']
+          pr = event.get('pull_request', {})
+          pr_number = event.get('number')
+          repo = os.environ.get('GITHUB_REPOSITORY')
+          comments_url = pr.get('comments_url')
+          diff_url = pr.get('diff_url')
+
+          def post_comment(body):
+              requests.post(
+                  comments_url,
+                  headers={
+                      "Authorization": f"Bearer {os.environ['GITHUB_TOKEN']}",
+                      "Accept": "application/vnd.github.v3+json",
+                  },
+                  json={"body": body}
+              )
 
           print(f"Analyzing PR #{pr_number} from {repo}...")
 
-          diff = requests.get(diff_url).text
-          if not diff.strip():
-              print("No diff found.")
+          # Get diff
+          diff_text = requests.get(diff_url).text
+
+          if not diff_text.strip():
+              msg = "No diff found or empty PR."
+              print(msg)
+              post_comment(f"### 🤖 AI Code Review\n{msg}")
               exit(0)
 
+          # Filter to only .ts and .tsx files
+          filtered_diff = "\n".join(
+              line for line in diff_text.splitlines()
+              if line.startswith("+++ b/") and (line.endswith(".ts") or line.endswith(".tsx"))
+          )
+          if not filtered_diff:
+              msg = "No TypeScript files changed in this PR."
+              print(msg)
+              post_comment(f"### 🤖 AI Code Review\n{msg}")
+              exit(0)
+
+          # Limit diff to avoid too long input
+          MAX_CHARS = 12000
+          short_diff = filtered_diff[:MAX_CHARS] + ("\n\n...[truncated]" if len(filtered_diff) > MAX_CHARS else "")
+
+          # Prepare prompt for AI
           prompt = f"""
           You are a senior TypeScript reviewer. Review this pull request diff.
-          Highlight potential bugs, anti-patterns, unclear logic, or missing types.
-          Respond in Markdown format, starting with '### AI Code Review Summary'.
+          Highlight potential bugs, anti-patterns, unclear logic, missing types, or security issues.
+          Respond in concise Markdown format starting with '### AI Code Review Summary'.
 
-          Code diff:
-          {diff[:4000]}
+          Code diff (filtered):
+          {short_diff}
           """
 
+          # Create InferenceClient for OpenAI ChatGPT (HF router)
+          api_key = os.environ.get("OPENAI_API_KEY")
+          if not api_key:
+              msg = "OPENAI_API_KEY secret not set!"
+              print(msg)
+              post_comment(f"⚠️ {msg}")
+              exit(1)
+
+          client = InferenceClient(
+              token=api_key,
+              base_url="https://api.openai.com/v1"  # ChatGPT-compatible endpoint
+          )
+
           try:
-              # ✅ Only pass model + token, do NOT pass base_url
-              client = InferenceClient(
-                  model="google/gemma-2-2b-it",
-                  token=os.environ["HF_TOKEN"]
+              response = client.chat_completion(
+                  messages=[{"role": "user", "content": prompt}],
+                  model="gpt-4o-mini",
+                  max_tokens=512,
+                  temperature=0.2,
               )
-
-              print("Calling Hugging Face InferenceClient.text_generation(...)")
-              response = client.text_generation(
-                  prompt,
-                  max_new_tokens=400,
-                  temperature=0.3,
-              )
-              review = response.strip()
-
+              review_text = response.strip()
           except Exception as e:
-              print(f"⚠️ Hugging Face inference error: {e}")
-              review = f"⚠️ AI review failed: {e}"
+              review_text = f"⚠️ AI review failed: {e}"
 
           print("=== AI Review Output ===")
-          print(review)
+          print(review_text)
 
-          # Post the review comment back to GitHub
-          requests.post(
-              comments_url,
-              headers={
-                  "Authorization": f"Bearer {os.environ['GITHUB_TOKEN']}",
-                  "Accept": "application/vnd.github.v3+json",
-              },
-              json={"body": review}
-          )
+          post_comment(f"### 🤖 AI Code Review\n{review_text}")
           PY
