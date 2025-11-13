@@ -1,12 +1,10 @@
-import { ConfigService } from './config-service.interface';
+import { ConfigOptionType, ConfigService } from './config-service.interface';
 import type { DefaultKeyManagerType } from '../../types/shared.types';
 import { StateService } from '../state/state-service.interface';
 
 const CONFIG_NAMESPACE = 'config';
 const KEY_ED25519_ENABLED = 'ed25519_support_enabled';
 const KEY_DEFAULT_KEY_MANAGER = 'default_key_manager';
-
-type OptionType = 'boolean' | 'number' | 'string' | 'enum';
 
 type OptionSpec =
   | {
@@ -51,7 +49,7 @@ export class ConfigServiceImpl implements ConfigService {
 
   listOptions(): {
     name: string;
-    type: OptionType;
+    type: ConfigOptionType;
     value: boolean | number | string;
     allowedValues?: string[];
   }[] {
@@ -62,7 +60,7 @@ export class ConfigServiceImpl implements ConfigService {
         value: this.getOption(name),
       } as {
         name: string;
-        type: OptionType;
+        type: ConfigOptionType;
         value: boolean | number | string;
         allowedValues?: string[];
       };

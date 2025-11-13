@@ -57,8 +57,7 @@ export async function setConfigOption(
     const descriptor = api.config.listOptions().find((o) => o.name === name);
     const output: SetConfigOutput = {
       name,
-      type: (descriptor?.type ??
-        (typeof value as unknown as SetConfigOutput['type'])) as SetConfigOutput['type'],
+      type: descriptor?.type ?? (typeof value as unknown),
       previousValue: prev as SetConfigOutput['previousValue'],
       newValue: value,
     };

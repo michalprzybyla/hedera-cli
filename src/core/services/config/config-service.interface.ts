@@ -3,7 +3,14 @@
  * Generic accessors so new options are easy to add and discover
  */
 
-export type ConfigOptionType = 'boolean' | 'number' | 'string' | 'enum';
+export const CONFIG_OPTION_TYPES = [
+  'boolean',
+  'number',
+  'string',
+  'enum',
+] as const;
+
+export type ConfigOptionType = (typeof CONFIG_OPTION_TYPES)[number];
 
 export interface ConfigOptionDescriptor {
   name: string;

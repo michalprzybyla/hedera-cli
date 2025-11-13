@@ -1,16 +1,8 @@
 /**
  * List Config Options Output Schema and Template
  */
+import { ConfigOptionTypeSchema, ConfigValueSchema } from '../../schema';
 import { z } from 'zod';
-
-export const ConfigOptionTypeSchema = z.enum([
-  'boolean',
-  'number',
-  'string',
-  'enum',
-]);
-
-export const ConfigValueSchema = z.union([z.boolean(), z.number(), z.string()]);
 
 export const ListConfigOutputSchema = z.object({
   options: z.array(

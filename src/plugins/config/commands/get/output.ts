@@ -1,8 +1,8 @@
 /**
  * Get Config Option Output Schema and Template
  */
+import { ConfigOptionTypeSchema, ConfigValueSchema } from '../../schema';
 import { z } from 'zod';
-import { ConfigOptionTypeSchema, ConfigValueSchema } from '../list/output';
 
 export const GetConfigOutputSchema = z.object({
   name: z.string(),
