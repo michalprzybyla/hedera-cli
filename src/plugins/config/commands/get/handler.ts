@@ -4,6 +4,17 @@ import { Status } from '../../../../core/shared/constants';
 import { formatError } from '../../../../utils/errors';
 import { GetConfigOutput } from './output';
 
+function inferConfigOptionType(
+  descriptorType: string | undefined,
+  value: unknown,
+): string {
+  const typeMap: Record<string, string> = {
+    boolean: 'boolean',
+    number: 'number',
+  };
+  return descriptorType ?? typeMap[typeof value] ?? 'string';
+}
+
 export async function getConfigOption(
   args: CommandHandlerArgs,
 ): Promise<CommandExecutionResult> {
@@ -21,13 +32,7 @@ export async function getConfigOption(
     const value = api.config.getOption(name);
     // Try to detect type against listOptions
     const descriptor = api.config.listOptions().find((o) => o.name === name);
-    const type =
-      descriptor?.type ??
-      (typeof value === 'boolean'
-        ? 'boolean'
-        : typeof value === 'number'
-          ? 'number'
-          : 'string');
+    const type = inferConfigOptionType(descriptor?.type, value);
 
     const output: GetConfigOutput = {
       name,
