@@ -1,10 +1,11 @@
-import { ConfigOptionType, ConfigService } from './config-service.interface';
+import {
+  ConfigOptionDescriptor,
+  ConfigService,
+} from './config-service.interface';
 import type { DefaultKeyManagerType } from '../../types/shared.types';
 import { StateService } from '../state/state-service.interface';
 
 const CONFIG_NAMESPACE = 'config';
-const KEY_ED25519_ENABLED = 'ed25519_support_enabled';
-const KEY_DEFAULT_KEY_MANAGER = 'default_key_manager';
 
 type OptionSpec =
   | {
@@ -26,11 +27,11 @@ type OptionSpec =
     };
 
 const CONFIG_OPTIONS: Record<string, OptionSpec> = {
-  [KEY_ED25519_ENABLED]: {
+  ed25519_support_enabled: {
     type: 'boolean',
     default: false,
   },
-  [KEY_DEFAULT_KEY_MANAGER]: {
+  default_key_manager: {
     type: 'enum',
     default: 'local',
     allowedValues: [
@@ -47,28 +48,25 @@ export class ConfigServiceImpl implements ConfigService {
     this.state = stateService;
   }
 
-  listOptions(): {
-    name: string;
-    type: ConfigOptionType;
-    value: boolean | number | string;
-    allowedValues?: string[];
-  }[] {
-    return Object.entries(CONFIG_OPTIONS).map(([name, spec]) => {
-      const base = {
-        name,
-        type: spec.type,
-        value: this.getOption(name),
-      } as {
-        name: string;
-        type: ConfigOptionType;
-        value: boolean | number | string;
-        allowedValues?: string[];
-      };
-      if (spec.type === 'enum') {
-        base.allowedValues = [...spec.allowedValues];
-      }
-      return base;
-    });
+  listOptions(): ConfigOptionDescriptor[] {
+    return Object.entries(CONFIG_OPTIONS).map(
+      ([name, spec]): ConfigOptionDescriptor => {
+        const value = this.getOption(name);
+        if (spec.type === 'enum') {
+          return {
+            name,
+            type: spec.type,
+            value,
+            allowedValues: [...spec.allowedValues],
+          };
+        }
+        return {
+          name,
+          type: spec.type,
+          value,
+        };
+      },
+    );
   }
 
   getOption<T = boolean | number | string>(name: string): T {
