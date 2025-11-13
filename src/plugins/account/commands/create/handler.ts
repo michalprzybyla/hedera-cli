@@ -13,6 +13,7 @@ import { ZustandAccountStateHelper } from '../../zustand-state-helper';
 import { processBalanceInput } from '../../../../core/utils/process-balance-input';
 import { CreateAccountOutput } from './output';
 import { Hbar } from '@hashgraph/sdk';
+import { KeyAlgorithm } from '../../../../core/services/kms/kms-types.interface';
 
 /**
  * Validates that an account has sufficient balance for an operation.
@@ -69,6 +70,17 @@ export async function createAccount(
 
   const autoAssociations = (args.args['auto-associations'] as number) || 0;
   const alias = (args.args.name as string) || '';
+  const keyTypeArg = (args.args['key-type'] as string) || 'ecdsa';
+
+  // Validate key type
+  if (keyTypeArg !== 'ecdsa' && keyTypeArg !== 'ed25519') {
+    return {
+      status: Status.Failure,
+      errorMessage: `Invalid key type: ${keyTypeArg}. Must be 'ecdsa' or 'ed25519'.`,
+    };
+  }
+
+  const keyType: KeyAlgorithm = keyTypeArg as KeyAlgorithm;
 
   // Check if alias already exists on the current network
   const network = api.network.getCurrentNetwork();
@@ -97,14 +109,14 @@ export async function createAccount(
 
   try {
     // 1. Generate a new key pair for the account
-    const { keyRefId, publicKey } = api.kms.createLocalPrivateKey();
+    const { keyRefId, publicKey } = api.kms.createLocalPrivateKey(keyType);
 
     // 2. Create transaction using Core API
     const accountCreateResult = await api.account.createAccount({
       balanceRaw: balance,
       maxAutoAssociations: autoAssociations,
       publicKey,
-      keyType: 'ECDSA',
+      keyType: keyType,
     });
 
     // 2. Sign and execute transaction with default operator
@@ -127,10 +139,12 @@ export async function createAccount(
       }
 
       // 5. Store account metadata in plugin state (no private key)
+      // Convert keyType to uppercase for account data storage
+      const accountKeyType = keyType.toUpperCase() as 'ECDSA' | 'ED25519';
       const accountData = {
         name,
         accountId: result.accountId || '0.0.123456',
-        type: 'ECDSA' as const,
+        type: accountKeyType,
         publicKey: accountCreateResult.publicKey,
         evmAddress: accountCreateResult.evmAddress,
         solidityAddress: accountCreateResult.evmAddress,

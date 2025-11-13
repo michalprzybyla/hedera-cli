@@ -18,6 +18,7 @@ import { KmsSignerService } from './kms-signer-service.interface';
 import { Logger } from '../logger/logger-service.interface';
 import { StateService } from '../state/state-service.interface';
 import { NetworkService } from '../network/network-service.interface';
+import { ConfigService } from '../config/config-service.interface';
 import { KmsStorageServiceInterface } from './kms-storage-service.interface';
 import { KmsStorageService } from './kms-storage.service';
 
@@ -35,27 +36,48 @@ export class KmsServiceImpl implements KmsService {
   private readonly logger: Logger;
   private readonly storage: KmsStorageServiceInterface;
   private readonly networkService: NetworkService;
+  private readonly configService: ConfigService;
 
   constructor(
     logger: Logger,
     state: StateService,
     networkService: NetworkService,
+    configService: ConfigService,
   ) {
     this.logger = logger;
     this.networkService = networkService;
+    this.configService = configService;
     this.storage = new KmsStorageService(state);
   }
 
-  createLocalPrivateKey(labels?: string[]): {
+  createLocalPrivateKey(
+    keyType: KeyAlgorithm,
+    labels?: string[],
+  ): {
     keyRefId: string;
     publicKey: string;
   } {
+    // Check if ED25519 support is enabled when using ED25519 key type
+    if (keyType === 'ed25519') {
+      const ed25519SupportEnabled = this.configService.getOption<boolean>(
+        'ed25519_support_enabled',
+      );
+      if (!ed25519SupportEnabled) {
+        throw new Error(
+          'ED25519 key type is not enabled. Please enable it by setting the config option ed25519_support_enabled to true.',
+        );
+      }
+    }
+
     const keyRefId = this.generateId('kr');
-    // Generate a real Hedera Ed25519 keypair
-    const privateKey = PrivateKey.generateECDSA();
+    // Generate a real Hedera keypair based on the specified type
+    const privateKey =
+      keyType === 'ecdsa'
+        ? PrivateKey.generateECDSA()
+        : PrivateKey.generateED25519();
     const publicKey = privateKey.publicKey.toStringRaw();
     this.storage.writeSecret(keyRefId, {
-      keyAlgorithm: 'ecdsa',
+      keyAlgorithm: keyType,
       privateKey: privateKey.toStringRaw(),
       createdAt: new Date().toISOString(),
     });
@@ -64,19 +86,35 @@ export class KmsServiceImpl implements KmsService {
       type: 'localPrivateKey',
       publicKey,
       labels,
-      keyAlgorithm: 'ecdsa',
+      keyAlgorithm: keyType,
     });
     return { keyRefId, publicKey };
   }
 
   importPrivateKey(
+    keyType: KeyAlgorithm,
     privateKey: string,
     labels?: string[],
   ): { keyRefId: string; publicKey: string } {
+    // Check if ED25519 support is enabled when using ED25519 key type
+    if (keyType === 'ed25519') {
+      const ed25519SupportEnabled = this.configService.getOption<boolean>(
+        'ed25519_support_enabled',
+      );
+      if (!ed25519SupportEnabled) {
+        throw new Error(
+          'ED25519 key type is not enabled. Please enable it by setting the config option ed25519_support_enabled to true.',
+        );
+      }
+    }
+
     const keyRefId = this.generateId('kr');
-    // TODO: Try to parse either ED25519 or ECDSA
-    const pk: PrivateKey = PrivateKey.fromStringECDSA(privateKey);
-    const algo: KeyAlgorithm = 'ecdsa';
+    // Parse the key based on the specified type
+    const pk: PrivateKey =
+      keyType === 'ecdsa'
+        ? PrivateKey.fromStringECDSA(privateKey)
+        : PrivateKey.fromStringED25519(privateKey);
+    const algo: KeyAlgorithm = keyType;
     const publicKey = pk.publicKey.toStringRaw();
 
     const existingKeyRefId = this.findByPublicKey(publicKey);
@@ -96,7 +134,7 @@ export class KmsServiceImpl implements KmsService {
     });
     this.storage.writeSecret(keyRefId, {
       keyAlgorithm: algo,
-      privateKey,
+      privateKey: privateKey,
       createdAt: new Date().toISOString(),
     });
     return { keyRefId, publicKey };

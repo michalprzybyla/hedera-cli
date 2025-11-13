@@ -234,7 +234,10 @@ describe('associateTokenHandler', () => {
         mockAssociationTransaction,
         { keyRefId: 'imported-key-ref-id' },
       );
-      expect(kms.importPrivateKey).toHaveBeenCalledWith('test-account-key');
+      expect(kms.importPrivateKey).toHaveBeenCalledWith(
+        'ecdsa',
+        'test-account-key',
+      );
     });
 
     test('should associate token with account using alias', async () => {
@@ -669,7 +672,10 @@ describe('associateTokenHandler', () => {
         mockAssociationTransaction,
         { keyRefId: 'imported-key-ref-id' },
       );
-      expect(kms.importPrivateKey).toHaveBeenCalledWith('test-account-key');
+      expect(kms.importPrivateKey).toHaveBeenCalledWith(
+        'ecdsa',
+        'test-account-key',
+      );
     });
 
     test('should use alias name for state when using alias', async () => {

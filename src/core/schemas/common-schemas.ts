@@ -198,16 +198,19 @@ export const EvmAddressSchema = z
 
 /**
  * Account ID with Private Key
- * Format: accountId:privateKey
+ * Format: accountId:privateKey or accountId:keyType:privateKey
  * Example: 0.0.123456:302e020100301006072a8648ce3d020106052b8104000a04220420...
+ * Example: 0.0.123456:ed25519:302e020100301006072a8648ce3d020106052b8104000a04220420...
  */
 export const AccountIdKeyPairSchema = z
   .string()
   .regex(
-    /^0\.0\.[1-9][0-9]*:(?:[0-9a-fA-F]{64}|30[0-9a-fA-F]{100,})$/,
-    'Account ID with private key must be in format 0.0.{number}:{hex|der_key}',
+    /^0\.0\.[1-9][0-9]*:(?:(?:ecdsa|ed25519):)?(?:[0-9a-fA-F]{64}|30[0-9a-fA-F]{100,})$/i,
+    'Account ID with private key must be in format 0.0.{number}:{private_key} or 0.0.{number}:{keyType}:{private_key}',
   )
-  .describe('Account ID with private key in format 0.0.{number}:{private_key}');
+  .describe(
+    'Account ID with private key in format 0.0.{number}:{private_key} or 0.0.{number}:{keyType}:{private_key}',
+  );
 
 /**
  * Network name

@@ -9,6 +9,7 @@ import { Status } from '../../../../core/shared/constants';
 import { formatError } from '../../../../utils/errors';
 import { ZustandAccountStateHelper } from '../../zustand-state-helper';
 import { ImportAccountOutput } from './output';
+import { parseKeyWithType } from '../../../../core/utils/parse-key-type';
 
 export async function importAccount(
   args: CommandHandlerArgs,
@@ -20,8 +21,11 @@ export async function importAccount(
 
   // Extract command arguments
   const accountId = args.args.id as string;
-  const privateKey = args.args.key as string;
+  const privateKeyInput = args.args.key as string;
   const alias = (args.args.name as string) || '';
+
+  // Parse private key - check if it has a key type prefix (e.g., "ed25519:...")
+  const { keyType, privateKey } = parseKeyWithType(privateKeyInput);
 
   // Check if name already exists on the current network
   const network = api.network.getCurrentNetwork();
@@ -43,9 +47,11 @@ export async function importAccount(
     const accountInfo = await api.mirror.getAccount(accountId);
 
     // Securely store the private key in credentials storage
-    const { keyRefId, publicKey } = api.kms.importPrivateKey(privateKey, [
-      `account:${name}`,
-    ]);
+    const { keyRefId, publicKey } = api.kms.importPrivateKey(
+      keyType,
+      privateKey,
+      [`account:${name}`],
+    );
 
     // Register name if provided
     if (alias) {
@@ -64,10 +70,12 @@ export async function importAccount(
     }
 
     // Create account object (no private key in plugin state)
+    // Convert keyType to uppercase for account data storage
+    const accountKeyType = keyType.toUpperCase() as 'ECDSA' | 'ED25519';
     const account = {
       name,
       accountId,
-      type: 'ECDSA' as 'ECDSA' | 'ED25519', // Default type since key info not available in new API
+      type: accountKeyType,
       publicKey: publicKey,
       evmAddress:
         accountInfo.evmAddress || '0x0000000000000000000000000000000000000000',
