@@ -1,9 +1,5 @@
 #!/usr/bin/env node
 
-// Load environment variables from .env file
-import * as dotenv from 'dotenv';
-dotenv.config();
-
 import { program } from 'commander';
 import { PluginManager } from './core/plugins/plugin-manager';
 import { createCoreApi } from './core/core-api';
@@ -15,10 +11,7 @@ const pkg = require('../package.json') as { version?: string };
 program
   .version(pkg.version || '0.0.0')
   .description('A CLI tool for managing Hedera environments')
-  .option('-v, --verbose', 'Enable verbose logging')
-  .option('-q, --quiet', 'Quiet mode (only errors)')
-  .option('--format <type>', 'Output format: human (default) or json')
-  .option('--no-color', 'Disable ANSI colors');
+  .option('--format <type>', 'Output format: human (default) or json');
 
 // Initialize the simplified plugin system
 async function initializeCLI() {
