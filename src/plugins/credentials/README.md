@@ -2,68 +2,62 @@
 
 A plugin for managing operator credentials and keys in the Hedera CLI.
 
-## Features
+## 🏗️ Architecture
 
-- **List Credentials**: View all stored credentials and their metadata
-- **Remove Credentials**: Delete stored credentials by key reference ID
-- **ADR-003 Compliant**: Structured outputs with human-readable templates and machine-readable formats
+This plugin follows the plugin architecture principles:
 
-## Commands
+- **Stateless**: Plugin is functionally stateless
+- **Dependency Injection**: Services are injected into command handlers
+- **Manifest-Driven**: Capabilities declared via manifest with output specifications
+- **ADR-003 Compliance**: All command handlers return `CommandExecutionResult` with structured output
+- **Type Safety**: Full TypeScript support
 
-### `hedera credentials list`
+## 📁 Structure
+
+```
+src/plugins/credentials/
+├── manifest.ts              # Plugin manifest with command definitions
+├── schema.ts                # Credentials data schema with Zod validation
+├── commands/
+│   ├── list/
+│   │   ├── handler.ts      # List credentials handler
+│   │   ├── output.ts       # Output schema and template (ADR-003)
+│   │   └── index.ts        # Command exports
+│   └── remove/
+│       ├── handler.ts      # Remove credentials handler
+│       ├── output.ts       # Output schema and template
+│       └── index.ts        # Command exports
+├── __tests__/unit/         # Unit tests
+└── index.ts                # Plugin exports
+```
+
+## 🚀 Commands
+
+All commands follow ADR-003 contract: handlers return `CommandExecutionResult` with standardized output schemas and human-readable templates.
+
+### List Credentials
 
 Show all stored credentials and their metadata.
 
-**Example:**
-
 ```bash
-hedera credentials list
+hcli credentials list
 ```
 
-**Output:**
-
-```json
-{
-  "credentials": [
-    {
-      "keyRefId": "key-ref-123",
-      "type": "ECDSA",
-      "publicKey": "02a1b2c3...",
-      "labels": ["default-operator"]
-    }
-  ],
-  "totalCount": 1
-}
-```
-
-### `hedera credentials remove`
+### Remove Credentials
 
 Remove credentials for a specific key reference ID.
 
+```bash
+hcli credentials remove --key-ref-id key-ref-123
+```
+
 **Options:**
 
-- `--key-ref-id, -k` (required): Key reference ID to remove
+- `-k, --key-ref-id <string>` - Key reference ID to remove (required)
 
-**Example:**
+## 📊 State Management
 
-```bash
-hedera credentials remove --key-ref-id key-ref-123
-```
-
-**Output:**
-
-```json
-{
-  "keyRefId": "key-ref-123",
-  "removed": true
-}
-```
-
-## Plugin Architecture
-
-### State Management
-
-The plugin stores credentials metadata using the following schema:
+The plugin stores credentials metadata in the `credentials-credentials` namespace using the following schema:
 
 ```typescript
 {
@@ -75,33 +69,46 @@ The plugin stores credentials metadata using the following schema:
 }
 ```
 
-### Output Schemas
+The schema is validated using Zod (`CredentialsDataSchema`) and stored as JSON Schema in the plugin manifest for runtime validation.
 
-All commands follow ADR-003 with:
+## 📤 Output Formatting (ADR-003)
 
-- **Zod schemas** for runtime validation
-- **Human-readable templates** using Handlebars
-- **Machine-readable outputs** (JSON/YAML/XML support)
-- **Type-safe interfaces** auto-generated from schemas
+All commands follow the ADR-003 contract for standardized output:
 
-### Error Handling
+- **Output Schemas**: Each command defines a Zod schema in `output.ts` for type-safe output validation
+- **Human Templates**: Handlebars templates provide human-readable output formatting
+- **CommandExecutionResult**: All handlers return `CommandExecutionResult` with `status`, `errorMessage`, and `outputJson` fields
+- **No process.exit()**: Handlers never call `process.exit()` directly; errors are returned in the result
 
-- Structured error responses with `CommandExecutionResult`
-- Consistent error messages via `formatError()` utility
-- Graceful handling of missing credentials or invalid inputs
+Output format is controlled by the CLI's `--format` option (default: `human`, or `json` for machine-readable output).
 
-## Integration
+## 🔧 Core API Integration
 
-The credentials plugin integrates with:
+The plugin uses the Core API services:
 
-- **KMS Service**: Secure key storage and management
-- **Network Service**: Operator configuration per network
-- **State Service**: Persistent credential metadata storage
-- **Core API**: Transaction signing and execution
+- `api.kms` - Secure key storage and management
+- `api.network` - Operator configuration per network
+- `api.state` - Persistent credential metadata storage
+- `api.logger` - Logging
 
-## Security Notes
+## 🔐 Security Notes
 
 - Private keys are stored securely via the KMS service
 - Only key reference IDs and public keys are exposed in outputs
 - Network-specific operator configuration prevents key reuse across environments
 - Credentials are encrypted at rest and never logged in plaintext
+
+## 🧪 Testing
+
+Unit tests located in `__tests__/unit/`:
+
+```bash
+npm test -- src/plugins/credentials/__tests__/unit
+```
+
+Test coverage includes:
+
+- Listing credentials
+- Removing credentials by key reference ID
+- Error handling for invalid inputs
+- Missing credentials handling
