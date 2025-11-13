@@ -21,7 +21,13 @@ export async function getConfigOption(
     const value = api.config.getOption(name);
     // Try to detect type against listOptions
     const descriptor = api.config.listOptions().find((o) => o.name === name);
-    const type = descriptor?.type ?? (typeof value as 'string');
+    const type =
+      descriptor?.type ??
+      (typeof value === 'boolean'
+        ? 'boolean'
+        : typeof value === 'number'
+          ? 'number'
+          : 'string');
 
     const output: GetConfigOutput = {
       name,

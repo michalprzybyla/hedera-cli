@@ -4,16 +4,29 @@ import { Status } from '../../../../core/shared/constants';
 import { formatError } from '../../../../utils/errors';
 import { SetConfigOutput } from './output';
 
+/**
+ * Parses a string value into boolean, number, or string.
+ * - "true"/"false" (case-insensitive) → boolean
+ * - Valid numeric strings (e.g., "123", "-45.67") → number
+ * - Everything else → string
+ */
 function parseValue(input: string): boolean | number | string {
-  const lower = input.toLowerCase();
+  const trimmed = input.trim();
+  const lower = trimmed.toLowerCase();
+
   if (lower === 'true') return true;
   if (lower === 'false') return false;
-  // try number
-  const asNumber = Number(input);
-  if (!Number.isNaN(asNumber) && input.trim() !== '') {
-    return asNumber;
+
+  // Strict number parsing: must be a valid numeric string
+  // Matches integers and decimals (e.g., "123", "-45.67", "0", "0.5")
+  if (/^-?\d+(\.\d+)?$/.test(trimmed)) {
+    const asNumber = Number(trimmed);
+    if (!Number.isNaN(asNumber)) {
+      return asNumber;
+    }
   }
-  return input;
+
+  return trimmed;
 }
 
 export async function setConfigOption(
