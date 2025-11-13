@@ -42,7 +42,7 @@ describe.skip('account balance command (legacy - disabled, incompatible with ADR
         'balance',
         '-a',
         accountResponse.account,
-        '--only-hbar',
+        '--hbar-only',
       ]);
 
       // Assert
@@ -76,7 +76,7 @@ describe.skip('account balance command (legacy - disabled, incompatible with ADR
         'balance',
         '-a',
         accountResponse.account,
-        '--token-id',
+        '--token',
         accountResponse.balance.tokens[0].token_id,
       ]);
 
