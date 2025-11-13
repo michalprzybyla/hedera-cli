@@ -42,10 +42,9 @@ jobs:
               print("No diff found.")
               exit(0)
 
-          # ✍️ Prompt for the model
           prompt = f"""
-          You are a senior TypeScript reviewer. Review the following pull request diff.
-          Identify potential bugs, anti-patterns, unclear logic, or missing types.
+          You are a senior TypeScript reviewer. Review this pull request diff.
+          Highlight potential bugs, anti-patterns, unclear logic, or missing types.
           Respond in Markdown format, starting with '### AI Code Review Summary'.
 
           Code diff:
@@ -53,11 +52,10 @@ jobs:
           """
 
           try:
-              # ✅ Using the new router endpoint and working model
+              # ✅ Only pass model + token, do NOT pass base_url
               client = InferenceClient(
                   model="google/gemma-2-2b-it",
-                  token=os.environ["HF_TOKEN"],
-                  base_url="https://router.huggingface.co",
+                  token=os.environ["HF_TOKEN"]
               )
 
               print("Calling Hugging Face InferenceClient.text_generation(...)")
