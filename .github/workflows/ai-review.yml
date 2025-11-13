@@ -28,7 +28,7 @@ jobs:
           python3 <<'EOF'
           import os, json, requests
 
-          # Pobranie danych PR
+          # Load pull request event data
           event = json.load(open(os.environ['GITHUB_EVENT_PATH']))
           diff_url = event['pull_request']['diff_url']
           comments_url = event['pull_request']['comments_url']
@@ -37,28 +37,26 @@ jobs:
 
           print(f"Analyzing PR #{pr_number} from {repo}...")
 
-          # Pobranie diff-a
+          # Fetch the PR diff
           diff = requests.get(diff_url).text
           if not diff.strip():
               print("No diff found.")
               exit(0)
 
-          # Przygotowanie prompta (dla TypeScript)
+          # Prepare the AI prompt (focused on TypeScript)
           prompt = f"""You are an expert TypeScript reviewer. Analyze this pull request diff for potential issues, bad patterns, or improvements.
           Focus on correctness, security, and code clarity. Write your response as a concise Markdown comment.
 
           Code diff:
-          {diff[:4000]}"""  # ograniczenie dla modelu
+          {diff[:4000]}"""  # safety limit for model input
 
           headers = {"Authorization": f"Bearer {os.environ.get('HF_TOKEN', '')}"}
           payload = {"inputs": prompt}
 
-          r = requests.post(
-              "https://api-inference.huggingface.co/models/microsoft/Phi-3-mini-4k-instruct",
-              headers=headers,
-              json=payload,
-              timeout=60
-          )
+          # ✅ Updated Hugging Face endpoint (old API is deprecated)
+          url = "https://router.huggingface.co/hf-inference/models/microsoft/Phi-3-mini-4k-instruct"
+
+          r = requests.post(url, headers=headers, json=payload, timeout=90)
 
           try:
               result = r.json()
@@ -76,7 +74,7 @@ jobs:
           print("=== AI Review Output ===")
           print(review)
 
-          # Dodanie komentarza do PR
+          # Post the AI review as a comment on the PR
           requests.post(
               comments_url,
               headers={
