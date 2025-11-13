@@ -1,4 +1,4 @@
-name: AI Code Review (TypeScript)
+name: AI Code Review (TypeScript) - HuggingFace InferenceClient
 
 on:
   pull_request:
@@ -7,7 +7,6 @@ on:
 jobs:
   ai-review:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -18,69 +17,105 @@ jobs:
           python-version: '3.10'
 
       - name: Install dependencies
-        run: pip install requests
+        run: pip install --no-cache-dir huggingface_hub requests
 
       - name: Run AI code review
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          python3 <<'EOF'
-          import os, json, requests
+          python3 <<'PY'
+          import os, json, textwrap
+          import requests
+          from huggingface_hub import InferenceClient
 
-          # Load pull request event data
+          # Load PR event
           event = json.load(open(os.environ['GITHUB_EVENT_PATH']))
-          diff_url = event['pull_request']['diff_url']
-          comments_url = event['pull_request']['comments_url']
-          pr_number = event['number']
-          repo = os.environ['GITHUB_REPOSITORY']
+          pr = event.get('pull_request', {})
+          diff_url = pr.get('diff_url')
+          comments_url = pr.get('comments_url')
+          pr_number = event.get('number')
+          repo = os.environ.get('GITHUB_REPOSITORY')
+
+          def post_comment(body):
+              requests.post(
+                  comments_url,
+                  headers={
+                      "Authorization": f"Bearer {os.environ['GITHUB_TOKEN']}",
+                      "Accept": "application/vnd.github.v3+json",
+                  },
+                  json={"body": body},
+              )
 
           print(f"Analyzing PR #{pr_number} from {repo}...")
 
-          # Fetch the PR diff
+          if not diff_url:
+              msg = "⚠️ Could not find diff URL in PR event."
+              print(msg)
+              post_comment(f"### 🤖 AI Code Review\n{msg}")
+              raise SystemExit(1)
+
           diff = requests.get(diff_url).text
           if not diff.strip():
-              print("No diff found.")
-              exit(0)
+              msg = "No diff found or diff is empty."
+              print(msg)
+              post_comment(f"### 🤖 AI Code Review\n{msg}")
+              raise SystemExit(0)
 
-          # Prepare the AI prompt (focused on TypeScript)
-          prompt = f"""You are an expert TypeScript reviewer. Analyze this pull request diff for potential issues, bad patterns, or improvements.
-          Focus on correctness, security, and code clarity. Write your response as a concise Markdown comment.
+          # Shorten diff to reasonable size (safety)
+          MAX_CHARS = 12000
+          short_diff = diff if len(diff) <= MAX_CHARS else diff[:MAX_CHARS] + "\n\n...[truncated]"
 
-          Code diff:
-          {diff[:4000]}"""  # safety limit for model input
+          prompt = textwrap.dedent(f"""
+          You are an expert TypeScript code reviewer. Analyze the following pull request diff and list:
+          1) potential bugs or logic errors,
+          2) security issues,
+          3) readability/maintainability suggestions,
+          4) possible performance problems,
+          5) a few actionable suggestions (code-level if possible).
+          Write the response as a concise Markdown comment suitable to post in a GitHub PR.
 
-          headers = {"Authorization": f"Bearer {os.environ.get('HF_TOKEN', '')}"}
-          payload = {"inputs": prompt}
+          Code diff (truncated if long):
+          {short_diff}
+          """)
 
-          # ✅ Updated Hugging Face endpoint (old API is deprecated)
-          url = "https://router.huggingface.co/hf-inference/models/microsoft/Phi-3-mini-4k-instruct"
+          # Initialize InferenceClient (lets HF pick a provider or recommended model)
+          hf_token = os.environ.get('HF_TOKEN')
+          if not hf_token:
+              msg = "HF_TOKEN secret not set. Please add your Hugging Face token to repository secrets."
+              print(msg)
+              post_comment(f"### 🤖 AI Code Review\n⚠️ {msg}")
+              raise SystemExit(1)
 
-          r = requests.post(url, headers=headers, json=payload, timeout=90)
+          client = InferenceClient(token=hf_token, timeout=120)
 
           try:
-              result = r.json()
-              if isinstance(result, list):
-                  review = result[0].get('generated_text', '')
+              # Use text_generation (InferenceClient will pick a recommended model if model not provided)
+              print("Calling Hugging Face InferenceClient.text_generation(...)")
+              resp = client.text_generation(prompt, max_new_tokens=512)
+              # resp can be list/dict depending on provider; try to extract text
+              review_text = ""
+              if isinstance(resp, list) and len(resp)>0:
+                  # common shape: [{'generated_text': '...'}]
+                  first = resp[0]
+                  if isinstance(first, dict) and 'generated_text' in first:
+                      review_text = first['generated_text']
+                  else:
+                      review_text = str(first)
+              elif isinstance(resp, dict):
+                  review_text = resp.get('generated_text') or json.dumps(resp)
               else:
-                  review = result.get('generated_text', str(result))
+                  review_text = str(resp)
           except Exception as e:
-              review = f"⚠️ AI review failed: {e}\n\nRaw output: {r.text}"
+              error_msg = f"⚠️ Hugging Face inference error: {e}"
+              print(error_msg)
+              # Try to include any HTTP response text if available from exception
+              post_comment(f"### 🤖 AI Code Review\n{error_msg}\n\nIf this persists, ensure your HF token has inference permissions and the model/provider is available to your account.")
+              raise SystemExit(1)
 
-          review = review.strip()
-          if not review:
-              review = "🤖 AI model returned no feedback."
-
-          print("=== AI Review Output ===")
-          print(review)
-
-          # Post the AI review as a comment on the PR
-          requests.post(
-              comments_url,
-              headers={
-                  "Authorization": f"Bearer {os.environ['GITHUB_TOKEN']}",
-                  "Accept": "application/vnd.github.v3+json",
-              },
-              json={"body": f"### 🤖 AI Code Review\n{review}"}
-          )
-          EOF
+          review_text = review_text.strip() or "🤖 AI model returned no feedback."
+          # Post comment to PR
+          comment_body = f"### 🤖 AI Code Review\n{review_text}"
+          post_comment(comment_body)
+          print("Posted AI review comment to PR.")
+          PY
