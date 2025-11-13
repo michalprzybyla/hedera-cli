@@ -1,0 +1,88 @@
+name: AI Code Review (TypeScript)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  ai-review:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run AI code review
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          python3 <<'EOF'
+          import os, json, requests
+
+          # Pobranie danych PR
+          event = json.load(open(os.environ['GITHUB_EVENT_PATH']))
+          diff_url = event['pull_request']['diff_url']
+          comments_url = event['pull_request']['comments_url']
+          pr_number = event['number']
+          repo = os.environ['GITHUB_REPOSITORY']
+
+          print(f"Analyzing PR #{pr_number} from {repo}...")
+
+          # Pobranie diff-a
+          diff = requests.get(diff_url).text
+          if not diff.strip():
+              print("No diff found.")
+              exit(0)
+
+          # Przygotowanie prompta (dla TypeScript)
+          prompt = f"""You are an expert TypeScript reviewer. Analyze this pull request diff for potential issues, bad patterns, or improvements.
+          Focus on correctness, security, and code clarity. Write your response as a concise Markdown comment.
+
+          Code diff:
+          {diff[:4000]}"""  # ograniczenie dla modelu
+
+          headers = {"Authorization": f"Bearer {os.environ.get('HF_TOKEN', '')}"}
+          payload = {"inputs": prompt}
+
+          r = requests.post(
+              "https://api-inference.huggingface.co/models/microsoft/Phi-3-mini-4k-instruct",
+              headers=headers,
+              json=payload,
+              timeout=60
+          )
+
+          try:
+              result = r.json()
+              if isinstance(result, list):
+                  review = result[0].get('generated_text', '')
+              else:
+                  review = result.get('generated_text', str(result))
+          except Exception as e:
+              review = f"⚠️ AI review failed: {e}\n\nRaw output: {r.text}"
+
+          review = review.strip()
+          if not review:
+              review = "🤖 AI model returned no feedback."
+
+          print("=== AI Review Output ===")
+          print(review)
+
+          # Dodanie komentarza do PR
+          requests.post(
+              comments_url,
+              headers={
+                  "Authorization": f"Bearer {os.environ['GITHUB_TOKEN']}",
+                  "Accept": "application/vnd.github.v3+json",
+              },
+              json={"body": f"### 🤖 AI Code Review\n{review}"}
+          )
+          EOF
