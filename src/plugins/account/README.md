@@ -19,13 +19,34 @@ src/plugins/account/
 ├── manifest.ts              # Plugin manifest with command definitions
 ├── schema.ts                # Account data schema with Zod validation
 ├── commands/
-│   ├── create.ts           # Account creation handler
-│   ├── import.ts           # Account import handler
-│   ├── balance.ts          # Balance retrieval handler
-│   ├── list.ts             # List accounts handler
-│   ├── view.ts             # View account details handler
-│   ├── delete.ts           # Delete account handler
-│   └── clear.ts            # Clear all accounts handler
+│   ├── create/
+│   │   ├── handler.ts      # Account creation handler
+│   │   ├── output.ts       # Output schema and template (ADR-003)
+│   │   └── index.ts        # Command exports
+│   ├── import/
+│   │   ├── handler.ts      # Account import handler
+│   │   ├── output.ts       # Output schema and template
+│   │   └── index.ts        # Command exports
+│   ├── balance/
+│   │   ├── handler.ts      # Balance retrieval handler
+│   │   ├── output.ts       # Output schema and template
+│   │   └── index.ts        # Command exports
+│   ├── list/
+│   │   ├── handler.ts      # List accounts handler
+│   │   ├── output.ts       # Output schema and template
+│   │   └── index.ts        # Command exports
+│   ├── view/
+│   │   ├── handler.ts      # View account details handler
+│   │   ├── output.ts       # Output schema and template
+│   │   └── index.ts        # Command exports
+│   ├── delete/
+│   │   ├── handler.ts      # Delete account handler
+│   │   ├── output.ts       # Output schema and template
+│   │   └── index.ts        # Command exports
+│   └── clear/
+│       ├── handler.ts      # Clear all accounts handler
+│       ├── output.ts       # Output schema and template
+│       └── index.ts        # Command exports
 ├── zustand-state-helper.ts  # State management helper
 ├── __tests__/unit/          # Unit tests
 └── index.ts                # Plugin exports
@@ -33,13 +54,16 @@ src/plugins/account/
 
 ## 🚀 Commands
 
+All commands follow ADR-003 contract: handlers return `CommandExecutionResult` with standardized output schemas and human-readable templates.
+
 ### Account Create
 
 ```bash
 hcli account create \
   --balance 100000000 \
   --auto-associations 10 \
-  --name myaccount
+  --name myaccount \
+  --payer operator-name
 ```
 
 ### Account Import
@@ -56,6 +80,7 @@ hcli account import \
 ```bash
 hcli account balance --account myaccount
 hcli account balance --account 0.0.123456 --only-hbar
+hcli account balance --account myaccount --token-id 0.0.789012
 ```
 
 ### Account List
@@ -69,12 +94,14 @@ hcli account list --private  # Show key reference IDs
 
 ```bash
 hcli account view --account myaccount
+hcli account view --account 0.0.123456
 ```
 
 ### Account Delete
 
 ```bash
 hcli account delete --name myaccount
+hcli account delete --id 0.0.123456
 ```
 
 ### Account Clear
@@ -96,6 +123,29 @@ The plugin uses the Core API services:
 - `api.mirror` - Mirror node queries
 - `api.logger` - Logging
 
+## 📤 Output Formatting (ADR-003)
+
+All commands follow the ADR-003 contract for standardized output:
+
+- **Output Schemas**: Each command defines a Zod schema in `output.ts` for type-safe output validation
+- **Human Templates**: Handlebars templates provide human-readable output formatting
+- **CommandExecutionResult**: All handlers return `CommandExecutionResult` with `status`, `errorMessage`, and `outputJson` fields
+- **No process.exit()**: Handlers never call `process.exit()` directly; errors are returned in the result
+
+Example output schema:
+
+```typescript
+export const CreateAccountOutputSchema = z.object({
+  accountId: EntityIdSchema,
+  name: z.string(),
+  type: KeyTypeSchema,
+  network: NetworkSchema,
+  transactionId: TransactionIdSchema,
+  evmAddress: EvmAddressSchema,
+  publicKey: PublicKeySchema,
+});
+```
+
 ## 📊 State Management
 
 Account data is stored in the `account-accounts` namespace with the following structure:
@@ -110,9 +160,11 @@ interface AccountData {
   evmAddress: string; // EVM address
   solidityAddress: string; // Solidity address (short)
   solidityAddressFull: string; // Solidity address (full)
-  network: 'mainnet' | 'testnet' | 'previewnet';
+  network: 'mainnet' | 'testnet' | 'previewnet' | 'localnet';
 }
 ```
+
+The schema is validated using Zod (`AccountDataSchema`) and stored as JSON Schema in the plugin manifest for runtime validation.
 
 ## 🔐 Security
 
@@ -127,18 +179,6 @@ interface AccountData {
 - Names resolve to account IDs and key references
 - Example: `myaccount` → `0.0.123456` on testnet
 - Registered during `create` and `import` when `--name` provided
-
-## 🔄 Migration from Commands
-
-This plugin migrates the following commands from the old architecture:
-
-- `src/commands/account/create.ts` → `src/plugins/account/commands/create.ts`
-- `src/commands/account/import.ts` → `src/plugins/account/commands/import.ts`
-- `src/commands/account/balance.ts` → `src/plugins/account/commands/balance.ts`
-- `src/commands/account/list.ts` → `src/plugins/account/commands/list.ts`
-- `src/commands/account/view.ts` → `src/plugins/account/commands/view.ts`
-- `src/commands/account/delete.ts` → `src/plugins/account/commands/delete.ts`
-- `src/commands/account/clear.ts` → `src/plugins/account/commands/clear.ts`
 
 ## 🧪 Testing
 
