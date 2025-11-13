@@ -54,12 +54,7 @@ async function initializeCLI() {
     pluginManager.registerCommands(program);
 
     console.error('✅ CLI ready');
-  } catch (error) {
-    console.error('❌ CLI initialization failed:', error);
-    process.exit(1);
-  }
 
-  try {
     // Parse arguments and execute command
     await program.parseAsync(process.argv);
     process.exit(0);
@@ -70,7 +65,4 @@ async function initializeCLI() {
 }
 
 // Start the CLI
-initializeCLI().catch((error) => {
-  console.error('❌ CLI startup failed:', error);
-  process.exit(1);
-});
+initializeCLI();
