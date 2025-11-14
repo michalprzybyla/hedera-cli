@@ -9,11 +9,11 @@ import { parseIdKeyPair } from '../../../../core/utils/id-key-parser';
 import { Status } from '../../../../core/shared/constants';
 import { SetOperatorOutput } from './output';
 
-function resolveOperatorFromAlias(
+async function resolveOperatorFromAlias(
   alias: string,
   targetNetwork: SupportedNetwork,
   aliasService: AliasService,
-): { accountId: string; keyRefId: string; publicKey?: string } {
+): Promise<{ accountId: string; keyRefId: string; publicKey?: string }> {
   const aliasRecord = aliasService.resolve(alias, 'account', targetNetwork);
 
   if (!aliasRecord) {
@@ -31,10 +31,10 @@ function resolveOperatorFromAlias(
   };
 }
 
-function resolveOperatorFromIdKey(
+async function resolveOperatorFromIdKey(
   idKeyPair: string,
   kmsService: KmsService,
-): { accountId: string; keyRefId: string; publicKey?: string } {
+): Promise<{ accountId: string; keyRefId: string; publicKey?: string }> {
   const { accountId, privateKey } = parseIdKeyPair(idKeyPair);
   validateAccountId(accountId);
   const imported = kmsService.importPrivateKey(privateKey);
@@ -77,8 +77,8 @@ export async function setOperatorHandler(
       keyRefId: resolvedKeyRefId,
       publicKey: resolvedPublicKey,
     } = operatorArg.includes(':')
-      ? resolveOperatorFromIdKey(operatorArg, api.kms)
-      : resolveOperatorFromAlias(operatorArg, targetNetwork, api.alias);
+      ? await resolveOperatorFromIdKey(operatorArg, api.kms)
+      : await resolveOperatorFromAlias(operatorArg, targetNetwork, api.alias);
 
     const existingOperator = api.network.getOperator(targetNetwork);
     if (existingOperator) {

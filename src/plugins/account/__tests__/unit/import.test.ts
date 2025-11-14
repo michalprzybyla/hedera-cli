@@ -55,7 +55,7 @@ describe('account plugin - import command (ADR-003)', () => {
 
     const result = await importAccount(args);
 
-    expect(kms.importPrivateKey).toHaveBeenCalledWith('privKey', [
+    expect(kms.importPrivateKey).toHaveBeenCalledWith('privKey', undefined, [
       'account:imported',
     ]);
     expect(mirrorMock.getAccount).toHaveBeenCalledWith('0.0.9999');

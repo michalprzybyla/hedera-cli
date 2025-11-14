@@ -43,9 +43,11 @@ export async function importAccount(
     const accountInfo = await api.mirror.getAccount(accountId);
 
     // Securely store the private key in credentials storage
-    const { keyRefId, publicKey } = api.kms.importPrivateKey(privateKey, [
-      `account:${name}`,
-    ]);
+    const { keyRefId, publicKey } = api.kms.importPrivateKey(
+      privateKey,
+      undefined, // Use default keyManager
+      [`account:${name}`],
+    );
 
     // Register name if provided
     if (alias) {
