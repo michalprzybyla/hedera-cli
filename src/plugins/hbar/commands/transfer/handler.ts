@@ -18,6 +18,7 @@ import { Logger } from '../../../../core';
 import { SupportedNetwork } from '../../../../core/types/shared.types';
 import { processBalanceInput } from '../../../../core/utils/process-balance-input';
 import { parseIdKeyPair } from '../../../../core/utils/id-key-parser';
+import { KeyAlgorithm } from '../../../../core/services/kms/kms-types.interface';
 
 /**
  * Maps validation error paths to user-friendly error messages
@@ -93,12 +94,15 @@ function resolveFromAccount(
 
   if (AccountIdKeyPairSchema.safeParse(from).success) {
     try {
-      const { accountId, privateKey } = parseIdKeyPair(from);
+      const { accountId, privateKey, keyType } = parseIdKeyPair(from);
 
-      const imported = api.kms.importPrivateKey(privateKey);
+      // Default to ecdsa if keyType is not provided
+      const keyTypeToUse: KeyAlgorithm = keyType || 'ecdsa';
+
+      const imported = api.kms.importPrivateKey(keyTypeToUse, privateKey);
 
       logger.log(
-        `[HBAR] Using from as account ID with private key: ${accountId}`,
+        `[HBAR] Using from as account ID with private key: ${accountId} (keyType: ${keyTypeToUse})`,
       );
       return {
         success: true,

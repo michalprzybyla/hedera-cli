@@ -4,15 +4,15 @@ export type CredentialType =
   | 'hardware'
   | 'kms';
 
+export type KeyAlgorithm = 'ed25519' | 'ecdsa';
+
 export interface KmsCredentialRecord {
   keyRefId: string;
   type: CredentialType;
   publicKey: string;
   labels?: string[];
-  keyAlgorithm?: 'ed25519' | 'ecdsa';
+  keyAlgorithm?: KeyAlgorithm;
 }
-
-export type KeyAlgorithm = 'ed25519' | 'ecdsa';
 
 export interface KmsCredentialSecret {
   keyAlgorithm: KeyAlgorithm;

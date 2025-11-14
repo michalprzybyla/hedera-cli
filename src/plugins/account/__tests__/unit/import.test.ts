@@ -56,7 +56,7 @@ describe('account plugin - import command (ADR-003)', () => {
 
     const result = await importAccount(args);
 
-    expect(kms.importPrivateKey).toHaveBeenCalledWith('privKey', [
+    expect(kms.importPrivateKey).toHaveBeenCalledWith('ecdsa', 'privKey', [
       'account:imported',
     ]);
     expect(mirrorMock.getAccount).toHaveBeenCalledWith('0.0.9999');
@@ -163,5 +163,85 @@ describe('account plugin - import command (ADR-003)', () => {
     expect(result.errorMessage).toBeDefined();
     expect(result.errorMessage).toContain('Failed to import account');
     expect(result.errorMessage).toContain('mirror down');
+  });
+
+  test('imports account with ECDSA key type prefix', async () => {
+    const logger = makeLogger();
+    const saveAccountMock = jest.fn().mockReturnValue(undefined);
+
+    MockedHelper.mockImplementation(() => ({
+      hasAccount: jest.fn().mockReturnValue(false),
+      saveAccount: saveAccountMock,
+    }));
+
+    const mirrorMock = makeMirrorMock();
+    const networkMock = makeNetworkMock();
+    const kms = makeKmsMock();
+    const alias = makeAliasMock();
+
+    const api: Partial<CoreApi> = {
+      mirror: mirrorMock as HederaMirrornodeService,
+      network: networkMock as NetworkService,
+      kms,
+      alias,
+      logger,
+    };
+
+    const args = makeArgs(api, logger, {
+      id: '0.0.8888',
+      key: 'ecdsa:privKeyECDSA',
+      name: 'imported-ecdsa',
+    });
+
+    const result = await importAccount(args);
+
+    expect(kms.importPrivateKey).toHaveBeenCalledWith('ecdsa', 'privKeyECDSA', [
+      'account:imported-ecdsa',
+    ]);
+    expect(result.status).toBe(Status.Success);
+
+    const output: ImportAccountOutput = JSON.parse(result.outputJson!);
+    expect(output.type).toBe('ECDSA');
+  });
+
+  test('imports account with ED25519 key type prefix', async () => {
+    const logger = makeLogger();
+    const saveAccountMock = jest.fn().mockReturnValue(undefined);
+
+    MockedHelper.mockImplementation(() => ({
+      hasAccount: jest.fn().mockReturnValue(false),
+      saveAccount: saveAccountMock,
+    }));
+
+    const mirrorMock = makeMirrorMock();
+    const networkMock = makeNetworkMock();
+    const kms = makeKmsMock();
+    const alias = makeAliasMock();
+
+    const api: Partial<CoreApi> = {
+      mirror: mirrorMock as HederaMirrornodeService,
+      network: networkMock as NetworkService,
+      kms,
+      alias,
+      logger,
+    };
+
+    const args = makeArgs(api, logger, {
+      id: '0.0.7777',
+      key: 'ed25519:privKeyED25519',
+      name: 'imported-ed25519',
+    });
+
+    const result = await importAccount(args);
+
+    expect(kms.importPrivateKey).toHaveBeenCalledWith(
+      'ed25519',
+      'privKeyED25519',
+      ['account:imported-ed25519'],
+    );
+    expect(result.status).toBe(Status.Success);
+
+    const output: ImportAccountOutput = JSON.parse(result.outputJson!);
+    expect(output.type).toBe('ED25519');
   });
 });

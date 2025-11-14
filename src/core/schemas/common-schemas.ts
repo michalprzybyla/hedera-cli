@@ -26,7 +26,7 @@ export const EcdsaPrivateKeySchema = z
   .string()
   .trim()
   .regex(
-    /^(?:[0-9a-fA-F]{64}|30[0-9a-fA-F]{100,180})$/,
+    /^(?:(?:0x)?[0-9a-fA-F]{64}|(?:0x)?30[0-9a-fA-F]{100,180})$/,
     'Invalid ECDSA private key: must be 32-byte hex or DER encoding',
   );
 
@@ -48,9 +48,49 @@ export const Ed25519PrivateKeySchema = z
   .string()
   .trim()
   .regex(
-    /^(?:[0-9a-fA-F]{64}|[0-9a-fA-F]{128}|30[0-9a-fA-F]{80,160})$/,
+    /^(?:(?:0x)?[0-9a-fA-F]{64}|(?:0x)?[0-9a-fA-F]{128}|(?:0x)?30[0-9a-fA-F]{80,160})$/,
     'Invalid Ed25519 private key: must be 32/64-byte hex or DER encoding',
   );
+
+// ======================================================
+// 2a. Private Key with Optional Type Prefix
+// ======================================================
+
+/**
+ * Private key with optional key type prefix
+ * Format: "ed25519:...", "ecdsa:...", or just "..."
+ * Supports hex keys with optional 0x prefix
+ *
+ * Note: This schema only parses the key type prefix and extracts the key value.
+ * Key format validation should happen when the key is actually used (e.g., during import).
+ */
+export const PrivateKeyWithTypeSchema: z.ZodType<
+  { keyType: 'ecdsa' | 'ed25519'; privateKey: string },
+  z.ZodTypeDef,
+  string
+> = z
+  .string()
+  .trim()
+  .min(1, 'Private key cannot be empty')
+  .transform((val) => {
+    // Extract key type prefix and key value
+    const match = val.match(/^(ecdsa|ed25519):(.*)$/i);
+    if (match) {
+      const keyType = match[1].toLowerCase() as 'ecdsa' | 'ed25519';
+      const keyValue = match[2].trim();
+      if (!keyValue) {
+        throw new Error(
+          `Private key cannot be empty. Key type prefix '${match[1]}' provided but no key follows.`,
+        );
+      }
+      // Return parsed values without format validation
+      // Format validation happens later when the key is actually used (e.g., during import)
+      return { keyType, privateKey: keyValue };
+    }
+    // No prefix - default to ecdsa
+    // No format validation here - validation happens when key is actually used
+    return { keyType: 'ecdsa' as const, privateKey: val };
+  });
 
 // ======================================================
 // 3. HBAR balances (in HBARs, decimal format)
@@ -198,16 +238,19 @@ export const EvmAddressSchema = z
 
 /**
  * Account ID with Private Key
- * Format: accountId:privateKey
+ * Format: accountId:privateKey or accountId:keyType:privateKey
  * Example: 0.0.123456:302e020100301006072a8648ce3d020106052b8104000a04220420...
+ * Example: 0.0.123456:ed25519:302e020100301006072a8648ce3d020106052b8104000a04220420...
  */
 export const AccountIdKeyPairSchema = z
   .string()
   .regex(
-    /^0\.0\.[1-9][0-9]*:(?:[0-9a-fA-F]{64}|30[0-9a-fA-F]{100,})$/,
-    'Account ID with private key must be in format 0.0.{number}:{hex|der_key}',
+    /^0\.0\.[1-9][0-9]*:(?:(?:ecdsa|ed25519):)?(?:(?:0x)?[0-9a-fA-F]{64}|(?:0x)?[0-9a-fA-F]{128}|(?:0x)?30[0-9a-fA-F]{100,})$/i,
+    'Account ID with private key must be in format 0.0.{number}:{private_key} or 0.0.{number}:{keyType}:{private_key}',
   )
-  .describe('Account ID with private key in format 0.0.{number}:{private_key}');
+  .describe(
+    'Account ID with private key in format 0.0.{number}:{private_key} or 0.0.{number}:{keyType}:{private_key}',
+  );
 
 /**
  * Network name
@@ -337,6 +380,7 @@ export const COMMON_ZOD_SCHEMAS = {
   ecdsaPrivateKey: EcdsaPrivateKeySchema,
   ed25519PublicKey: Ed25519PublicKeySchema,
   ed25519PrivateKey: Ed25519PrivateKeySchema,
+  privateKeyWithType: PrivateKeyWithTypeSchema,
 
   // HBAR schemas
   hbarDecimal: HbarDecimalSchema,

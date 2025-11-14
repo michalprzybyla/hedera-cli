@@ -8,6 +8,7 @@ import { KmsService } from '../../../../core/services/kms/kms-service.interface'
 import { parseIdKeyPair } from '../../../../core/utils/id-key-parser';
 import { Status } from '../../../../core/shared/constants';
 import { SetOperatorOutput } from './output';
+import { KeyAlgorithm } from '../../../../core/services/kms/kms-types.interface';
 
 function resolveOperatorFromAlias(
   alias: string,
@@ -35,9 +36,11 @@ function resolveOperatorFromIdKey(
   idKeyPair: string,
   kmsService: KmsService,
 ): { accountId: string; keyRefId: string; publicKey?: string } {
-  const { accountId, privateKey } = parseIdKeyPair(idKeyPair);
+  const { accountId, privateKey, keyType } = parseIdKeyPair(idKeyPair);
   validateAccountId(accountId);
-  const imported = kmsService.importPrivateKey(privateKey);
+  // Default to ecdsa if keyType is not provided
+  const keyTypeToUse: KeyAlgorithm = keyType || 'ecdsa';
+  const imported = kmsService.importPrivateKey(keyTypeToUse, privateKey);
   return {
     accountId,
     keyRefId: imported.keyRefId,

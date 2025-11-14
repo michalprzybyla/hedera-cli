@@ -84,7 +84,10 @@ describe('createTokenHandler', () => {
       const result = await createToken(args);
 
       // Assert
-      expect(api.kms.importPrivateKey).toHaveBeenCalledWith('test-private-key');
+      expect(api.kms.importPrivateKey).toHaveBeenCalledWith(
+        'ecdsa',
+        'test-private-key',
+      );
       expect(tokenTransactions.createTokenTransaction).toHaveBeenCalledWith(
         expectedTokenTransactionParams,
       );

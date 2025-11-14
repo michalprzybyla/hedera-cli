@@ -80,6 +80,15 @@ export const accountPluginManifest: PluginManifest = {
         },
         { name: 'name', short: 'n', type: 'string', required: false },
         { name: 'payer', short: 'p', type: 'string', required: false },
+        {
+          name: 'key-type',
+          short: 't',
+          type: 'string',
+          required: false,
+          default: 'ecdsa',
+          description:
+            'Key type for the account. Options: ecdsa, ed25519. Default: ecdsa',
+        },
       ],
       handler: createAccount,
       output: {
@@ -135,10 +144,18 @@ export const accountPluginManifest: PluginManifest = {
     {
       name: 'import',
       summary: 'Import an existing account',
-      description: 'Import an existing account into the CLI tool',
+      description:
+        'Import an existing account into the CLI tool. Private key can be optionally prefixed with key type (e.g., "ed25519:..." or "ecdsa:..."). If no prefix is provided, defaults to ecdsa.',
       options: [
         { name: 'id', short: 'i', type: 'string', required: true },
-        { name: 'key', short: 'k', type: 'string', required: false },
+        {
+          name: 'key',
+          short: 'k',
+          type: 'string',
+          required: false,
+          description:
+            'Private key. Can be prefixed with key type (e.g., "ed25519:..." or "ecdsa:..."). Defaults to ecdsa if no prefix.',
+        },
         { name: 'name', short: 'n', type: 'string', required: false },
       ],
       handler: importAccount,
