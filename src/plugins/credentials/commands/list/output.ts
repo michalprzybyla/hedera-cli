@@ -19,6 +19,9 @@ const CredentialEntrySchema = z.object({
   type: CredentialTypeSchema.describe(
     'Credential type (localPrivateKey, mnemonic, hardware, or kms)',
   ),
+  keyManager: z
+    .enum(['local', 'localEncrypted'])
+    .describe('Key manager type (local or localEncrypted)'),
   publicKey: PublicKeySchema,
   labels: z.array(z.string()).describe('Associated labels').optional(),
 });
@@ -44,6 +47,7 @@ export const LIST_CREDENTIALS_TEMPLATE = `
 
 {{#each credentials}}
 {{add1 @index}}. Key Reference ID: {{keyRefId}}
+   Key Manager: {{keyManager}}
    Type: {{type}}
    Public Key: {{publicKey}}
 {{#if labels}}

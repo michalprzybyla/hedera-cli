@@ -59,6 +59,7 @@ describe('account plugin - import command (ADR-003)', () => {
     expect(kms.importPrivateKey).toHaveBeenCalledWith(
       KeyAlgorithm.ECDSA,
       'privKey',
+      undefined,
       ['account:imported'],
     );
     expect(mirrorMock.getAccount).toHaveBeenCalledWith('0.0.9999');

@@ -49,6 +49,7 @@ export async function importAccount(
     const { keyRefId, publicKey } = api.kms.importPrivateKey(
       keyType,
       privateKey,
+      undefined,
       [`account:${name}`],
     );
 

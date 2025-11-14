@@ -69,14 +69,15 @@ function getDefaultFromAccount(
  * Resolves the "from" account ID and key reference
  * Handles both account-id:private-key pairs and alias lookups
  */
-function resolveFromAccount(
+async function resolveFromAccount(
   from: string | undefined,
   api: CoreApi,
   logger: Logger,
   currentNetwork: SupportedNetwork,
-):
+): Promise<
   | { success: true; fromAccountId: string; fromKeyRefId: string }
-  | { success: false; error: CommandExecutionResult } {
+  | { success: false; error: CommandExecutionResult }
+> {
   if (!from) {
     const result = getDefaultFromAccount(api, logger);
     if (!result.success) {
@@ -195,7 +196,7 @@ export async function transferHandler(
 
     const currentNetwork = api.network.getCurrentNetwork();
 
-    const fromResult = resolveFromAccount(
+    const fromResult = await resolveFromAccount(
       fromInput,
       api,
       logger,

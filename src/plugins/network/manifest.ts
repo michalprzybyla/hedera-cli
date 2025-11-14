@@ -9,7 +9,7 @@ import {
 } from './commands/list';
 import { UseNetworkOutputSchema, USE_NETWORK_TEMPLATE } from './commands/use';
 import { listHandler } from './commands/list/handler';
-import { useHandler } from './commands/use/handler';
+import { useHandler } from './commands/use';
 import {
   GetOperatorOutputSchema,
   GET_OPERATOR_TEMPLATE,
