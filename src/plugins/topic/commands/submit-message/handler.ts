@@ -24,15 +24,15 @@ export async function submitMessage(
   const topicState = new ZustandTopicStateHelper(api.state, logger);
 
   // Extract and validate command arguments
-  const topicOrAlias = args.args.topic as string;
+  const topicIdOrAlias = args.args.topic as string;
   const message = args.args.message as string;
 
   const currentNetwork = api.network.getCurrentNetwork();
 
   // Step 1: Resolve topic ID from alias if it exists
-  let topicId = topicOrAlias;
+  let topicId = topicIdOrAlias;
   const topicAliasResult = api.alias.resolve(
-    topicOrAlias,
+    topicIdOrAlias,
     'topic',
     currentNetwork,
   );
