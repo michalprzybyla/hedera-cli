@@ -282,7 +282,7 @@ export class KmsServiceImpl implements KmsService {
     );
   }
 
-  getPrivateKeyString(keyRefId: string): string | null {
+  private getPrivateKeyString(keyRefId: string): string | null {
     const record = this.getRecord(keyRefId);
     if (!record) return null;
 
