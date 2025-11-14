@@ -4,6 +4,7 @@ import { program } from 'commander';
 import { PluginManager } from './core/plugins/plugin-manager';
 import { createCoreApi } from './core/core-api';
 import { CoreApiConfig } from './core/core-api/core-api-config';
+import './core/utils/json-serialize';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const pkg = require('../package.json') as { version?: string };
@@ -45,6 +46,7 @@ async function initializeCLI() {
       './dist/plugins/state-management', // State management plugin
       './dist/plugins/topic', // Topic management plugin
       './dist/plugins/hbar', // HBAR plugin
+      './dist/plugins/config', // global config plugin
     ]);
 
     // Initialize plugins
