@@ -10,27 +10,31 @@ The Hedera CLI is built on a plugin-based architecture that follows the ADR-001 
 ┌─────────────────────────────────────────────────────────────┐
 │                    Hedera CLI Architecture                  │
 ├─────────────────────────────────────────────────────────────┤
-│  CLI Entry Point (hedera-cli.ts)                           │
-│  ├── Plugin Manager                                        │
-│  ├── Core API                                              │
-│  └── Command Router                                        │
+│  CLI Entry Point (hedera-cli.ts)                            │
+│  ├── Plugin Manager                                         │
+│  ├── Core API                                               │
+│  └── Command Router                                         │
 ├─────────────────────────────────────────────────────────────┤
-│  Core Services Layer                                       │
-│  ├── Account Transaction Service                           │
-│  ├── TxExecutionService                                   │
-│  ├── State Service (Zustand)                               │
-│  ├── Mirror Node Service                                   │
-│  ├── Network Service                                       │
-│  ├── Config Service                                        │
-│  ├── Logger Service                                        │
-│  └── Credentials Service                                   │
+│  Core Services Layer                                        │
+│  ├── Account Transaction Service                            │
+│  ├── TxExecutionService                                     │
+│  ├── State Service (Zustand)                                │
+│  ├── Mirror Node Service                                    │
+│  ├── Network Service                                        │
+│  ├── Config Service                                         │
+│  ├── Logger Service                                         │
+│  └── Credentials Service                                    │
 ├─────────────────────────────────────────────────────────────┤
-│  Plugin Layer                                              │
-│  ├── Account Plugin                                        │
-│  ├── Credentials Plugin                                    │
-│  ├── Plugin Management Plugin                              │
-│  ├── State Management Plugin                               │
-│  └── [Custom Plugins]                                      │
+│  Plugin Layer                                               │
+│  ├── Account Plugin                                         │
+│  ├── Token Plugin                                           │
+│  ├── Network Plugin                                         │
+│  ├── Topic Plugin                                           │
+│  ├── HBAR Plugin                                            │
+│  ├── Credentials Plugin                                     │
+│  ├── Plugin Management Plugin                               │
+│  ├── State Management Plugin                                │
+│  └── [Custom Plugins]                                       │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -56,20 +60,32 @@ Command Execution ← Command Routing ← User Input ← CLI Interface
 
 ### Plugin Structure
 
+Plugins are regular TypeScript modules located under `src/plugins/<plugin-name>/` and follow a consistent folder layout:
+
 ```
 plugin/
-├── manifest.ts              # Plugin manifest
-├── commands/                # Command handlers
-│   ├── create.ts
-│   ├── list.ts
-│   └── ...
-├── schema.ts                # State schema (optional)
-└── index.ts                 # Plugin entry point
+├── manifest.ts              # Plugin manifest (name, capabilities, commands, output specs)
+├── schema.ts                # State/output schemas (Zod + JSON Schema)
+├── commands/                # One folder per command
+│   ├── create/
+│   │   ├── handler.ts       # Command handler (ADR-003)
+│   │   ├── output.ts        # Output schema & template
+│   │   └── index.ts         # Command exports
+│   ├── list/
+│   │   ├── handler.ts
+│   │   ├── output.ts
+│   │   └── index.ts
+│   └── ...                  # Other commands
+├── README.md                # Plugin-specific documentation
+└── __tests__/
+    └── unit/                # Unit tests for handlers/schemas
 ```
+
+For a detailed, step‑by‑step plugin development guide, see `PLUGIN_ARCHITECTURE_GUIDE.md` in the repository root.
 
 ## 🛠️ Core Services
 
-### 1. Account Transaction Service
+### 1. Account Service
 
 **Purpose**: Handles Hedera account creation and management operations.
 
@@ -82,7 +98,7 @@ plugin/
 **Interface**:
 
 ```typescript
-interface AccountTransactionService {
+interface AccountService {
   createAccount(params: CreateAccountParams): Promise<AccountCreationResult>;
   // ... other methods
 }
@@ -171,13 +187,7 @@ interface HederaMirrornodeService {
 
 ### 6. Config Service
 
-**Purpose**: Provides read-only access to CLI configuration.
-
-**Key Features**:
-
-- Configuration validation
-- Environment variable support
-- Profile management
+> @TODO: Update this section once the Config Service implementation lands.
 
 ### 7. Logger Service
 
@@ -391,7 +401,7 @@ Core API
 
 ## 📚 Related Documentation
 
-- [Plugin Development Guide](./plugin-development.md)
+- [Plugin Development Guide](../PLUGIN_ARCHITECTURE_GUIDE.md)
 - [Core API Reference](./core-api.md)
-- [Contributing Guide](./contributing.md)
+- [Contributing Guide](../CONTRIBUTING.md)
 - [ADR-001 Plugin Architecture](./adr/ADR-001-plugin-architecture.md)
