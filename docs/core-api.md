@@ -1,48 +1,58 @@
-# Core API Reference
+# Core Api Reference
 
-Complete reference documentation for the Hedera CLI Core API, including all services, interfaces, and types.
+Complete reference documentation for the Hedera CLI Core Api, including all services, interfaces, and types.
 
 ## 📋 Overview
 
-The Core API provides a stable, typed interface for plugins to interact with Hedera networks and CLI functionality. All services are injected into command handlers via dependency injection.
+The Core Api provides a stable, typed interface for plugins to interact with Hedera networks and CLI functionality. All services are injected into command handlers via dependency injection.
 
-## 🏗️ Core API Structure
+## 🏗️ Core Api Structure
 
 ```typescript
-interface CoreAPI {
-  account: AccountTransactionService;
+interface CoreApi {
+  account: AccountService;
+  token: TokenService;
+  topic: TopicService;
   txExecution: TxExecutionService;
   state: StateService;
   mirror: HederaMirrornodeService;
   network: NetworkService;
   config: ConfigService;
   logger: Logger;
+  alias: AliasService;
   kms: KmsService;
+  hbar: HbarService;
+  output: OutputService;
 }
 ```
 
 ## 🛠️ Service Interfaces
 
-### Account Transaction Service
+### Account Service
 
 Handles Hedera account creation and management operations.
 
 ```typescript
-interface AccountTransactionService {
-  createAccount(params: CreateAccountParams): Promise<AccountCreationResult>;
+interface AccountService {
+  createAccount(params: CreateAccountParams): Promise<AccountCreateResult>;
+  getAccountInfo(accountId: string): Promise<AccountInfoQuery>;
+  getAccountBalance(
+    accountId: string,
+    tokenId?: string,
+  ): Promise<AccountBalanceQuery>;
 }
 
 interface CreateAccountParams {
-  name: string;
-  balance?: number;
+  balanceRaw: number;
   maxAutoAssociations?: number;
-  memo?: string;
+  publicKey: string;
+  keyType?: 'ECDSA' | 'ED25519';
 }
 
-interface AccountCreationResult {
-  accountId: string;
-  transactionId: string;
-  receipt: TransactionReceipt;
+interface AccountCreateResult {
+  transaction: AccountCreateTransaction;
+  publicKey: string;
+  evmAddress: string;
 }
 ```
 
@@ -50,8 +60,9 @@ interface AccountCreationResult {
 
 ```typescript
 const result = await api.account.createAccount({
-  name: 'my-account',
-  balance: 1000,
+  balanceRaw: 100000000, // tinybars
+  publicKey: '302e020100300506032b6570...',
+  keyType: 'ECDSA',
   maxAutoAssociations: 10,
 });
 ```
@@ -62,9 +73,31 @@ Manages transaction signing and execution.
 
 ```typescript
 interface TxExecutionService {
-  signAndExecute(transaction: Transaction): Promise<TransactionReceipt>;
-  getTransactionStatus(transactionId: string): Promise<TransactionStatus>;
+  signAndExecute(transaction: HederaTransaction): Promise<TransactionResult>;
+
+  signAndExecuteWith(
+    tx: HederaTransaction,
+    signer: SignerRef,
+  ): Promise<TransactionResult>;
+
+  freezeTx(transaction: HederaTransaction): HederaTransaction;
 }
+
+interface TransactionResult {
+  transactionId: string;
+  success: boolean;
+  receipt: TransactionReceipt;
+  accountId?: string;
+  tokenId?: string;
+  topicId?: string;
+  topicSequenceNumber?: number;
+  consensusTimestamp: string;
+}
+
+type SignerRef = {
+  keyRefId?: string;
+  publicKey?: string;
+};
 ```
 
 **Usage Example:**
@@ -80,8 +113,8 @@ Provides namespaced, versioned state management with Zustand.
 
 ```typescript
 interface StateService {
-  set<T>(namespace: string, key: string, value: T): void;
   get<T>(namespace: string, key: string): T | undefined;
+  set<T>(namespace: string, key: string, value: T): void;
   has(namespace: string, key: string): boolean;
   delete(namespace: string, key: string): void;
   clear(namespace: string): void;
@@ -182,8 +215,8 @@ interface NetworkService {
   getAvailableNetworks(): string[];
   getNetworkConfig(network: string): NetworkConfig;
   switchNetwork(network: string): void;
-  isNetworkAvailable(network: string): boolean;
   getLocalnetConfig(): LocalnetConfig;
+  isNetworkAvailable(network: string): boolean;
   setOperator(
     network: SupportedNetwork,
     operator: { accountId: string; keyRefId: string },
@@ -204,6 +237,12 @@ interface NetworkConfig {
     accountId: string;
     keyRefId: string;
   };
+}
+
+interface LocalnetConfig {
+  localNodeAddress: string;
+  localNodeAccountId: string;
+  localNodeMirrorAddressGRPC: string;
 }
 ```
 
@@ -230,18 +269,11 @@ Provides read-only access to CLI configuration.
 
 ```typescript
 interface ConfigService {
-  getConfig(): Config;
-  getValue(key: string): unknown;
-  hasValue(key: string): boolean;
-}
-
-interface Config {
-  network: string;
-  profile: string;
-  plugins: {
-    enabled: string[];
-  };
-  [key: string]: unknown;
+  getCurrentNetwork(): string;
+  getNetworkConfig(network: string): NetworkConfig;
+  getAvailableNetworks(): string[];
+  getOperatorId(): string;
+  getOperatorKey(): string;
 }
 ```
 
@@ -259,11 +291,11 @@ Provides structured logging capabilities.
 
 ```typescript
 interface Logger {
-  log(message: string, ...args: unknown[]): void;
-  error(message: string, ...args: unknown[]): void;
-  warn(message: string, ...args: unknown[]): void;
-  info(message: string, ...args: unknown[]): void;
-  debug(message: string, ...args: unknown[]): void;
+  log(message: string): void;
+  verbose(message: string): void;
+  error(message: string): void;
+  warn(message: string): void;
+  debug(message: string): void;
 }
 ```
 
@@ -271,10 +303,9 @@ interface Logger {
 
 ```typescript
 api.logger.log('Processing request...');
-api.logger.error('Failed to process:', error);
 api.logger.warn('Deprecated feature used');
-api.logger.info('Operation completed');
-api.logger.debug('Debug information:', data);
+api.logger.error('Failed to process request');
+api.logger.debug('Debug information...');
 ```
 
 ### KMS Service
@@ -292,7 +323,7 @@ interface KmsService {
     labels?: string[],
   ): { keyRefId: string; publicKey: string };
   getPublicKey(keyRefId: string): string | null;
-  getSignerHandle(keyRefId: string): SignerHandle;
+  getSignerHandle(keyRefId: string): KmsSignerService;
   findByPublicKey(publicKey: string): string | null;
   list(): Array<{
     keyRefId: string;
@@ -326,294 +357,29 @@ const allKeys = api.kms.list();
 const client = api.kms.createClient('testnet');
 ```
 
-## 📊 Type Definitions
+## Command Handler Context
 
-### Core Types
+All plugin command handlers receive a `CommandHandlerArgs` object (defined in `src/core/plugins/plugin.interface.ts`) that provides:
 
-```typescript
-// Account types
-interface Account {
-  name: string;
-  accountId: string;
-  type: 'ECDSA' | 'ED25519';
-  publicKey: string;
-  evmAddress: string;
-  solidityAddress: string;
-  solidityAddressFull: string;
-  privateKey: string;
-  network: string;
-}
+- `args: Record<string, unknown>` – parsed CLI arguments
+- `api: CoreApi` – the Core API instance described in this document
+- `state: StateService` – namespaced access to persisted state
+- `config: ConfigService` – read-only view over CLI configuration (TODO: real implementation pending)
+- `logger: Logger` – structured logging
 
-// Token types
-interface Token {
-  tokenId: string;
-  symbol: string;
-  name: string;
-  decimals: number;
-  totalSupply: string;
-  treasury: string;
-}
+For handler patterns, ADR‑003 result contracts, and testing examples, see `PLUGIN_ARCHITECTURE_GUIDE.md`.
 
-// Topic types
-interface Topic {
-  topicId: string;
-  adminKey?: string;
-  submitKey?: string;
-  memo: string;
-  runningHash: string;
-  sequenceNumber: number;
-}
+## Output Schemas & ADR‑003
 
-// Network types
-interface NetworkConfig {
-  name: string;
-  rpcUrl: string;
-  mirrorNodeUrl: string;
-  chainId: string;
-  explorerUrl?: string;
-  isTestnet: boolean;
-  operator?: {
-    accountId: string;
-    keyRefId: string;
-  };
-}
-```
+Core API services are designed to work with structured command outputs defined via Zod schemas and templates. The full specification of output schemas, JSON/Zod schemas, and ADR‑003 integration lives in:
 
-### Mirror Node Response Types
-
-```typescript
-// Account response
-interface AccountResponse {
-  accountId: string;
-  accountPublicKey?: string;
-  balance: {
-    balance: number;
-    timestamp: string;
-  };
-  evmAddress?: string;
-}
-
-// Token balance response
-interface TokenBalancesResponse {
-  account: string;
-  balance: number;
-  tokens: TokenBalanceInfo[];
-  timestamp: string;
-}
-
-interface TokenBalanceInfo {
-  token_id: string;
-  balance: number;
-  decimals: number;
-}
-
-// Topic messages response
-interface TopicMessagesResponse {
-  topicId: string;
-  messages: TopicMessage[];
-}
-
-interface TopicMessage {
-  consensus_timestamp: string;
-  topic_id: string;
-  message: string;
-  running_hash: string;
-  sequence_number: number;
-}
-```
-
-## 🔧 Command Handler Interface
-
-### CommandHandlerArgs
-
-All command handlers receive this interface:
-
-```typescript
-interface CommandHandlerArgs {
-  args: Record<string, unknown>;
-  api: CoreAPI;
-  state: StateService;
-  config: ConfigService;
-  logger: Logger;
-}
-```
-
-**Usage in Command Handler:**
-
-```typescript
-export async function myCommandHandler(
-  args: CommandHandlerArgs,
-): Promise<void> {
-  const { api, logger, state } = args;
-
-  // Extract arguments
-  const name = args.args['name'] as string;
-  const value = args.args['value'] as string;
-
-  // Use services
-  logger.log(`Processing: ${name}`);
-
-  // Store in state
-  state.set('my-namespace', name, { name, value });
-
-  // Use Core API
-  const account = await api.mirror.getAccount('0.0.123456');
-
-  logger.log(`✅ Completed: ${account.accountId}`);
-  process.exit(0);
-}
-```
-
-## 🧪 Testing with Core API
-
-### Mocking Services
-
-```typescript
-import { CoreAPI } from '../core/core-api/core-api.interface';
-
-const mockCoreAPI: Partial<CoreAPI> = {
-  account: {
-    createAccount: jest.fn().mockResolvedValue({
-      accountId: '0.0.123456',
-      transactionId: '0.0.123456@1234567890.123456789',
-      receipt: {} as TransactionReceipt,
-    }),
-  },
-  mirror: {
-    getAccount: jest.fn().mockResolvedValue({
-      accountId: '0.0.123456',
-      balance: { balance: 1000000, timestamp: '2023-01-01T00:00:00Z' },
-    }),
-  },
-  state: {
-    set: jest.fn(),
-    get: jest.fn(),
-    has: jest.fn(),
-  },
-  logger: {
-    log: jest.fn(),
-    error: jest.fn(),
-    warn: jest.fn(),
-    info: jest.fn(),
-    debug: jest.fn(),
-  },
-};
-```
-
-### Testing Command Handlers
-
-```typescript
-import { myCommandHandler } from '../commands/my-command';
-
-describe('My Command Handler', () => {
-  it('should process command successfully', async () => {
-    const mockArgs = {
-      args: { name: 'test', value: 'value' },
-      api: mockCoreAPI,
-      state: mockState,
-      config: mockConfig,
-      logger: mockLogger,
-    };
-
-    await myCommandHandler(mockArgs);
-
-    expect(mockState.set).toHaveBeenCalledWith('my-namespace', 'test', {
-      name: 'test',
-      value: 'value',
-    });
-    expect(mockLogger.log).toHaveBeenCalledWith('Processing: test');
-  });
-});
-```
-
-## 🚀 Advanced Usage
-
-### Error Handling
-
-```typescript
-export async function robustHandler(args: CommandHandlerArgs): Promise<void> {
-  const { api, logger } = args;
-
-  try {
-    // Primary operation
-    const result = await api.mirror.getAccount('0.0.123456');
-    logger.log(`Account found: ${result.accountId}`);
-  } catch (error) {
-    if (error.message.includes('not found')) {
-      logger.error('Account not found');
-    } else if (error.message.includes('network')) {
-      logger.error('Network error:', error.message);
-    } else {
-      logger.error('Unexpected error:', error);
-    }
-    process.exit(1);
-  }
-}
-```
-
-### State Management Patterns
-
-```typescript
-// Namespace isolation
-const PLUGIN_NAMESPACE = 'my-plugin-data';
-
-// Store with validation
-function storeUser(user: User): void {
-  if (!user.id || !user.name) {
-    throw new Error('Invalid user data');
-  }
-  api.state.set(PLUGIN_NAMESPACE, user.id, user);
-}
-
-// Retrieve with fallback
-function getUser(id: string): User | null {
-  return api.state.get(PLUGIN_NAMESPACE, id) || null;
-}
-
-// Batch operations
-function getAllUsers(): User[] {
-  return api.state.list(PLUGIN_NAMESPACE).map((item) => item.value as User);
-}
-```
-
-### Service Composition
-
-```typescript
-export async function complexOperation(
-  args: CommandHandlerArgs,
-): Promise<void> {
-  const { api, logger } = args;
-
-  // Get current network
-  const network = api.network.getCurrentNetwork();
-  logger.log(`Operating on network: ${network}`);
-
-  // Get operator for current network
-  const operator = api.network.getOperator(network);
-
-  // Create account
-  const account = await api.account.createAccount({
-    name: 'complex-account',
-    balance: 1000,
-  });
-
-  // Get account info from mirror node
-  const accountInfo = await api.mirror.getAccount(account.accountId);
-
-  // Store in state
-  api.state.set('complex-plugin', account.accountId, {
-    accountId: account.accountId,
-    network,
-    createdAt: new Date().toISOString(),
-  });
-
-  logger.log(`✅ Complex operation completed: ${account.accountId}`);
-}
-```
+- [Output Schemas Guide](./output-schemas-guide.md)
+- [ADR‑003: Result-Oriented Command Handler Contract](./adr/ADR-003-command-handler-result-contract.md)
 
 ## 📚 Related Documentation
 
-- [Plugin Development Guide](./plugin-development.md)
+- [Plugin Development Guide](../PLUGIN_ARCHITECTURE_GUIDE.md)
 - [Architecture Overview](./architecture.md)
-- [Contributing Guide](./contributing.md)
+- [Output Schemas Guide](./output-schemas-guide.md)
+- [Contributing Guide](../CONTRIBUTING.md)
 - [ADR-001 Plugin Architecture](./adr/ADR-001-plugin-architecture.md)

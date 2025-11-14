@@ -21,21 +21,27 @@ src/plugins/token/
 ├── schema.ts                # Token data schema with Zod validation
 ├── commands/
 │   ├── create/
-│   │   ├── handler.ts       # Token creation handler (ADR-003 compliant)
-│   │   └── output.ts        # Output schema and template
+│   │   ├── handler.ts       # Token creation handler
+│   │   ├── output.ts        # Output schema and template (ADR-003)
+│   │   └── index.ts        # Command exports
 │   ├── transfer/
-│   │   ├── handler.ts       # Token transfer handler (ADR-003 compliant)
-│   │   └── output.ts        # Output schema and template
+│   │   ├── handler.ts       # Token transfer handler
+│   │   ├── output.ts        # Output schema and template
+│   │   └── index.ts        # Command exports
 │   ├── associate/
-│   │   ├── handler.ts       # Token association handler (ADR-003 compliant)
-│   │   └── output.ts        # Output schema and template
+│   │   ├── handler.ts       # Token association handler
+│   │   ├── output.ts        # Output schema and template
+│   │   └── index.ts        # Command exports
 │   ├── list/
-│   │   ├── handler.ts       # Token list handler (ADR-003 compliant)
-│   │   └── output.ts        # Output schema and template
+│   │   ├── handler.ts       # Token list handler
+│   │   ├── output.ts        # Output schema and template
+│   │   └── index.ts        # Command exports
 │   └── createFromFile/
-│       ├── handler.ts       # Token from file handler (ADR-003 compliant)
-│       └── output.ts        # Output schema and template
+│       ├── handler.ts       # Token from file handler
+│       ├── output.ts        # Output schema and template
+│       └── index.ts        # Command exports
 ├── zustand-state-helper.ts  # State management helper
+├── resolver-helper.ts       # Token and account resolver utilities
 ├── __tests__/               # Comprehensive test suite
 │   └── unit/
 │       ├── adr003-compliance.test.ts  # ADR-003 compliance tests
@@ -45,20 +51,34 @@ src/plugins/token/
 
 ## 🚀 Commands
 
+All commands follow ADR-003 contract: handlers return `CommandExecutionResult` with standardized output schemas and human-readable templates.
+
 ### Token Create
 
 Create a new fungible token with specified properties.
 
 ```bash
-hedera token create \
-  --name "My Token" \
+# Using account alias
+hcli token create \
+  --token-name "My Token" \
   --symbol "MTK" \
-  --treasury 0.0.123456:treasury-key \
+  --treasury alice \
   --decimals 2 \
   --initial-supply 1000 \
   --supply-type FINITE \
   --max-supply 10000 \
-  --admin-key admin-public-key
+  --admin-key admin-public-key \
+  --name mytoken-alias
+
+# Using treasury-id:treasury-key pair
+hcli token create \
+  --token-name "My Token" \
+  --symbol "MTK" \
+  --treasury 0.0.123456:302e020100300506032b657004220420... \
+  --decimals 2 \
+  --initial-supply 1000 \
+  --supply-type INFINITE \
+  --name mytoken-alias
 ```
 
 ### Token Associate
@@ -66,9 +86,15 @@ hedera token create \
 Associate a token with an account to enable transfers.
 
 ```bash
-hedera token associate \
-  --token-id 0.0.123456 \
-  --account 0.0.789012:account-key
+# Using account alias
+hcli token associate \
+  --token mytoken-alias \
+  --account alice
+
+# Using account-id:account-key pair
+hcli token associate \
+  --token 0.0.123456 \
+  --account 0.0.789012:302e020100300506032b657004220420...
 ```
 
 ### Token Transfer
@@ -76,11 +102,29 @@ hedera token associate \
 Transfer a fungible token from one account to another.
 
 ```bash
-hedera token transfer \
-  --token-id 0.0.123456 \
-  --from 0.0.111111:from-key \
-  --to 0.0.222222 \
+# Using account name for source
+hcli token transfer \
+  --token mytoken-alias \
+  --from alice \
+  --to bob \
   --balance 100
+
+# Using account-id:private-key pair for source
+hcli token transfer \
+  --token 0.0.123456 \
+  --from 0.0.111111:302e020100300506032b657004220420... \
+  --to 0.0.222222 \
+  --balance 100t
+```
+
+### Token List
+
+List all tokens stored in state for the current or specified network.
+
+```bash
+hcli token list
+hcli token list --keys  # Show token key information
+hcli token list --network testnet  # Filter by network
 ```
 
 ### Token Create From File
@@ -88,30 +132,42 @@ hedera token transfer \
 Create a new token from a JSON file definition with advanced features.
 
 ```bash
-hedera token create-from-file \
+hcli token create-from-file \
   --file token-definition.json \
   --args additional-args
 ```
 
 ## 📝 Parameter Formats
 
-The plugin supports flexible account parameter formats:
+The plugin supports flexible parameter formats:
 
+- **Token**: Token alias (name) or token ID (`0.0.123456`)
+- **Treasury**: Account alias (name) or `treasury-id:treasury-key` pair (e.g., `0.0.123456:302e0201...`)
 - **Account ID only**: `0.0.123456` (for destination accounts)
 - **Account ID with key**: `0.0.123456:private-key` (for source accounts that need signing)
 - **Account name**: `alice` (resolved via alias service)
+- **Balance**: Display units (default) or base units with `t` suffix (e.g., `100t`)
 
 ## 🔧 Core API Integration
 
 The plugin uses the Core API services:
 
-- `api.tokens` - Token transaction creation and management
+- `api.token` - Token transaction creation and management
 - `api.txExecution` - Transaction signing and execution
 - `api.kms` - Account credentials and key management
-- `api.alias` - Account name resolution
+- `api.alias` - Account and token name resolution
 - `api.state` - Namespaced state management
 - `api.network` - Network information
 - `api.logger` - Logging
+
+## 📤 Output Formatting (ADR-003)
+
+All commands follow the ADR-003 contract for standardized output:
+
+- **Output Schemas**: Each command defines a Zod schema in `output.ts` for type-safe output validation
+- **Human Templates**: Handlebars templates provide human-readable output formatting
+- **CommandExecutionResult**: All handlers return `CommandExecutionResult` with `status`, `errorMessage`, and `outputJson` fields
+- **No process.exit()**: Handlers never call `process.exit()` directly; errors are returned in the result
 
 ## 📊 State Management
 
@@ -128,19 +184,13 @@ interface TokenData {
   supplyType: 'FINITE' | 'INFINITE';
   maxSupply: number;
   keys: TokenKeys;
-  network: 'mainnet' | 'testnet' | 'previewnet';
+  network: 'mainnet' | 'testnet' | 'previewnet' | 'localnet';
   associations: TokenAssociation[];
   customFees: CustomFee[];
 }
 ```
 
-## 🔄 Migration from Commands
-
-This plugin migrates the following commands from the old architecture:
-
-- `src/commands/token/create.ts` → `src/plugins/token/commands/create.ts`
-- `src/commands/token/associate.ts` → `src/plugins/token/commands/associate.ts`
-- `src/commands/token/transfer.ts` → `src/plugins/token/commands/transfer.ts`
+The schema is validated using Zod (`TokenDataSchema`) and stored as JSON Schema in the plugin manifest for runtime validation.
 
 ## 🧪 Testing
 
@@ -206,14 +256,4 @@ All commands support multiple output formats through ADR-003:
 }
 ```
 
-## 🔮 Future Enhancements
-
-- ✅ `createFromFile` command (implemented)
-- ✅ Token listing with filtering (implemented)
-- Implement token balance queries
-- Add token update operations
-- Support for more custom fee types
-- Add token deletion/wipe operations
-- Add script mode support (`--script` flag)
-- Add output format control (`--format json|yaml|xml`)
-- Add output file redirection (`--output file.json`)
+Output format is controlled by the CLI's `--format` option (default: `human`, or `json` for machine-readable output).
