@@ -1,22 +1,16 @@
 import { parseKeyWithType } from '../parse-key-type';
+import {
+  VALID_ECDSA_HEX_KEY,
+  VALID_ECDSA_DER_KEY,
+  VALID_ED25519_HEX_KEY,
+  VALID_ED25519_DER_KEY,
+} from './helpers/fixtures';
 
 describe('parseKeyWithType', () => {
-  // Valid test keys that match the schema requirements
-  // ECDSA: exactly 64 hex chars (32 bytes) or DER format (starts with 30, at least 100 chars after 30)
-  const validEcdsaHexKey =
-    '4cd05bfda79692efc30a8011e81b48da825a3a5eedcbdf73c3f6e341a0303978';
-  // DER format: starts with 30, needs at least 100 more hex chars but max 180 (total 100-182)
-  // Creating a valid DER key with exactly 100 chars after 30 (total 102)
-  const validEcdsaDerKey =
-    '302e020100300506032b6570042204204cd05bfda79692efc30a8011e81b48da825a3a5eedcbdf73c3f6e341a03039784cd05bfda79692efc30a8011e81b48da825a3a5eedcbdf73c3f6e341a0303978';
-
-  // Ed25519: exactly 64 hex chars (32 bytes) or 128 hex chars (64 bytes) or DER format (starts with 30, at least 80 chars after 30, max 160)
-  const validEd25519HexKey =
-    '4cd05bfda79692efc30a8011e81b48da825a3a5eedcbdf73c3f6e341a0303978';
-  // DER format: starts with 30, needs at least 80 more hex chars but max 160 (total 80-162)
-  // Creating a valid DER key with exactly 80 chars after 30 (total 82)
-  const validEd25519DerKey =
-    '302e020100300506032b6570042204204cd05bfda79692efc30a8011e81b48da825a3a5eedcbdf73c3f6e341a03039784cd05bfda79692efc30a8011e81b48da825a3a5eedcbdf73c3f6e341a0303978';
+  const validEcdsaHexKey = VALID_ECDSA_HEX_KEY;
+  const validEcdsaDerKey = VALID_ECDSA_DER_KEY;
+  const validEd25519HexKey = VALID_ED25519_HEX_KEY;
+  const validEd25519DerKey = VALID_ED25519_DER_KEY;
 
   test('parses key without prefix and defaults to ecdsa', () => {
     const result = parseKeyWithType(validEcdsaHexKey);

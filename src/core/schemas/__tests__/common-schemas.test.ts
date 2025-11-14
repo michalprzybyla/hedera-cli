@@ -1,17 +1,21 @@
 import { AccountIdKeyPairSchema } from '../common-schemas';
+import {
+  TEST_ACCOUNT_ID,
+  DER_KEY,
+  HEX_KEY_128,
+  HEX_KEY_128_WITH_0X,
+  DER_KEY_WITH_0X,
+  SHORT_KEY,
+  SHORT_DER_KEY,
+  INVALID_HEX_KEY,
+} from './helpers/fixtures';
 
 describe('AccountIdKeyPairSchema', () => {
-  // Sample data for tests
-  const accountId = '0.0.123456';
-  // DER format (starts with 30, at least 100 hex characters)
-  const derKey =
-    '302e020100300506032b6570042204204cd05bfda79692efc30a8011e81b48da825a3a5eedcbdf73c3f6e341a03039784cd05bfda79692efc30a8011e81b48da825a3a5eedcbdf73c3f6e341a0303978';
-  // Hex format (64 hex characters)
-  const hexKey =
-    '4cd05bfda79692efc30a8011e81b48da825a3a5eedcbdf73c3f6e341a03039784cd05bfda79692efc30a8011e81b48da825a3a5eedcbdf73c3f6e341a0303978';
-  // 0xHex format (0x followed by 64 hex characters)
-  const hexKeyWith0x = `0x${hexKey}`;
-  const derKeyWith0x = `0x${derKey}`;
+  const accountId = TEST_ACCOUNT_ID;
+  const derKey = DER_KEY;
+  const hexKey = HEX_KEY_128;
+  const hexKeyWith0x = HEX_KEY_128_WITH_0X;
+  const derKeyWith0x = DER_KEY_WITH_0X;
 
   describe('no prefix (default)', () => {
     test('validates DER format key', () => {
@@ -129,15 +133,13 @@ describe('AccountIdKeyPairSchema', () => {
     });
 
     test('rejects key that is too short (hex)', () => {
-      const shortKey = 'abc123';
-      const input = `${accountId}:${shortKey}`;
+      const input = `${accountId}:${SHORT_KEY}`;
       expect(() => AccountIdKeyPairSchema.parse(input)).toThrow();
       expect(AccountIdKeyPairSchema.safeParse(input).success).toBe(false);
     });
 
     test('rejects DER key that is too short', () => {
-      const shortDerKey = '302e02010030050603';
-      const input = `${accountId}:${shortDerKey}`;
+      const input = `${accountId}:${SHORT_DER_KEY}`;
       expect(() => AccountIdKeyPairSchema.parse(input)).toThrow();
       expect(AccountIdKeyPairSchema.safeParse(input).success).toBe(false);
     });
@@ -149,8 +151,7 @@ describe('AccountIdKeyPairSchema', () => {
     });
 
     test('rejects key with invalid hex characters', () => {
-      const invalidKey = `${hexKey.slice(0, 60)}xyz4`;
-      const input = `${accountId}:${invalidKey}`;
+      const input = `${accountId}:${INVALID_HEX_KEY}`;
       expect(() => AccountIdKeyPairSchema.parse(input)).toThrow();
       expect(AccountIdKeyPairSchema.safeParse(input).success).toBe(false);
     });
