@@ -2,17 +2,16 @@
  * List Credentials Command Output Schema and Template
  */
 import { z } from 'zod';
-import {
-  KeyTypeSchema,
-  PublicKeySchema,
-} from '../../../../core/schemas/common-schemas';
+import { PublicKeySchema } from '../../../../core/schemas/common-schemas';
 
 /**
  * Credential entry schema
  */
 const CredentialEntrySchema = z.object({
   keyRefId: z.string().describe('Key reference ID'),
-  type: KeyTypeSchema.describe('Key type (ECDSA or ED25519)'),
+  keyManager: z
+    .enum(['local', 'localEncrypted'])
+    .describe('Key manager type (local or localEncrypted)'),
   publicKey: PublicKeySchema,
   labels: z.array(z.string()).describe('Associated labels').optional(),
 });
@@ -38,7 +37,7 @@ export const LIST_CREDENTIALS_TEMPLATE = `
 
 {{#each credentials}}
 {{add1 @index}}. Key Reference ID: {{keyRefId}}
-   Type: {{type}}
+   Key Manager: {{keyManager}}
    Public Key: {{publicKey}}
 {{#if labels}}
    Labels: {{#each labels}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
