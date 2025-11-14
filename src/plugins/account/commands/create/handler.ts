@@ -70,7 +70,7 @@ export async function createAccount(
 
   const autoAssociations = (args.args['auto-associations'] as number) || 0;
   const alias = (args.args.name as string) || '';
-  const keyTypeArg = (args.args['key-type'] as string) || 'ecdsa';
+  const keyTypeArg = (args.args.keyType as string) || 'ecdsa';
 
   // Validate key type
   if (keyTypeArg !== 'ecdsa' && keyTypeArg !== 'ed25519') {

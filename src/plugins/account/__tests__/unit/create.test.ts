@@ -254,7 +254,7 @@ describe('account plugin - create command (ADR-003)', () => {
 
     const args = makeArgs(api, logger, {
       balance: 1000,
-      'key-type': 'ed25519',
+      keyType: 'ed25519',
       name: 'ed25519Account',
     });
 
