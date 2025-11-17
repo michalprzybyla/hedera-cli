@@ -8,7 +8,8 @@ import { CommandExecutionResult } from '../../../../core/plugins/plugin.types';
 import { Status } from '../../../../core/shared/constants';
 import { formatError } from '../../../../core/utils/errors';
 import { ListPluginsOutput } from './output';
-import { PluginStateEntry } from '../../schema';
+import { PluginStateEntry } from '../../../../core/plugins/plugin.interface';
+import { PLUGIN_MANAGEMENT_NAMESPACE } from '../../constants';
 
 export async function getPluginList(
   args: CommandHandlerArgs,
@@ -18,8 +19,7 @@ export async function getPluginList(
   logger.log('📋 Getting plugin list...');
 
   try {
-    const namespace = 'plugin-management';
-    const entries = state.list<PluginStateEntry>(namespace);
+    const entries = state.list<PluginStateEntry>(PLUGIN_MANAGEMENT_NAMESPACE);
 
     const plugins = entries.map((entry) => ({
       name: entry.name,

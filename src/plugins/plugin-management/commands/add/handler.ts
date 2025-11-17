@@ -13,9 +13,8 @@ import { CommandExecutionResult } from '../../../../core/plugins/plugin.types';
 import { Status } from '../../../../core/shared/constants';
 import { formatError } from '../../../../core/utils/errors';
 import { AddPluginOutput } from './output';
-import { PluginStateEntry } from '../../schema';
-
-const PLUGIN_MANAGEMENT_NAMESPACE = 'plugin-management';
+import { PluginStateEntry } from '../../../../core/plugins/plugin.interface';
+import { PLUGIN_MANAGEMENT_NAMESPACE } from '../../constants';
 
 export async function addPlugin(
   args: CommandHandlerArgs,
