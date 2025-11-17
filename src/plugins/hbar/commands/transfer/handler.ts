@@ -17,8 +17,9 @@ import { CoreApi } from '../../../../core';
 import { Logger } from '../../../../core';
 import { SupportedNetwork } from '../../../../core/types/shared.types';
 import { processBalanceInput } from '../../../../core/utils/process-balance-input';
-import { parseIdKeyPair } from '../../../../core/utils/id-key-parser';
-import { KeyAlgorithm } from '../../../../core/services/kms/kms-types.interface';
+import { parseIdKeyPair } from '../../../../core/utils/keys';
+import type { KeyAlgorithm as KeyAlgorithmType } from '../../../../core/services/kms/kms-types.interface';
+import { KeyAlgorithm } from '../../../../core/shared/constants';
 
 /**
  * Maps validation error paths to user-friendly error messages
@@ -97,7 +98,7 @@ function resolveFromAccount(
       const { accountId, privateKey, keyType } = parseIdKeyPair(from);
 
       // Default to ecdsa if keyType is not provided
-      const keyTypeToUse: KeyAlgorithm = keyType || 'ecdsa';
+      const keyTypeToUse: KeyAlgorithmType = keyType || KeyAlgorithm.ECDSA;
 
       const imported = api.kms.importPrivateKey(keyTypeToUse, privateKey);
 

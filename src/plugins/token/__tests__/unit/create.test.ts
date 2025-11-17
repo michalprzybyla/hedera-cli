@@ -7,7 +7,7 @@ import type { CommandHandlerArgs } from '../../../../core/plugins/plugin.interfa
 import { createToken } from '../../commands/create';
 import { ZustandTokenStateHelper } from '../../zustand-state-helper';
 import type { TransactionResult } from '../../../../core/services/tx-execution/tx-execution-service.interface';
-import { Status } from '../../../../core/shared/constants';
+import { Status, KeyAlgorithm } from '../../../../core/shared/constants';
 import {
   makeLogger,
   makeApiMocks,
@@ -85,7 +85,7 @@ describe('createTokenHandler', () => {
 
       // Assert
       expect(api.kms.importPrivateKey).toHaveBeenCalledWith(
-        'ecdsa',
+        KeyAlgorithm.ECDSA,
         'test-private-key',
       );
       expect(tokenTransactions.createTokenTransaction).toHaveBeenCalledWith(

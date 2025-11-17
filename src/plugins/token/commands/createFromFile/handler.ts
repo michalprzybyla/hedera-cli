@@ -18,7 +18,7 @@ import * as path from 'path';
 import { z } from 'zod';
 import { formatError, toErrorMessage } from '../../../../core/utils/errors';
 import { CreateTokenFromFileOutput } from './output';
-import { parseKeyWithType } from '../../../../core/utils/parse-key-type';
+import { parseKeyWithType } from '../../../../core/utils/keys';
 
 // Import the token file schema from the original commands
 const accountIdRegex = /^\d+\.\d+\.\d+$/;

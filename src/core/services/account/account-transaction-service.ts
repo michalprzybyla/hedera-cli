@@ -3,6 +3,7 @@
  * Uses Hedera SDK to create actual transactions and queries
  */
 import { createHash } from 'crypto';
+import { KeyAlgorithm } from '../../shared/constants';
 import {
   AccountCreateTransaction,
   AccountInfoQuery,
@@ -41,8 +42,8 @@ export class AccountServiceImpl implements AccountService {
     );
 
     // Set the key based on the keyType parameter (defaults to ecdsa if not specified)
-    const keyType = params.keyType || 'ecdsa';
-    if (keyType === 'ecdsa') {
+    const keyType = params.keyType || KeyAlgorithm.ECDSA;
+    if (keyType === KeyAlgorithm.ECDSA) {
       transaction.setECDSAKeyWithAlias(publicKey);
     } else {
       transaction.setKeyWithoutAlias(publicKey);

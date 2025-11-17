@@ -13,7 +13,8 @@ import { ZustandAccountStateHelper } from '../../zustand-state-helper';
 import { processBalanceInput } from '../../../../core/utils/process-balance-input';
 import { CreateAccountOutput } from './output';
 import { Hbar } from '@hashgraph/sdk';
-import { KeyAlgorithm } from '../../../../core/services/kms/kms-types.interface';
+import type { KeyAlgorithm as KeyAlgorithmType } from '../../../../core/services/kms/kms-types.interface';
+import { KeyAlgorithm } from '../../../../core/shared/constants';
 
 /**
  * Validates that an account has sufficient balance for an operation.
@@ -68,19 +69,22 @@ export async function createAccount(
     };
   }
 
-  const autoAssociations = (args.args['auto-associations'] as number) || 0;
+  const maxAutoAssociations = (args.args['auto-associations'] as number) || 0;
   const alias = (args.args.name as string) || '';
-  const keyTypeArg = (args.args.keyType as string) || 'ecdsa';
+  const keyTypeArg = (args.args.keyType as string) || KeyAlgorithm.ECDSA;
 
   // Validate key type
-  if (keyTypeArg !== 'ecdsa' && keyTypeArg !== 'ed25519') {
+  if (
+    keyTypeArg !== KeyAlgorithm.ECDSA.valueOf() &&
+    keyTypeArg !== KeyAlgorithm.ED25519.valueOf()
+  ) {
     return {
       status: Status.Failure,
-      errorMessage: `Invalid key type: ${keyTypeArg}. Must be 'ecdsa' or 'ed25519'.`,
+      errorMessage: `Invalid key type: ${keyTypeArg}. Must be '${KeyAlgorithm.ECDSA}' or '${KeyAlgorithm.ED25519}'.`,
     };
   }
 
-  const keyType: KeyAlgorithm = keyTypeArg as KeyAlgorithm;
+  const keyType: KeyAlgorithmType = keyTypeArg as KeyAlgorithmType;
 
   // Check if alias already exists on the current network
   const network = api.network.getCurrentNetwork();
@@ -114,9 +118,9 @@ export async function createAccount(
     // 2. Create transaction using Core API
     const accountCreateResult = await api.account.createAccount({
       balanceRaw: balance,
-      maxAutoAssociations: autoAssociations,
+      maxAutoAssociations,
       publicKey,
-      keyType: keyType,
+      keyType,
     });
 
     // 2. Sign and execute transaction with default operator
@@ -139,12 +143,10 @@ export async function createAccount(
       }
 
       // 5. Store account metadata in plugin state (no private key)
-      // Convert keyType to uppercase for account data storage
-      const accountKeyType = keyType.toUpperCase() as 'ECDSA' | 'ED25519';
       const accountData = {
         name,
         accountId: result.accountId || '0.0.123456',
-        type: accountKeyType,
+        type: keyType,
         publicKey: accountCreateResult.publicKey,
         evmAddress: accountCreateResult.evmAddress,
         solidityAddress: accountCreateResult.evmAddress,

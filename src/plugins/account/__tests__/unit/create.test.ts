@@ -4,7 +4,7 @@ import type { CreateAccountOutput } from '../../commands/create';
 import { ZustandAccountStateHelper } from '../../zustand-state-helper';
 import type { CoreApi } from '../../../../core/core-api/core-api.interface';
 import type { TransactionResult } from '../../../../core/services/tx-execution/tx-execution-service.interface';
-import { Status } from '../../../../core/shared/constants';
+import { Status, KeyAlgorithm } from '../../../../core/shared/constants';
 import {
   makeLogger,
   makeArgs,
@@ -61,12 +61,12 @@ describe('account plugin - create command (ADR-003)', () => {
 
     const result = await createAccount(args);
 
-    expect(kms.createLocalPrivateKey).toHaveBeenCalledWith('ecdsa');
+    expect(kms.createLocalPrivateKey).toHaveBeenCalledWith(KeyAlgorithm.ECDSA);
     expect(account.createAccount).toHaveBeenCalledWith({
       balanceRaw: 500000000000n,
       maxAutoAssociations: 3,
       publicKey: 'pub-key-test',
-      keyType: 'ecdsa',
+      keyType: KeyAlgorithm.ECDSA,
     });
     expect(signing.signAndExecute).toHaveBeenCalled();
     expect(alias.register).toHaveBeenCalledWith(
@@ -84,7 +84,7 @@ describe('account plugin - create command (ADR-003)', () => {
       expect.objectContaining({
         name: 'myAccount',
         accountId: '0.0.9999',
-        type: 'ECDSA',
+        type: KeyAlgorithm.ECDSA,
         network: 'testnet',
         keyRefId: 'kr_test123',
       }),
@@ -97,7 +97,7 @@ describe('account plugin - create command (ADR-003)', () => {
     const output: CreateAccountOutput = JSON.parse(result.outputJson!);
     expect(output.accountId).toBe('0.0.9999');
     expect(output.name).toBe('myAccount');
-    expect(output.type).toBe('ECDSA');
+    expect(output.type).toBe(KeyAlgorithm.ECDSA);
     expect(output.network).toBe('testnet');
     expect(output.transactionId).toBe('tx-123');
     expect(output.evmAddress).toBe(
@@ -205,22 +205,22 @@ describe('account plugin - create command (ADR-003)', () => {
 
     const args = makeArgs(api, logger, {
       balance: 1000,
-      'key-type': 'ecdsa',
+      'key-type': KeyAlgorithm.ECDSA,
       name: 'ecdsaAccount',
     });
 
     const result = await createAccount(args);
 
-    expect(kms.createLocalPrivateKey).toHaveBeenCalledWith('ecdsa');
+    expect(kms.createLocalPrivateKey).toHaveBeenCalledWith(KeyAlgorithm.ECDSA);
     expect(account.createAccount).toHaveBeenCalledWith(
       expect.objectContaining({
-        keyType: 'ecdsa',
+        keyType: KeyAlgorithm.ECDSA,
       }),
     );
 
     expect(result.status).toBe(Status.Success);
     const output: CreateAccountOutput = JSON.parse(result.outputJson!);
-    expect(output.type).toBe('ECDSA');
+    expect(output.type).toBe(KeyAlgorithm.ECDSA);
   });
 
   test('creates account with ED25519 key type', async () => {
@@ -255,21 +255,23 @@ describe('account plugin - create command (ADR-003)', () => {
 
     const args = makeArgs(api, logger, {
       balance: 1000,
-      keyType: 'ed25519',
+      keyType: KeyAlgorithm.ED25519,
       name: 'ed25519Account',
     });
 
     const result = await createAccount(args);
 
-    expect(kms.createLocalPrivateKey).toHaveBeenCalledWith('ed25519');
+    expect(kms.createLocalPrivateKey).toHaveBeenCalledWith(
+      KeyAlgorithm.ED25519,
+    );
     expect(account.createAccount).toHaveBeenCalledWith(
       expect.objectContaining({
-        keyType: 'ed25519',
+        keyType: KeyAlgorithm.ED25519,
       }),
     );
 
     expect(result.status).toBe(Status.Success);
     const output: CreateAccountOutput = JSON.parse(result.outputJson!);
-    expect(output.type).toBe('ED25519');
+    expect(output.type).toBe(KeyAlgorithm.ED25519);
   });
 });

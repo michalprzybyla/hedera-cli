@@ -1,5 +1,5 @@
 import { setOperatorHandler } from '../../commands/set-operator';
-import { Status } from '../../../../core/shared/constants';
+import { Status, KeyAlgorithm } from '../../../../core/shared/constants';
 import {
   makeLogger,
   makeArgs,
@@ -48,7 +48,7 @@ describe('network plugin - set-operator command', () => {
       publicKey: 'pub-key-test',
     });
     expect(kmsService.importPrivateKey).toHaveBeenCalledWith(
-      'ecdsa',
+      KeyAlgorithm.ECDSA,
       '3030020100300706052b8104000a04220420...',
     );
     expect(networkService.setOperator).toHaveBeenCalledWith('testnet', {

@@ -7,7 +7,7 @@ import { associateToken } from '../../commands/associate';
 import { ZustandTokenStateHelper } from '../../zustand-state-helper';
 import type { TransactionResult } from '../../../../core/services/tx-execution/tx-execution-service.interface';
 import type { AssociateTokenOutput } from '../../commands/associate';
-import { Status } from '../../../../core/shared/constants';
+import { Status, KeyAlgorithm } from '../../../../core/shared/constants';
 import {
   makeLogger,
   makeApiMocks,
@@ -235,7 +235,7 @@ describe('associateTokenHandler', () => {
         { keyRefId: 'imported-key-ref-id' },
       );
       expect(kms.importPrivateKey).toHaveBeenCalledWith(
-        'ecdsa',
+        KeyAlgorithm.ECDSA,
         'test-account-key',
       );
     });
@@ -673,7 +673,7 @@ describe('associateTokenHandler', () => {
         { keyRefId: 'imported-key-ref-id' },
       );
       expect(kms.importPrivateKey).toHaveBeenCalledWith(
-        'ecdsa',
+        KeyAlgorithm.ECDSA,
         'test-account-key',
       );
     });

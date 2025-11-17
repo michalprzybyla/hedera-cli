@@ -3,6 +3,7 @@
  * Defines the account plugin according to ADR-001
  */
 import { PluginManifest } from '../../core';
+import { KeyAlgorithm } from '../../core/shared/constants';
 import { ACCOUNT_JSON_SCHEMA, ACCOUNT_NAMESPACE } from './schema';
 import {
   ListAccountsOutputSchema,
@@ -85,7 +86,7 @@ export const accountPluginManifest: PluginManifest = {
           short: 't',
           type: 'string',
           required: false,
-          default: 'ecdsa',
+          default: KeyAlgorithm.ECDSA,
           description:
             'Key type for the account. Options: ecdsa, ed25519. Default: ecdsa',
         },

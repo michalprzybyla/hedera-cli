@@ -9,7 +9,7 @@ import { Status } from '../../../../core/shared/constants';
 import { formatError } from '../../../../core/utils/errors';
 import { ZustandAccountStateHelper } from '../../zustand-state-helper';
 import { ImportAccountOutput } from './output';
-import { parseKeyWithType } from '../../../../core/utils/parse-key-type';
+import { parseKeyWithType } from '../../../../core/utils/keys';
 
 export async function importAccount(
   args: CommandHandlerArgs,
@@ -24,24 +24,23 @@ export async function importAccount(
   const privateKeyInput = args.args.key as string;
   const alias = (args.args.name as string) || '';
 
-  // Parse private key - check if it has a key type prefix (e.g., "ed25519:...")
-  const { keyType, privateKey } = parseKeyWithType(privateKeyInput);
-
   // Check if name already exists on the current network
   const network = api.network.getCurrentNetwork();
-  api.alias.availableOrThrow(alias, network);
-
-  // Generate a unique name for the account
-  const name = alias || `imported-${accountId.replace(/\./g, '-')}`;
-  logger.log(`Importing account: ${name} (${accountId})`);
 
   try {
+    // Parse private key with type
+    const { keyType, privateKey } = parseKeyWithType(privateKeyInput);
     // Check if account name already exists
+    api.alias.availableOrThrow(alias, network);
+    // Generate a unique name for the account
+    const name = alias || `imported-${accountId.replace(/\./g, '-')}`;
+    logger.log(`Importing account: ${name} (${accountId})`);
     if (accountState.hasAccount(name)) {
-      throw new Error(`Account with name '${name}' already exists`);
+      return {
+        status: Status.Failure,
+        errorMessage: `Account with name '${name}' already exists`,
+      };
     }
-
-    // No name resolution needed for import
 
     // Get account info from mirror node
     const accountInfo = await api.mirror.getAccount(accountId);
@@ -70,12 +69,10 @@ export async function importAccount(
     }
 
     // Create account object (no private key in plugin state)
-    // Convert keyType to uppercase for account data storage
-    const accountKeyType = keyType.toUpperCase() as 'ECDSA' | 'ED25519';
     const account = {
       name,
       accountId,
-      type: accountKeyType,
+      type: keyType,
       publicKey: publicKey,
       evmAddress:
         accountInfo.evmAddress || '0x0000000000000000000000000000000000000000',

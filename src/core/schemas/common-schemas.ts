@@ -7,6 +7,8 @@
  * Based on ADR-003: Result-Oriented Command Handler Contract
  */
 import { z } from 'zod';
+import type { KeyAlgorithm as KeyAlgorithmType } from '../services/kms/kms-types.interface';
+import { KeyAlgorithm } from '../shared/constants';
 
 // ======================================================
 // 1. ECDSA (secp256k1) Keys
@@ -65,7 +67,7 @@ export const Ed25519PrivateKeySchema = z
  * Key format validation should happen when the key is actually used (e.g., during import).
  */
 export const PrivateKeyWithTypeSchema: z.ZodType<
-  { keyType: 'ecdsa' | 'ed25519'; privateKey: string },
+  { keyType: KeyAlgorithmType; privateKey: string },
   z.ZodTypeDef,
   string
 > = z
@@ -74,9 +76,9 @@ export const PrivateKeyWithTypeSchema: z.ZodType<
   .min(1, 'Private key cannot be empty')
   .transform((val) => {
     // Extract key type prefix and key value
-    const match = val.match(/^(ecdsa|ed25519):(.*)$/i);
+    const match = val.match(/^(ecdsa|ed25519):(.*)$/i); // Note: regex uses lowercase for case-insensitive matching
     if (match) {
-      const keyType = match[1].toLowerCase() as 'ecdsa' | 'ed25519';
+      const keyType = match[1].toLowerCase() as KeyAlgorithmType;
       const keyValue = match[2].trim();
       if (!keyValue) {
         throw new Error(
@@ -89,7 +91,7 @@ export const PrivateKeyWithTypeSchema: z.ZodType<
     }
     // No prefix - default to ecdsa
     // No format validation here - validation happens when key is actually used
-    return { keyType: 'ecdsa' as const, privateKey: val };
+    return { keyType: KeyAlgorithm.ECDSA, privateKey: val };
   });
 
 // ======================================================
@@ -265,7 +267,7 @@ export const NetworkSchema = z
  * Supported key types in Hedera
  */
 export const KeyTypeSchema = z
-  .enum(['ECDSA', 'ED25519'])
+  .enum([KeyAlgorithm.ECDSA, KeyAlgorithm.ED25519])
   .describe('Cryptographic key type');
 
 /**

@@ -5,10 +5,11 @@ import { SupportedNetwork } from '../../../../core/types/shared.types';
 import { validateAccountId } from '../../../../core/utils/account-id-validator';
 import { AliasService } from '../../../../core/services/alias/alias-service.interface';
 import { KmsService } from '../../../../core/services/kms/kms-service.interface';
-import { parseIdKeyPair } from '../../../../core/utils/id-key-parser';
+import { parseIdKeyPair } from '../../../../core/utils/keys';
 import { Status } from '../../../../core/shared/constants';
 import { SetOperatorOutput } from './output';
-import { KeyAlgorithm } from '../../../../core/services/kms/kms-types.interface';
+import type { KeyAlgorithm as KeyAlgorithmType } from '../../../../core/services/kms/kms-types.interface';
+import { KeyAlgorithm } from '../../../../core/shared/constants';
 
 function resolveOperatorFromAlias(
   alias: string,
@@ -39,7 +40,7 @@ function resolveOperatorFromIdKey(
   const { accountId, privateKey, keyType } = parseIdKeyPair(idKeyPair);
   validateAccountId(accountId);
   // Default to ecdsa if keyType is not provided
-  const keyTypeToUse: KeyAlgorithm = keyType || 'ecdsa';
+  const keyTypeToUse: KeyAlgorithmType = keyType || KeyAlgorithm.ECDSA;
   const imported = kmsService.importPrivateKey(keyTypeToUse, privateKey);
   return {
     accountId,

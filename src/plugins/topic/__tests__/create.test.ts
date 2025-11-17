@@ -10,7 +10,7 @@ import {
   makeKmsMock,
   makeAliasMock,
 } from '../../../core/shared/__tests__/helpers/mocks';
-import { Status } from '../../../core/shared/constants';
+import { Status, KeyAlgorithm } from '../../../core/shared/constants';
 
 jest.mock('../zustand-state-helper', () => ({
   ZustandTopicStateHelper: jest.fn(),
@@ -171,8 +171,14 @@ describe('topic plugin - create command', () => {
       adminKey,
       submitKey,
     });
-    expect(kms.importPrivateKey).toHaveBeenCalledWith('ecdsa', adminKey);
-    expect(kms.importPrivateKey).toHaveBeenCalledWith('ecdsa', submitKey);
+    expect(kms.importPrivateKey).toHaveBeenCalledWith(
+      KeyAlgorithm.ECDSA,
+      adminKey,
+    );
+    expect(kms.importPrivateKey).toHaveBeenCalledWith(
+      KeyAlgorithm.ECDSA,
+      submitKey,
+    );
     expect(signing.signAndExecuteWith).toHaveBeenCalledWith(
       {},
       {
@@ -348,7 +354,7 @@ describe('topic plugin - create command', () => {
 
     expect(result.status).toBe(Status.Success);
     expect(kms.importPrivateKey).toHaveBeenCalledWith(
-      'ecdsa',
+      KeyAlgorithm.ECDSA,
       '302e020100300506032b657004220420admin',
     );
   });
@@ -394,11 +400,11 @@ describe('topic plugin - create command', () => {
 
     expect(result.status).toBe(Status.Success);
     expect(kms.importPrivateKey).toHaveBeenCalledWith(
-      'ed25519',
+      KeyAlgorithm.ED25519,
       '302e020100300506032b657004220420admin',
     );
     expect(kms.importPrivateKey).toHaveBeenCalledWith(
-      'ed25519',
+      KeyAlgorithm.ED25519,
       '302e020100300506032b657004220420submit',
     );
   });

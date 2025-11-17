@@ -9,7 +9,7 @@ import { formatError } from '../../../../core/utils/errors';
 import { ZustandTopicStateHelper } from '../../zustand-state-helper';
 import { AliasRecord } from '../../../../core/services/alias/alias-service.interface';
 import { CreateTopicOutput } from './output';
-import { parseKeyWithType } from '../../../../core/utils/parse-key-type';
+import { parseKeyWithType } from '../../../../core/utils/keys';
 
 /**
  * Default export handler function for topic creation
