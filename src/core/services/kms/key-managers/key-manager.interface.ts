@@ -12,20 +12,14 @@ import type { KeyAlgorithm, KmsCredentialSecret } from '../kms-types.interface';
  */
 export interface KeyManager {
   /**
-   * Generates a new key pair.
-   * Does NOT save - caller must call saveSecret() separately.
+   * Generates a new key pair and automatically saves it to storage.
+   * The secret is stored internally using this manager's storage strategy.
    *
+   * @param keyRefId - Unique identifier for the key
    * @param algorithm - Key algorithm (ed25519 or ecdsa)
-   * @returns Public key and secret data to be stored
-   *
-   * @example
-   * const { publicKey, secret } = await manager.generateKey('ecdsa');
-   * await manager.saveSecret(keyRefId, secret);
+   * @returns Public key only (secret is stored internally)
    */
-  generateKey(algorithm: KeyAlgorithm): {
-    publicKey: string;
-    secret: KmsCredentialSecret;
-  };
+  generateKey(keyRefId: string, algorithm: KeyAlgorithm): string;
 
   /**
    * Saves secret using manager-specific storage strategy.

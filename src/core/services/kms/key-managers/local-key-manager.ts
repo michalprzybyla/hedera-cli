@@ -17,10 +17,8 @@ export class LocalKeyManager implements KeyManager {
     this.secretStorage = new LocalSecretStorage(state);
   }
 
-  generateKey(algorithm: KeyAlgorithm): {
-    publicKey: string;
-    secret: KmsCredentialSecret;
-  } {
+  generateKey(keyRefId: string, algorithm: KeyAlgorithm): string {
+    // 1. Generate key pair
     const privateKey =
       algorithm === 'ecdsa'
         ? PrivateKey.generateECDSA()
@@ -28,13 +26,17 @@ export class LocalKeyManager implements KeyManager {
 
     const publicKey = privateKey.publicKey.toStringRaw();
 
+    // 2. Create and immediately save secret (never expose it)
     const secret: KmsCredentialSecret = {
       keyAlgorithm: algorithm,
       privateKey: privateKey.toStringRaw(),
       createdAt: new Date().toISOString(),
     };
 
-    return { publicKey, secret };
+    this.secretStorage.write(keyRefId, secret);
+
+    // 3. Return only public key
+    return publicKey;
   }
 
   saveSecret(keyRefId: string, secret: KmsCredentialSecret): void {
