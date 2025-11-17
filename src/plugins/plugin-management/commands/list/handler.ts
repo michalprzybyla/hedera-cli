@@ -8,33 +8,29 @@ import { CommandExecutionResult } from '../../../../core/plugins/plugin.types';
 import { Status } from '../../../../core/shared/constants';
 import { formatError } from '../../../../core/utils/errors';
 import { ListPluginsOutput } from './output';
+import { PluginStateEntry } from '../../schema';
 
 export async function getPluginList(
   args: CommandHandlerArgs,
 ): Promise<CommandExecutionResult> {
-  const { logger } = args;
+  const { logger, state } = args;
 
   logger.log('📋 Getting plugin list...');
 
   try {
-    // Note: In a real implementation, this would use the plugin manager
-    // For now, we'll return mock data
+    const namespace = 'plugin-management';
+    const entries = state.list<PluginStateEntry>(namespace);
+
+    const plugins = entries.map((entry) => ({
+      name: entry.name,
+      displayName: entry.displayName ?? entry.name,
+      version: entry.version ?? 'unknown',
+      status: entry.status,
+    }));
+
     const outputData: ListPluginsOutput = {
-      plugins: [
-        {
-          name: 'account',
-          displayName: 'Hedera Account Management',
-          version: '1.0.0',
-          status: 'loaded',
-        },
-        {
-          name: 'plugin-management',
-          displayName: 'Plugin Management',
-          version: '1.0.0',
-          status: 'loaded',
-        },
-      ],
-      count: 2,
+      plugins,
+      count: plugins.length,
     };
 
     return {

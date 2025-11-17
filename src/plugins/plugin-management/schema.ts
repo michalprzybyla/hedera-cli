@@ -1,8 +1,46 @@
 /**
  * Plugin Management Schema
  * Defines data types and output schemas for plugin management commands
+ * and the persisted plugin state structure.
  */
 import { z } from 'zod';
+import { zodToJsonSchema } from 'zod-to-json-schema';
+
+/**
+ * Persisted plugin state entry
+ * Stored under the `plugin-management` namespace in .hedera-cli/state.
+ *
+ * Key convention (in StateService): plugin name, e.g. "account", "token".
+ */
+export const PluginStateEntrySchema = z.object({
+  name: z.string().describe('Plugin name (unique identifier)'),
+  path: z.string().describe('Filesystem path to the plugin root directory'),
+  enabled: z.boolean().describe('Whether the plugin is enabled'),
+  builtIn: z
+    .boolean()
+    .describe('Whether this is a built-in plugin shipped with the CLI'),
+  status: z
+    .enum(['loaded', 'unloaded', 'error'])
+    .describe('Runtime load status of the plugin'),
+  displayName: z
+    .string()
+    .optional()
+    .describe('Optional human-friendly plugin name'),
+  version: z
+    .string()
+    .optional()
+    .describe('Optional plugin version from manifest'),
+  description: z
+    .string()
+    .optional()
+    .describe('Optional plugin description from manifest'),
+});
+
+export type PluginStateEntry = z.infer<typeof PluginStateEntrySchema>;
+
+export const PLUGIN_STATE_ENTRY_JSON_SCHEMA = zodToJsonSchema(
+  PluginStateEntrySchema,
+);
 
 // Plugin information schema
 export const PluginInfoSchema = z.object({

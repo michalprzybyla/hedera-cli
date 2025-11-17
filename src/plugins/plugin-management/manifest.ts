@@ -23,6 +23,7 @@ import { addPlugin } from './commands/add/handler';
 import { removePlugin } from './commands/remove/handler';
 import { getPluginList } from './commands/list/handler';
 import { getPluginInfo } from './commands/info/handler';
+import { PLUGIN_STATE_ENTRY_JSON_SCHEMA } from './schema';
 
 export const pluginManagementManifest: PluginManifest = {
   name: 'plugin-management',
@@ -35,12 +36,20 @@ export const pluginManagementManifest: PluginManifest = {
     api: '>=1.0.0',
   },
   capabilities: ['plugin:manage', 'plugin:list', 'plugin:info'],
+  stateSchemas: [
+    {
+      namespace: 'plugin-management',
+      version: 1,
+      jsonSchema: PLUGIN_STATE_ENTRY_JSON_SCHEMA,
+      scope: 'global',
+    },
+  ],
   commands: [
     {
       name: 'add',
-      summary: 'Add a plugin from path',
-      description: 'Add a new plugin to the system from a file path',
-      options: [{ name: 'path', short: 'p', type: 'string', required: true }],
+      summary: 'Enable a plugin',
+      description: 'Enable a plugin by name in the plugin-management state',
+      options: [{ name: 'name', short: 'n', type: 'string', required: true }],
       handler: addPlugin,
       output: {
         schema: AddPluginOutputSchema,

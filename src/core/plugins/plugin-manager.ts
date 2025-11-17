@@ -6,7 +6,12 @@
 import * as path from 'path';
 import { Command } from 'commander';
 import { CoreApi } from '../core-api/core-api.interface';
-import { CommandHandlerArgs, PluginManifest } from './plugin.interface';
+import {
+  CommandHandlerArgs,
+  PluginManifest,
+  PluginStateEntry,
+  PluginStatus,
+} from './plugin.interface';
 import { CommandSpec } from './plugin.types';
 import { formatError } from '../utils/errors';
 import { Status } from '../shared/constants';
@@ -18,6 +23,8 @@ interface LoadedPlugin {
   path: string;
   status: 'loaded' | 'error';
 }
+
+const PLUGIN_MANAGEMENT_NAMESPACE = 'plugin-management';
 
 export class PluginManager {
   private coreApi: CoreApi;
@@ -59,6 +66,89 @@ export class PluginManager {
     }
 
     this.logger.log(`✅ Plugin system ready`);
+  }
+
+  /**
+   * Initialize plugin-management state with default plugins if not present.
+   * Returns the current list of plugin state entries.
+   */
+  initializePluginState(
+    defaultState: Array<{
+      name: string;
+      path: string;
+      enabled: boolean;
+      builtIn: boolean;
+    }>,
+  ): PluginStateEntry[] {
+    const state = this.coreApi.state;
+    const existingKeys = state.getKeys(PLUGIN_MANAGEMENT_NAMESPACE);
+
+    if (existingKeys.length === 0) {
+      this.logger.log(
+        '[PLUGIN-MANAGEMENT] Initializing default plugin state (first run)...',
+      );
+
+      const initialState: PluginStateEntry[] = defaultState.map((plugin) => ({
+        ...plugin,
+        status: 'unloaded',
+      }));
+
+      for (const plugin of initialState) {
+        state.set<PluginStateEntry>(
+          PLUGIN_MANAGEMENT_NAMESPACE,
+          plugin.name,
+          plugin,
+        );
+      }
+
+      return initialState;
+    }
+
+    return state.list<PluginStateEntry>(PLUGIN_MANAGEMENT_NAMESPACE);
+  }
+
+  /**
+   * After plugins are loaded, synchronize their runtime status
+   * back into the persisted plugin-management state.
+   */
+  syncPluginStateWithLoadedPlugins(): void {
+    const state = this.coreApi.state;
+
+    const currentEntries = state.list<PluginStateEntry>(
+      PLUGIN_MANAGEMENT_NAMESPACE,
+    );
+    const loaded = this.listPlugins();
+
+    const loadedByName = new Map<string, string>();
+    for (const plugin of loaded) {
+      loadedByName.set(plugin.name, plugin.status);
+    }
+
+    for (const entry of currentEntries) {
+      const loadedStatus = loadedByName.get(entry.name);
+
+      const status: PluginStatus =
+        loadedStatus === 'error'
+          ? 'error'
+          : loadedStatus === 'loaded'
+            ? 'loaded'
+            : 'unloaded';
+
+      const updated: PluginStateEntry = {
+        ...entry,
+        status,
+      };
+
+      state.set<PluginStateEntry>(
+        PLUGIN_MANAGEMENT_NAMESPACE,
+        entry.name,
+        updated,
+      );
+    }
+
+    this.logger.log(
+      '[PLUGIN-MANAGEMENT] Synchronized plugin load status to state.',
+    );
   }
 
   /**

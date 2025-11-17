@@ -5,6 +5,7 @@ import { PluginManager } from './core/plugins/plugin-manager';
 import { createCoreApi } from './core/core-api';
 import { CoreApiConfig } from './core/core-api/core-api-config';
 import './core/utils/json-serialize';
+import { DEFAULT_PLUGIN_STATE } from './core/shared/config/cli-options';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const pkg = require('../package.json') as { version?: string };
@@ -36,21 +37,23 @@ async function initializeCLI() {
 
     const pluginManager = new PluginManager(coreApi);
 
-    // Set default plugins
-    pluginManager.setDefaultPlugins([
-      './dist/plugins/account', // Default account plugin
-      './dist/plugins/token', // Token management plugin
-      './dist/plugins/network', // Network plugin
-      './dist/plugins/plugin-management', // Plugin management plugin
-      './dist/plugins/credentials', // Credentials management plugin
-      './dist/plugins/state-management', // State management plugin
-      './dist/plugins/topic', // Topic management plugin
-      './dist/plugins/hbar', // HBAR plugin
-      './dist/plugins/config', // global config plugin
-    ]);
+    // Initialize or read plugin-management state
+    const pluginState =
+      pluginManager.initializePluginState(DEFAULT_PLUGIN_STATE);
+
+    // Derive list of enabled plugin paths from state
+    const enabledPluginPaths = pluginState
+      .filter((plugin) => plugin.enabled)
+      .map((plugin) => plugin.path);
+
+    // Set default plugins based on state
+    pluginManager.setDefaultPlugins(enabledPluginPaths);
 
     // Initialize plugins
     await pluginManager.initialize();
+
+    // Sync runtime status back to state
+    pluginManager.syncPluginStateWithLoadedPlugins();
 
     // Register plugin commands
     pluginManager.registerCommands(program);

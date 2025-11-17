@@ -18,3 +18,16 @@ import { Logger } from '../services/logger/logger-service.interface';
 // Type aliases for ADR-001 compliance
 export type StateManager = StateService;
 export type ConfigView = ConfigService;
+
+export type PluginStatus = 'loaded' | 'unloaded' | 'error';
+
+export interface PluginStateEntry {
+  name: string;
+  path: string;
+  enabled: boolean;
+  builtIn: boolean;
+  status: PluginStatus;
+  displayName?: string;
+  version?: string;
+  description?: string;
+}

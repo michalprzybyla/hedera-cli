@@ -1,32 +1,58 @@
 /**
  * Add Plugin Command Handler
- * Handles adding a plugin to the system
- * Follows ADR-003 contract: returns CommandExecutionResult
+ * Enables or registers a plugin in the plugin-management state.
+ *
+ * - If the plugin already exists in state, it will be marked as enabled.
+ * - If it does not exist, a new entry will be created (treated as non built-in).
+ *
+ * This affects which plugins will be loaded on the next CLI start.
+ * Follows ADR-003 contract: returns CommandExecutionResult.
  */
 import { CommandHandlerArgs } from '../../../../core/plugins/plugin.interface';
 import { CommandExecutionResult } from '../../../../core/plugins/plugin.types';
 import { Status } from '../../../../core/shared/constants';
 import { formatError } from '../../../../core/utils/errors';
 import { AddPluginOutput } from './output';
+import { PluginStateEntry } from '../../schema';
+
+const PLUGIN_MANAGEMENT_NAMESPACE = 'plugin-management';
 
 export async function addPlugin(
   args: CommandHandlerArgs,
 ): Promise<CommandExecutionResult> {
-  const { logger } = args;
-  const { path } = args.args as { path: string };
+  const { logger, state } = args;
+  const { name } = args.args as { name: string };
 
-  logger.log('➕ Adding plugin...');
+  logger.log('➕ Enabling plugin...');
 
   try {
-    // Note: In a real implementation, this would use the plugin manager
-    // For now, we'll just simulate the action
-    const pluginName = path.split('/').pop()?.replace('.js', '') || 'unknown';
+    const existing =
+      state.get<PluginStateEntry>(PLUGIN_MANAGEMENT_NAMESPACE, name) ||
+      undefined;
+
+    if (!existing) {
+      return {
+        status: Status.Failure,
+        errorMessage: `Plugin '${name}' not found in plugin-management state`,
+      };
+    }
+
+    const wasEnabled = existing.enabled;
+
+    const updated: PluginStateEntry = {
+      ...existing,
+      enabled: true,
+    };
+
+    state.set<PluginStateEntry>(PLUGIN_MANAGEMENT_NAMESPACE, name, updated);
 
     const outputData: AddPluginOutput = {
-      name: pluginName,
-      path,
-      added: true,
-      message: `Plugin ${pluginName} added successfully`,
+      name,
+      path: updated.path,
+      added: !wasEnabled,
+      message: wasEnabled
+        ? `Plugin ${name} is already enabled`
+        : `Plugin ${name} enabled successfully`,
     };
 
     return {
