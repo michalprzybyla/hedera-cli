@@ -103,6 +103,14 @@ export const networkPluginManifest: PluginManifest = {
           required: false,
           description: 'Target network (defaults to current network)',
         },
+        {
+          name: 'key-manager',
+          short: 'k',
+          type: 'string',
+          required: false,
+          description:
+            'Key manager to use: local or local_encrypted (defaults to config setting)',
+        },
       ],
       handler: setOperatorHandler,
       output: {

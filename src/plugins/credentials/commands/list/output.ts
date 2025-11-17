@@ -3,6 +3,7 @@
  */
 import { z } from 'zod';
 import { PublicKeySchema } from '../../../../core/schemas/common-schemas';
+import { keyManagerNameSchema } from '../../../../core/services/kms/kms-types.interface';
 import { CREDENTIAL_TYPE_VALUES } from '../../../../core/services/kms/kms-types.interface';
 
 /**
@@ -16,9 +17,6 @@ const CredentialTypeSchema = z.enum(CREDENTIAL_TYPE_VALUES);
  */
 const CredentialEntrySchema = z.object({
   keyRefId: z.string().describe('Key reference ID'),
-  type: CredentialTypeSchema.describe(
-    'Credential type (localPrivateKey, mnemonic, hardware, or kms)',
-  ),
   keyManager: z
     .enum(['local', 'localEncrypted'])
     .describe('Key manager type (local or localEncrypted)'),
@@ -48,7 +46,6 @@ export const LIST_CREDENTIALS_TEMPLATE = `
 {{#each credentials}}
 {{add1 @index}}. Key Reference ID: {{keyRefId}}
    Key Manager: {{keyManager}}
-   Type: {{type}}
    Public Key: {{publicKey}}
 {{#if labels}}
    Labels: {{#each labels}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}

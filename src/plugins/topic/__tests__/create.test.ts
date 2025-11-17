@@ -171,14 +171,14 @@ describe('topic plugin - create command', () => {
       adminKey,
       submitKey,
     });
-    expect(kms.importPrivateKey).toHaveBeenCalledWith(
-      KeyAlgorithm.ECDSA,
-      adminKey,
-    );
-    expect(kms.importPrivateKey).toHaveBeenCalledWith(
-      KeyAlgorithm.ECDSA,
-      submitKey,
-    );
+    expect(kms.importPrivateKey).toHaveBeenCalledWith(adminKey, 'local', [
+      'topic:admin',
+      expect.stringMatching(/^topic:topic-\d+$/),
+    ]);
+    expect(kms.importPrivateKey).toHaveBeenCalledWith(submitKey, 'local', [
+      'topic:submit',
+      expect.stringMatching(/^topic:topic-\d+$/),
+    ]);
     expect(signing.signAndExecuteWith).toHaveBeenCalledWith(
       {},
       {

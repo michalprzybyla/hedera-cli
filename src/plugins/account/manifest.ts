@@ -82,6 +82,14 @@ export const accountPluginManifest: PluginManifest = {
         { name: 'name', short: 'n', type: 'string', required: false },
         { name: 'payer', short: 'p', type: 'string', required: false },
         {
+          name: 'key-manager',
+          short: 'k',
+          type: 'string',
+          required: false,
+          description:
+            'Key manager to use: local or local_encrypted (defaults to config setting)',
+        },
+        {
           name: 'key-type',
           short: 't',
           type: 'string',
@@ -158,6 +166,14 @@ export const accountPluginManifest: PluginManifest = {
             'Private key. Can be prefixed with key type (e.g., "ed25519:..." or "ecdsa:..."). Defaults to ecdsa if no prefix.',
         },
         { name: 'name', short: 'n', type: 'string', required: false },
+        {
+          name: 'key-manager',
+          short: 'm',
+          type: 'string',
+          required: false,
+          description:
+            'Key manager to use: local or local_encrypted (defaults to config setting)',
+        },
       ],
       handler: importAccount,
       output: {

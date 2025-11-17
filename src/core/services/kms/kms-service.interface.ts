@@ -9,7 +9,7 @@ export interface KmsService {
   /**
    * Creates a new private key using specified KeyManager.
    *
-   * @param keyManager - KeyManager to use ('local' or 'localEncrypted')
+   * @param keyManager - KeyManager to use ('local' or 'local_encrypted')
    * @param labels - Optional labels for the key
    * @returns keyRefId and publicKey
    */
@@ -26,7 +26,7 @@ export interface KmsService {
    * Imports an existing private key using specified KeyManager.
    *
    * @param privateKey - Private key string to import
-   * @param keyManager - KeyManager to use ('local' or 'localEncrypted')
+   * @param keyManager - KeyManager to use ('local' or 'local_encrypted')
    * @param labels - Optional labels for the key
    * @returns keyRefId and publicKey
    */

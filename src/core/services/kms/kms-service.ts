@@ -57,7 +57,7 @@ export class KmsServiceImpl implements KmsService {
     // Initialize metadata storage
     this.credentialStorage = new CredentialStorage(state);
 
-    // Initialize encryption service for localEncrypted key manager
+    // Initialize encryption service for local_encrypted key manager
     const encryptionService = new EncryptionServiceImpl(
       ALGORITHM_CONFIGS.AES_256_GCM,
     );
@@ -66,7 +66,7 @@ export class KmsServiceImpl implements KmsService {
     this.keyManagers = new Map<KeyManagerName, KeyManager>([
       [KEY_MANAGERS.local, new LocalKeyManager(state)],
       [
-        KEY_MANAGERS.localEncrypted,
+        KEY_MANAGERS.local_encrypted,
         new EncryptedLocalKeyManager(state, encryptionService),
       ],
     ]);

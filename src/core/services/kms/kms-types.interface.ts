@@ -5,8 +5,9 @@ import { z } from 'zod';
 /**
  * All available key managers.
  * Add new managers here and they'll be automatically available everywhere.
+ * This is the SINGLE SOURCE OF TRUTH for key manager names across the entire project.
  */
-const KEY_MANAGER_VALUES = ['local', 'localEncrypted'] as const;
+export const KEY_MANAGER_VALUES = ['local', 'local_encrypted'] as const;
 
 /**
  * Zod schema for runtime validation

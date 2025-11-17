@@ -15,6 +15,7 @@ import { CreateAccountOutput } from './output';
 import { Hbar } from '@hashgraph/sdk';
 import type { KeyAlgorithm as KeyAlgorithmType } from '../../../../core/services/kms/kms-types.interface';
 import { KeyAlgorithm } from '../../../../core/shared/constants';
+import { KeyManagerName } from '../../../../core/services/kms/kms-types.interface';
 
 /**
  * Validates that an account has sufficient balance for an operation.
@@ -71,6 +72,7 @@ export async function createAccount(
 
   const maxAutoAssociations = (args.args['auto-associations'] as number) || 0;
   const alias = (args.args.name as string) || '';
+  const keyManagerArg = args.args.keyManager as KeyManagerName | undefined;
   const keyTypeArg = (args.args.keyType as string) || KeyAlgorithm.ECDSA;
 
   // Validate key type
@@ -89,6 +91,11 @@ export async function createAccount(
   // Check if alias already exists on the current network
   const network = api.network.getCurrentNetwork();
   api.alias.availableOrThrow(alias, network);
+
+  // Get keyManager from args or fallback to config
+  const keyManager =
+    keyManagerArg ||
+    api.config.getOption<KeyManagerName>('default_key_manager');
 
   // Check operator account and fetch balance
   const operator = api.network.getOperator(network);
@@ -113,7 +120,10 @@ export async function createAccount(
 
   try {
     // 1. Generate a new key pair for the account
-    const { keyRefId, publicKey } = api.kms.createLocalPrivateKey(keyType);
+    const { keyRefId, publicKey } = api.kms.createLocalPrivateKey(keyType, keyManager, [
+      'account:create',
+      `account:${name}`,
+    ]);
 
     // 2. Create transaction using Core API
     const accountCreateResult = await api.account.createAccount({

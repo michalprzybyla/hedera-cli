@@ -10,6 +10,7 @@ import { formatError } from '../../../../core/utils/errors';
 import { ZustandAccountStateHelper } from '../../zustand-state-helper';
 import { ImportAccountOutput } from './output';
 import { parseKeyWithType } from '../../../../core/utils/keys';
+import { KeyManagerName } from '../../../../core/services/kms/kms-types.interface';
 
 export async function importAccount(
   args: CommandHandlerArgs,
@@ -23,18 +24,29 @@ export async function importAccount(
   const accountId = args.args.id as string;
   const privateKeyInput = args.args.key as string;
   const alias = (args.args.name as string) || '';
+  const keyManagerArg = args.args.keyManager as KeyManagerName | undefined;
 
   // Check if name already exists on the current network
   const network = api.network.getCurrentNetwork();
 
+
+  // Get keyManager from args or fallback to config
+  const keyManager =
+    keyManagerArg ||
+    api.config.getOption<KeyManagerName>('default_key_manager');
+
   try {
     // Parse private key with type
     const { keyType, privateKey } = parseKeyWithType(privateKeyInput);
+
     // Check if account name already exists
     api.alias.availableOrThrow(alias, network);
+
     // Generate a unique name for the account
     const name = alias || `imported-${accountId.replace(/\./g, '-')}`;
     logger.log(`Importing account: ${name} (${accountId})`);
+
+    // Check if account name already exists
     if (accountState.hasAccount(name)) {
       return {
         status: Status.Failure,
@@ -49,8 +61,8 @@ export async function importAccount(
     const { keyRefId, publicKey } = api.kms.importPrivateKey(
       keyType,
       privateKey,
-      undefined,
-      [`account:${name}`],
+      keyManager,
+      ['account:import', `account:${name}`],
     );
 
     // Register name if provided

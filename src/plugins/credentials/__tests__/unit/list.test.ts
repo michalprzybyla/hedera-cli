@@ -44,7 +44,7 @@ describe('credentials plugin - list command', () => {
       },
       {
         keyRefId: 'kr_test456',
-        keyManager: 'localEncrypted' as KeyManagerName,
+        keyManager: 'local_encrypted' as KeyManagerName,
         publicKey: 'pub-key-456',
       },
     ];
