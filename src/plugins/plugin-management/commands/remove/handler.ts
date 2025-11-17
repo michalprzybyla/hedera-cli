@@ -19,6 +19,20 @@ export async function removePlugin(
 
   logger.log('➖ Disabling plugin...');
 
+  // Protect core plugin-management from being disabled via CLI
+  if (name === 'plugin-management') {
+    const protectedResult: RemovePluginOutput = {
+      name,
+      removed: false,
+      message: 'Plugin plugin-management is protected and cannot be disabled.',
+    };
+
+    return {
+      status: Status.Success,
+      outputJson: JSON.stringify(protectedResult),
+    };
+  }
+
   try {
     const existing =
       state.get<PluginStateEntry>(PLUGIN_MANAGEMENT_NAMESPACE, name) ||
