@@ -1,4 +1,4 @@
-import type { KmsCredentialRecord } from '../kms-types.interface';
+import type { KmsCredentialRecord } from './kms-types.interface';
 
 /**
  * Storage for KmsCredentialRecord (metadata only).

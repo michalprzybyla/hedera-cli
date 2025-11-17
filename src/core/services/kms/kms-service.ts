@@ -20,7 +20,7 @@ import type { Logger } from '../logger/logger-service.interface';
 import type { StateService } from '../state/state-service.interface';
 import type { NetworkService } from '../network/network-service.interface';
 import type { KeyManager } from './key-managers/key-manager.interface';
-import { CredentialStorage } from './storage/credential-storage';
+import { CredentialStorage } from './credential-storage';
 import { LocalKeyManager } from './key-managers/local-key-manager';
 import { EncryptedLocalKeyManager } from './key-managers/encrypted-local-key-manager';
 import { EncryptionServiceImpl } from './encryption/encryption-service-impl';

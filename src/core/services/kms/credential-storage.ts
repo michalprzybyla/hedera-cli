@@ -1,7 +1,7 @@
-import type { StateService } from '../../state/state-service.interface';
-import type { KmsCredentialRecord } from '../kms-types.interface';
+import type { StateService } from '../state/state-service.interface';
+import type { KmsCredentialRecord } from './kms-types.interface';
 import type { CredentialStorageInterface } from './credential-storage.interface';
-import { KEY_MANAGERS } from '../kms-types.interface';
+import { KEY_MANAGERS } from './kms-types.interface';
 
 /**
  * Storage for metadata records (KmsCredentialRecord).
