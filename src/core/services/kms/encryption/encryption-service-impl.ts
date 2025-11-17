@@ -1,34 +1,42 @@
 import type { EncryptionService } from './encryption-service.interface';
-import type { EncryptionKeyProvider } from './encryption-key-provider.interface';
+import type { AlgorithmConfig } from './algorithm-config';
+import { LocalFileKeyProvider } from './local-file-key-provider';
 import * as crypto from 'crypto';
 
 /**
- * AES-256-GCM encryption implementation.
+ * Configurable encryption implementation using AES-GCM.
  *
  * Algorithm details:
- * - AES-256-GCM (Galois/Counter Mode)
- * - 256-bit key (from EncryptionKeyProvider)
- * - Random 128-bit IV per encryption
+ * - Supports AES-GCM (Galois/Counter Mode) variants
+ * - Key length and IV length configured via AlgorithmConfig
+ * - Random IV generated per encryption
  * - Authenticated encryption (integrity + confidentiality)
  *
  * Output format: `iv:authTag:ciphertext` (all hex-encoded)
+ *
+ * Internally creates and manages LocalFileKeyProvider with matching configuration.
  */
 export class EncryptionServiceImpl implements EncryptionService {
-  private readonly algorithm = 'aes-256-gcm';
+  private readonly keyProvider: LocalFileKeyProvider;
 
-  constructor(private readonly keyProvider: EncryptionKeyProvider) {}
+  constructor(
+    private readonly config: AlgorithmConfig,
+    baseDir?: string,
+  ) {
+    this.keyProvider = new LocalFileKeyProvider(config, baseDir);
+  }
 
   encrypt(plaintext: string): string {
     try {
       const key = this.keyProvider.getOrCreateKey();
-      const iv = crypto.randomBytes(16); // 128-bit IV
+      const iv = crypto.randomBytes(this.config.ivLengthBytes);
 
-      const cipher = crypto.createCipheriv(this.algorithm, key, iv);
+      const cipher = crypto.createCipheriv(this.config.name, key, iv);
 
       let encrypted = cipher.update(plaintext, 'utf8', 'hex');
       encrypted += cipher.final('hex');
 
-      const authTag = cipher.getAuthTag();
+      const authTag = (cipher as crypto.CipherGCM).getAuthTag();
 
       // Format: iv:authTag:ciphertext (all hex)
       return `${iv.toString('hex')}:${authTag.toString('hex')}:${encrypted}`;
@@ -50,11 +58,13 @@ export class EncryptionServiceImpl implements EncryptionService {
       const key = this.keyProvider.getOrCreateKey();
 
       const decipher = crypto.createDecipheriv(
-        this.algorithm,
+        this.config.name,
         key,
         Buffer.from(ivHex, 'hex'),
       );
-      decipher.setAuthTag(Buffer.from(authTagHex, 'hex'));
+      (decipher as crypto.DecipherGCM).setAuthTag(
+        Buffer.from(authTagHex, 'hex'),
+      );
 
       let decrypted = decipher.update(encrypted, 'hex', 'utf8');
       decrypted += decipher.final('utf8');

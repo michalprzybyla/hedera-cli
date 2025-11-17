@@ -38,6 +38,7 @@ import { NetworkService } from '../network/network-service.interface';
 import { ConfigService } from '../config/config-service.interface';
 import { KmsStorageServiceInterface } from './kms-storage-service.interface';
 import { KmsStorageService } from './kms-storage.service';
+import { ALGORITHM_CONFIGS } from './encryption/algorithm-config';
 
 /**
  * @TODO: Consider reorganizing KMS folder structure
@@ -69,9 +70,10 @@ export class KmsServiceImpl implements KmsService {
     // Initialize metadata storage
     this.credentialStorage = new CredentialStorage(state);
 
-    // Initialize encryption dependencies for localEncrypted key manager
-    const keyProvider = new LocalFileKeyProvider();
-    const encryptionService = new EncryptionServiceImpl(keyProvider);
+    // Initialize encryption service for localEncrypted key manager
+    const encryptionService = new EncryptionServiceImpl(
+      ALGORITHM_CONFIGS.AES_256_GCM,
+    );
 
     // Initialize KeyManagers (each creates its own SecretStorage internally)
     this.keyManagers = new Map<KeyManagerName, KeyManager>([
