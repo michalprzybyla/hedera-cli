@@ -167,12 +167,12 @@ async function readAndValidateTokenFile(
  * @param logger - Logger instance
  * @returns Resolved treasury information
  */
-async function resolveTreasuryFromDefinition(
+function resolveTreasuryFromDefinition(
   treasuryDef: string | { accountId: string; key: string },
   api: CoreApi,
   network: SupportedNetwork,
   logger: Logger,
-): Promise<TreasuryFromFileResolution> {
+): TreasuryFromFileResolution {
   if (typeof treasuryDef === 'string') {
     // New format: alias or treasury-id:treasury-key
     const resolvedTreasury = resolveTreasuryParameter(
@@ -335,7 +335,7 @@ export async function createTokenFromFile(
 
     // 2. Resolve treasury (supports both string and object formats)
     const network = api.network.getCurrentNetwork();
-    const treasury = await resolveTreasuryFromDefinition(
+    const treasury = resolveTreasuryFromDefinition(
       tokenDefinition.treasury,
       api,
       network,
