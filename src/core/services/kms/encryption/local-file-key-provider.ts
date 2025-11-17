@@ -25,28 +25,43 @@ export class LocalFileKeyProvider implements EncryptionKeyProvider {
     this.secretFilePath = path.join(base, `.secret-${config.identifier}`);
   }
 
-  getOrCreateKey(): Buffer {
+  /**
+   * Attempts to get existing key from cache or file.
+   *
+   * @returns Key if found, null if file doesn't exist
+   * @throws Error if key file exists but is invalid
+   */
+  private tryGetKey(): Buffer | null {
     // Return cached key if available
     if (this.cachedKey) {
       return this.cachedKey;
     }
 
     // Check if secret file exists
-    if (fs.existsSync(this.secretFilePath)) {
-      // Read existing key
-      const hex = fs.readFileSync(this.secretFilePath, 'utf8').trim();
-      const key = Buffer.from(hex, 'hex');
+    if (!fs.existsSync(this.secretFilePath)) {
+      return null;
+    }
 
-      // Validate key length matches algorithm requirements
-      if (key.length !== this.config.keyLengthBytes) {
-        throw new Error(
-          `Invalid key length for ${this.config.identifier}: ` +
-            `expected ${this.config.keyLengthBytes} bytes, got ${key.length} bytes`,
-        );
-      }
+    // Read existing key
+    const hex = fs.readFileSync(this.secretFilePath, 'utf8').trim();
+    const key = Buffer.from(hex, 'hex');
 
-      this.cachedKey = key;
-      return this.cachedKey;
+    // Validate key length matches algorithm requirements
+    if (key.length !== this.config.keyLengthBytes) {
+      throw new Error(
+        `Invalid key length for ${this.config.identifier}: ` +
+          `expected ${this.config.keyLengthBytes} bytes, got ${key.length} bytes`,
+      );
+    }
+
+    this.cachedKey = key;
+    return this.cachedKey;
+  }
+
+  getOrCreateKey(): Buffer {
+    const existingKey = this.tryGetKey();
+    if (existingKey) {
+      return existingKey;
     }
 
     // Generate new key based on algorithm requirements
@@ -67,5 +82,17 @@ export class LocalFileKeyProvider implements EncryptionKeyProvider {
 
     this.cachedKey = key;
     return this.cachedKey;
+  }
+
+  getOrThrow(): Buffer {
+    const existingKey = this.tryGetKey();
+    if (existingKey) {
+      return existingKey;
+    }
+
+    throw new Error(
+      `Encryption key not found at ${this.secretFilePath}. ` +
+        `Cannot decrypt without existing key.`,
+    );
   }
 }

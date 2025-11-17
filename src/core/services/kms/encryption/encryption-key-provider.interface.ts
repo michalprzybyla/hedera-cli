@@ -12,4 +12,12 @@ export interface EncryptionKeyProvider {
    * @returns Encryption key as Buffer
    */
   getOrCreateKey(): Buffer;
+
+  /**
+   * Gets the encryption key if it exists, throws an error otherwise.
+   *
+   * @returns Encryption key as Buffer
+   * @throws Error if the encryption key does not exist
+   */
+  getOrThrow(): Buffer;
 }

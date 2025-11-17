@@ -55,7 +55,7 @@ export class EncryptionServiceImpl implements EncryptionService {
       }
 
       const [ivHex, authTagHex, encrypted] = parts;
-      const key = this.keyProvider.getOrCreateKey();
+      const key = this.keyProvider.getOrThrow();
 
       const decipher = crypto.createDecipheriv(
         this.config.name,
