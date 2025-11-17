@@ -14,10 +14,9 @@ import {
 } from './plugin.interface';
 import { CommandSpec } from './plugin.types';
 import { formatError } from '../utils/errors';
-import { Status } from '../shared/constants';
+import { PLUGIN_MANAGEMENT_NAMESPACE, Status } from '../shared/constants';
 import { filterReservedOptions } from '../utils/filter-reserved-options';
 import { Logger } from '../services/logger/logger-service.interface';
-import { PLUGIN_MANAGEMENT_NAMESPACE } from '../../plugins/plugin-management/constants';
 
 interface LoadedPlugin {
   manifest: PluginManifest;
