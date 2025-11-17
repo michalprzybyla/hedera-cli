@@ -361,11 +361,19 @@ const client = api.kms.createClient('testnet');
 
 All plugin command handlers receive a `CommandHandlerArgs` object (defined in `src/core/plugins/plugin.interface.ts`) that provides:
 
-- `args: Record<string, unknown>` – parsed CLI arguments
-- `api: CoreApi` – the Core API instance described in this document
-- `state: StateService` – namespaced access to persisted state
-- `config: ConfigService` – read-only view over CLI configuration (TODO: real implementation pending)
-- `logger: Logger` – structured logging
+```typescript
+// Account types
+interface Account {
+  name: string;
+  accountId: string;
+  type: KeyAlgorithm; // 'ecdsa' | 'ed25519'
+  publicKey: string;
+  evmAddress: string;
+  solidityAddress: string;
+  solidityAddressFull: string;
+  privateKey: string;
+  network: string;
+}
 
 For handler patterns, result contracts, and testing examples, see `PLUGIN_ARCHITECTURE_GUIDE.md`.
 
@@ -382,3 +390,4 @@ Core API services are designed to work with structured command outputs defined v
 - [Output Schemas Guide](./output-schemas-guide.md)
 - [Contributing Guide](../CONTRIBUTING.md)
 - [Architecture Decision Records](./adr/) - ADRs for interested developers
+```

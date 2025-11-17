@@ -49,7 +49,23 @@ Show all stored credentials and their metadata.
 hcli credentials list
 ```
 
-### Remove Credentials
+**Output:**
+
+```json
+{
+  "credentials": [
+    {
+      "keyRefId": "key-ref-123",
+      "type": "ecdsa",
+      "publicKey": "02a1b2c3...",
+      "labels": ["default-operator"]
+    }
+  ],
+  "totalCount": 1
+}
+```
+
+### `hedera credentials remove`
 
 Remove credentials for a specific key reference ID.
 
