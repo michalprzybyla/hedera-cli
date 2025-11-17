@@ -1,4 +1,4 @@
-import type { EncryptionKeyProvider } from './encryption-key-provider.interface';
+import type { KeyProvider } from './key-provider.interface';
 import type { AlgorithmConfig } from './algorithm-config';
 import * as crypto from 'crypto';
 import * as fs from 'fs';
@@ -13,7 +13,7 @@ import * as path from 'path';
  * - Stored in .hedera-cli/.secret-{identifier} (outside of state/ directory)
  * - File permissions set to 0600 (read/write for owner only)
  */
-export class LocalFileKeyProvider implements EncryptionKeyProvider {
+export class FileKeyProvider implements KeyProvider {
   private readonly secretFilePath: string;
   private cachedKey: Buffer | null = null;
 

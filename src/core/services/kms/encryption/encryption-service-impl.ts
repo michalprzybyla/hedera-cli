@@ -1,6 +1,6 @@
 import type { EncryptionService } from './encryption-service.interface';
 import type { AlgorithmConfig } from './algorithm-config';
-import { LocalFileKeyProvider } from './local-file-key-provider';
+import { FileKeyProvider } from './file-key-provider';
 import * as crypto from 'crypto';
 
 /**
@@ -14,16 +14,16 @@ import * as crypto from 'crypto';
  *
  * Output format: `iv:authTag:ciphertext` (all hex-encoded)
  *
- * Internally creates and manages LocalFileKeyProvider with matching configuration.
+ * Internally creates and manages FileKeyProvider with matching configuration.
  */
 export class EncryptionServiceImpl implements EncryptionService {
-  private readonly keyProvider: LocalFileKeyProvider;
+  private readonly keyProvider: FileKeyProvider;
 
   constructor(
     private readonly config: AlgorithmConfig,
     baseDir?: string,
   ) {
-    this.keyProvider = new LocalFileKeyProvider(config, baseDir);
+    this.keyProvider = new FileKeyProvider(config, baseDir);
   }
 
   encrypt(plaintext: string): string {

@@ -1,11 +1,11 @@
 /**
- * EncryptionKeyProvider manages the lifecycle of encryption keys.
+ * KeyProvider manages the lifecycle of encryption keys.
  *
  * This abstraction allows different key storage strategies:
- * - LocalFileKeyProvider: Auto-generated key in .hedera-cli/.secret (current)
+ * - FileKeyProvider: Auto-generated key in .hedera-cli/.secret (current)
  * - Future: PasswordBasedKeyProvider, KeychainKeyProvider, HSM, etc.
  */
-export interface EncryptionKeyProvider {
+export interface KeyProvider {
   /**
    * Gets the encryption key, generating and storing it if it doesn't exist.
    *
