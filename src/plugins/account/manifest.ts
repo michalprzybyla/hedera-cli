@@ -159,7 +159,7 @@ export const accountPluginManifest: PluginManifest = {
         { name: 'id', short: 'i', type: 'string', required: true },
         {
           name: 'key',
-          short: 'k',
+          short: 'K',
           type: 'string',
           required: false,
           description:
@@ -168,7 +168,7 @@ export const accountPluginManifest: PluginManifest = {
         { name: 'name', short: 'n', type: 'string', required: false },
         {
           name: 'key-manager',
-          short: 'm',
+          short: 'k',
           type: 'string',
           required: false,
           description:
