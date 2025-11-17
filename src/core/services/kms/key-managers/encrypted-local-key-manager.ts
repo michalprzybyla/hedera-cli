@@ -40,7 +40,7 @@ export class EncryptedLocalKeyManager implements KeyManager {
     return publicKey;
   }
 
-  saveSecret(keyRefId: string, secret: KmsCredentialSecret): void {
+  writeSecret(keyRefId: string, secret: KmsCredentialSecret): void {
     // Encryption happens inside EncryptedSecretStorage.write()
     this.secretStorage.write(keyRefId, secret);
   }

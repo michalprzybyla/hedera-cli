@@ -159,8 +159,8 @@ export class KmsServiceImpl implements KmsService {
       createdAt: new Date().toISOString(),
     };
 
-    // Save using specified manager
-    manager.saveSecret(keyRefId, secret);
+    // Write using specified manager
+    manager.writeSecret(keyRefId, secret);
 
     // Save metadata
     this.saveRecord({

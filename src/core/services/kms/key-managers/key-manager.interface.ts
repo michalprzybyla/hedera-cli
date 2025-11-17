@@ -22,7 +22,7 @@ export interface KeyManager {
   generateKey(keyRefId: string, algorithm: KeyAlgorithm): string;
 
   /**
-   * Saves secret using manager-specific storage strategy.
+   * Writes secret using manager-specific storage strategy.
    * - LocalKeyManager: stores plaintext
    * - EncryptedKeyManager: encrypts before storing
    * - LedgerKeyManager (future): stores only derivation path
@@ -30,7 +30,7 @@ export interface KeyManager {
    * @param keyRefId - Unique identifier for the key
    * @param secret - Secret data to store
    */
-  saveSecret(keyRefId: string, secret: KmsCredentialSecret): void;
+  writeSecret(keyRefId: string, secret: KmsCredentialSecret): void;
 
   /**
    * Reads secret from storage.

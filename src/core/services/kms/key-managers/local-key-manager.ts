@@ -39,7 +39,7 @@ export class LocalKeyManager implements KeyManager {
     return publicKey;
   }
 
-  saveSecret(keyRefId: string, secret: KmsCredentialSecret): void {
+  writeSecret(keyRefId: string, secret: KmsCredentialSecret): void {
     this.secretStorage.write(keyRefId, secret);
   }
 
