@@ -10,8 +10,9 @@ export { PluginInfoOutputSchema };
 
 // Human-readable template
 export const PLUGIN_INFO_TEMPLATE = `{{#if found}}
-ℹ️  Plugin Information: {{plugin.name}}
+ℹ️  Plugin Information:
    Name: {{plugin.name}}
+   Version: {{plugin.version}}
    Display Name: {{plugin.displayName}}
    Description: {{plugin.description}}
    Commands: {{plugin.commands}}

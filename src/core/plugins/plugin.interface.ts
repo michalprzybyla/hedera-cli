@@ -26,4 +26,6 @@ export interface PluginStateEntry {
   displayName?: string;
   version?: string;
   description?: string;
+  commands?: string[];
+  capabilities?: string[];
 }
