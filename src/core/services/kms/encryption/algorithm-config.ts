@@ -8,7 +8,7 @@
 export interface AlgorithmConfig {
   readonly name: string;
   readonly keyLengthBytes: number;
-  readonly ivLengthBytes: number;
+  readonly initVectorLengthBytes: number;
   readonly identifier: string;
 }
 
@@ -22,7 +22,7 @@ export const ALGORITHM_CONFIGS = {
   AES_256_GCM: {
     name: 'aes-256-gcm',
     keyLengthBytes: 32,
-    ivLengthBytes: 16,
+    initVectorLengthBytes: 16,
     identifier: 'aes-256-gcm',
   },
 } satisfies Record<string, AlgorithmConfig>;

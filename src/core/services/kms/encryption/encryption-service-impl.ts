@@ -8,11 +8,11 @@ import * as crypto from 'crypto';
  *
  * Algorithm details:
  * - Supports AES-GCM (Galois/Counter Mode) variants
- * - Key length and IV length configured via AlgorithmConfig
- * - Random IV generated per encryption
+ * - Key length and init vector length configured via AlgorithmConfig
+ * - Random initVector generated per encryption
  * - Authenticated encryption (integrity + confidentiality)
  *
- * Output format: `iv:authTag:ciphertext` (all hex-encoded)
+ * Output format: `initVector:authTag:ciphertext` (all hex-encoded)
  *
  * Internally creates and manages FileKeyProvider with matching configuration.
  */
@@ -29,17 +29,18 @@ export class EncryptionServiceImpl implements EncryptionService {
   encrypt(plaintext: string): string {
     try {
       const key = this.keyProvider.getOrCreateKey();
-      const iv = crypto.randomBytes(this.config.ivLengthBytes);
+      const initVector = crypto.randomBytes(this.config.initVectorLengthBytes);
 
-      const cipher = crypto.createCipheriv(this.config.name, key, iv);
+      const cipher = crypto.createCipheriv(this.config.name, key, initVector);
 
       let encrypted = cipher.update(plaintext, 'utf8', 'hex');
       encrypted += cipher.final('hex');
 
+      // Authentication tag ensures data integrity and authenticity in GCM mode
       const authTag = (cipher as crypto.CipherGCM).getAuthTag();
 
-      // Format: iv:authTag:ciphertext (all hex)
-      return `${iv.toString('hex')}:${authTag.toString('hex')}:${encrypted}`;
+      // Format: initVector:authTag:ciphertext (all hex)
+      return `${initVector.toString('hex')}:${authTag.toString('hex')}:${encrypted}`;
     } catch (error) {
       throw new Error(
         `Encryption failed: ${error instanceof Error ? error.message : String(error)}`,
@@ -51,16 +52,19 @@ export class EncryptionServiceImpl implements EncryptionService {
     try {
       const parts = ciphertext.split(':');
       if (parts.length !== 3) {
-        throw new Error('Invalid ciphertext format (expected iv:authTag:data)');
+        throw new Error(
+          'Invalid ciphertext format (expected initVector:authTag:data)',
+        );
       }
 
-      const [ivHex, authTagHex, encrypted] = parts;
+      // Authentication tag ensures data integrity and authenticity in GCM mode
+      const [initVectorHex, authTagHex, encrypted] = parts;
       const key = this.keyProvider.getOrThrow();
 
       const decipher = crypto.createDecipheriv(
         this.config.name,
         key,
-        Buffer.from(ivHex, 'hex'),
+        Buffer.from(initVectorHex, 'hex'),
       );
       (decipher as crypto.DecipherGCM).setAuthTag(
         Buffer.from(authTagHex, 'hex'),

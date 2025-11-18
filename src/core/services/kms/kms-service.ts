@@ -28,8 +28,6 @@ import { ConfigService } from '../config/config-service.interface';
 import { ALGORITHM_CONFIGS } from './encryption/algorithm-config';
 
 /**
- * @TODO: Consider reorganizing KMS folder structure
- *
  * Currently, the KMS folder contains more files than typical service folders
  * (which usually have just interface + implementation). This was discussed
  * during review and we decided not to change it now, but we should consider
