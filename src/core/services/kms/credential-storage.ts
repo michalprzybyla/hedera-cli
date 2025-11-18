@@ -1,7 +1,6 @@
 import type { StateService } from '../state/state-service.interface';
 import type { KmsCredentialRecord } from './kms-types.interface';
 import type { CredentialStorageInterface } from './credential-storage.interface';
-import { KEY_MANAGERS } from './kms-types.interface';
 
 /**
  * Storage for metadata records (KmsCredentialRecord).
@@ -17,20 +16,7 @@ export class CredentialStorage implements CredentialStorageInterface {
   constructor(private readonly state: StateService) {}
 
   get(keyRefId: string): KmsCredentialRecord | undefined {
-    const record = this.state.get<KmsCredentialRecord>(
-      this.namespace,
-      keyRefId,
-    );
-
-    // Migration: Add default keyManager for legacy records
-    if (record && !record.keyManager) {
-      return {
-        ...record,
-        keyManager: KEY_MANAGERS.local, // Default to 'local' for legacy records
-      };
-    }
-
-    return record;
+    return this.state.get<KmsCredentialRecord>(this.namespace, keyRefId);
   }
 
   set(keyRefId: string, record: KmsCredentialRecord): void {
@@ -42,17 +28,6 @@ export class CredentialStorage implements CredentialStorageInterface {
   }
 
   list(): KmsCredentialRecord[] {
-    const records = this.state.list<KmsCredentialRecord>(this.namespace) || [];
-
-    // Migration: Add default keyManager for legacy records
-    return records.map((record) => {
-      if (!record.keyManager) {
-        return {
-          ...record,
-          keyManager: KEY_MANAGERS.local,
-        };
-      }
-      return record;
-    });
+    return this.state.list<KmsCredentialRecord>(this.namespace) || [];
   }
 }
