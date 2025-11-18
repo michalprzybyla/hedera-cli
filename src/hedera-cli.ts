@@ -6,6 +6,7 @@ import { createCoreApi } from './core/core-api';
 import { CoreApiConfig } from './core/core-api/core-api-config';
 import './core/utils/json-serialize';
 import { DEFAULT_PLUGIN_STATE } from './core/shared/config/cli-options';
+import { registerDisabledPlugin } from './core/utils/register-disabled-plugin';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const pkg = require('../package.json') as { version?: string };
@@ -45,6 +46,9 @@ async function initializeCLI() {
     const enabledPluginPaths = pluginState
       .filter((plugin) => plugin.enabled)
       .map((plugin) => plugin.path);
+
+    // Register stubs for disabled plugins so we can log "Plugin is disabled" message
+    registerDisabledPlugin(program, pluginState);
 
     // Set default plugins based on state
     pluginManager.setDefaultPlugins(enabledPluginPaths);
