@@ -80,9 +80,6 @@ export async function addPlugin(
       name: pluginName,
       path: resolvedPath,
       enabled: true,
-      displayName: manifest.displayName,
-      version: manifest.version,
-      description: manifest.description,
     };
 
     state.set<PluginStateEntry>(
