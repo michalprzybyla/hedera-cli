@@ -7,6 +7,7 @@ import { CoreApiConfig } from './core/core-api/core-api-config';
 import './core/utils/json-serialize';
 import { DEFAULT_PLUGIN_STATE } from './core/shared/config/cli-options';
 import { registerDisabledPlugin } from './core/utils/register-disabled-plugin';
+import { addDisabledPluginsHelp } from './core/utils/add-disabled-plugins-help';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const pkg = require('../package.json') as { version?: string };
@@ -58,6 +59,9 @@ async function initializeCLI() {
 
     // Register plugin commands
     pluginManager.registerCommands(program);
+
+    // Add disabled plugins section to help output
+    addDisabledPluginsHelp(program, pluginState);
 
     console.error('✅ CLI ready');
 

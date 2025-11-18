@@ -17,7 +17,8 @@ export function registerDisabledPlugin(
     .filter((plugin) => !plugin.enabled)
     .forEach((plugin) => {
       const command = programInstance
-        .command(plugin.name)
+        // Hide from main command list
+        .command(plugin.name, { hidden: true })
         .description('Currently disabled')
         .allowUnknownOption(true)
         .allowExcessArguments(true);
