@@ -10,17 +10,15 @@ import {
   makeStateMock,
 } from '../../../../core/shared/__tests__/helpers/mocks';
 import type { PluginStateEntry } from '../../../../core/plugins/plugin.interface';
+import {
+  CUSTOM_PLUGIN_ENTRY,
+  CUSTOM_PLUGIN_DISABLED_ENTRY,
+} from './helpers/fixtures';
 
 describe('plugin-management enable command', () => {
   it('should enable a disabled plugin', async () => {
     const logger = makeLogger();
-    const entries: PluginStateEntry[] = [
-      {
-        name: 'custom-plugin',
-        path: 'dist/plugins/custom-plugin',
-        enabled: false,
-      },
-    ];
+    const entries: PluginStateEntry[] = [{ ...CUSTOM_PLUGIN_DISABLED_ENTRY }];
     const state = makeStateMock() as jest.Mocked<StateService>;
     state.get.mockReturnValue(entries[0]);
     state.set.mockImplementation(
@@ -47,13 +45,7 @@ describe('plugin-management enable command', () => {
 
   it('should return success with appropriate message when plugin is already enabled', async () => {
     const logger = makeLogger();
-    const entries: PluginStateEntry[] = [
-      {
-        name: 'custom-plugin',
-        path: 'dist/plugins/custom-plugin',
-        enabled: true,
-      },
-    ];
+    const entries: PluginStateEntry[] = [{ ...CUSTOM_PLUGIN_ENTRY }];
     const state = makeStateMock() as jest.Mocked<StateService>;
     state.get.mockReturnValue(entries[0]);
     const api = { state };

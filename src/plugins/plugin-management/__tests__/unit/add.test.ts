@@ -10,6 +10,7 @@ import {
   makeStateMock,
 } from '../../../../core/shared/__tests__/helpers/mocks';
 import type { PluginStateEntry } from '../../../../core/plugins/plugin.interface';
+import { CUSTOM_PLUGIN_ENTRY } from './helpers/fixtures';
 
 // Mock path to produce predictable manifest path
 jest.mock('path', () => ({
@@ -23,9 +24,6 @@ jest.mock(
   () => ({
     default: {
       name: 'custom-plugin',
-      displayName: 'Custom Plugin',
-      version: '1.0.0',
-      description: 'Test plugin',
     },
   }),
   { virtual: true },
@@ -65,11 +63,7 @@ describe('plugin-management add command', () => {
 
   it('should fail when plugin with the same name already exists in state', async () => {
     const logger = makeLogger();
-    const existingEntry: PluginStateEntry = {
-      name: 'custom-plugin',
-      path: 'dist/plugins/custom-plugin',
-      enabled: true,
-    };
+    const existingEntry: PluginStateEntry = { ...CUSTOM_PLUGIN_ENTRY };
     const entries: PluginStateEntry[] = [existingEntry];
     const state = makeStateMock() as jest.Mocked<StateService>;
     state.list.mockReturnValue(entries);
