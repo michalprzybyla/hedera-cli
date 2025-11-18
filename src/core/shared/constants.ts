@@ -6,3 +6,12 @@ export enum Status {
 }
 
 export const PLUGIN_MANAGEMENT_NAMESPACE = 'plugin-management';
+
+/**
+ * Key Algorithm Enum
+ * Used throughout the codebase to avoid string literal duplication
+ */
+export enum KeyAlgorithm {
+  ECDSA = 'ecdsa',
+  ED25519 = 'ed25519',
+}
