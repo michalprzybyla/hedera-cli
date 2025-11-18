@@ -19,8 +19,6 @@ describe('plugin-management disable command', () => {
         name: 'custom-plugin',
         path: 'dist/plugins/custom-plugin',
         enabled: true,
-        builtIn: false,
-        status: 'loaded',
       },
     ];
     const state = makeStateMock() as jest.Mocked<StateService>;
@@ -45,7 +43,6 @@ describe('plugin-management disable command', () => {
     expect(output.message).toContain('disabled successfully');
 
     expect(entries[0].enabled).toBe(false);
-    expect(entries[0].status).toBe('unloaded');
   });
 
   it('should return success when plugin is already disabled', async () => {
@@ -55,8 +52,6 @@ describe('plugin-management disable command', () => {
         name: 'custom-plugin',
         path: 'dist/plugins/custom-plugin',
         enabled: false,
-        builtIn: false,
-        status: 'unloaded',
       },
     ];
     const state = makeStateMock() as jest.Mocked<StateService>;
@@ -83,8 +78,6 @@ describe('plugin-management disable command', () => {
         name: 'plugin-management',
         path: 'dist/plugins/plugin-management',
         enabled: true,
-        builtIn: true,
-        status: 'loaded',
       },
     ];
     const state = makeStateMock() as jest.Mocked<StateService>;

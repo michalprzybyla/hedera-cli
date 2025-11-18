@@ -12,10 +12,8 @@ export { PluginInfoOutputSchema };
 export const PLUGIN_INFO_TEMPLATE = `{{#if found}}
 ℹ️  Plugin Information: {{plugin.name}}
    Name: {{plugin.name}}
-   Version: {{plugin.version}}
    Display Name: {{plugin.displayName}}
    Description: {{plugin.description}}
-   Status: {{plugin.status}}
    Commands: {{plugin.commands}}
    Capabilities: {{plugin.capabilities}}
 {{else}}

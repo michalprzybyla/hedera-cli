@@ -19,8 +19,6 @@ describe('plugin-management enable command', () => {
         name: 'custom-plugin',
         path: 'dist/plugins/custom-plugin',
         enabled: false,
-        builtIn: false,
-        status: 'unloaded',
       },
     ];
     const state = makeStateMock() as jest.Mocked<StateService>;
@@ -54,8 +52,6 @@ describe('plugin-management enable command', () => {
         name: 'custom-plugin',
         path: 'dist/plugins/custom-plugin',
         enabled: true,
-        builtIn: false,
-        status: 'loaded',
       },
     ];
     const state = makeStateMock() as jest.Mocked<StateService>;

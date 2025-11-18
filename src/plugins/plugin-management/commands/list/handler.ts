@@ -25,8 +25,6 @@ export async function getPluginList(
     const plugins = entries.map((entry) => ({
       name: entry.name,
       displayName: entry.displayName ?? entry.name,
-      version: entry.version ?? 'unknown',
-      status: entry.status,
     }));
 
     const outputData: ListPluginsOutput = {

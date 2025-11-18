@@ -29,7 +29,6 @@ export async function getPluginInfo(
           version: '1.0.0',
           displayName: 'Hedera Account Management',
           description: 'Hedera Account Management',
-          status: 'loaded',
           commands: [
             'create',
             'list',
@@ -56,7 +55,6 @@ export async function getPluginInfo(
           version: '1.0.0',
           displayName: 'Plugin Management',
           description: 'Plugin Management',
-          status: 'loaded',
           commands: ['add', 'remove', 'list', 'info'],
           capabilities: ['plugin:manage', 'plugin:list', 'plugin:info'],
         },

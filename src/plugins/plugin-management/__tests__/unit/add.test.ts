@@ -69,8 +69,6 @@ describe('plugin-management add command', () => {
       name: 'custom-plugin',
       path: 'dist/plugins/custom-plugin',
       enabled: true,
-      builtIn: false,
-      status: 'loaded',
     };
     const entries: PluginStateEntry[] = [existingEntry];
     const state = makeStateMock() as jest.Mocked<StateService>;

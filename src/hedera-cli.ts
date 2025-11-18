@@ -52,9 +52,6 @@ async function initializeCLI() {
     // Initialize plugins
     await pluginManager.initialize();
 
-    // Sync runtime status back to state
-    pluginManager.syncPluginStateWithLoadedPlugins();
-
     // Register plugin commands
     pluginManager.registerCommands(program);
 

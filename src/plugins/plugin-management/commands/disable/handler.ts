@@ -68,7 +68,6 @@ export async function disablePlugin(
     const updated: PluginStateEntry = {
       ...existing,
       enabled: false,
-      status: 'unloaded',
     };
 
     state.set<PluginStateEntry>(PLUGIN_MANAGEMENT_NAMESPACE, name, updated);
