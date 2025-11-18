@@ -1,20 +1,19 @@
-import type { StateService } from '../../state/state-service.interface';
 import type { KeyManager } from './key-manager.interface';
 import type { Signer } from '../signers/signer.interface';
 import type { KeyAlgorithm, KmsCredentialSecret } from '../kms-types.interface';
-import { LocalSecretStorage } from '../storage/local-secret-storage';
 import { PrivateKeySigner } from '../signers/private-key-signer';
 import { PrivateKey } from '@hashgraph/sdk';
+import { SecretStorage } from '../storage/secret-storage.interface';
 
 /**
  * KeyManager for plaintext local storage.
  * Stores secrets without encryption.
  */
 export class LocalKeyManager implements KeyManager {
-  private readonly secretStorage: LocalSecretStorage;
+  private readonly secretStorage: SecretStorage;
 
-  constructor(state: StateService) {
-    this.secretStorage = new LocalSecretStorage(state);
+  constructor(secretStorage: SecretStorage) {
+    this.secretStorage = secretStorage;
   }
 
   generateKey(keyRefId: string, algorithm: KeyAlgorithm): string {

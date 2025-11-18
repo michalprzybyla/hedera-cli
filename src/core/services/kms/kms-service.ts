@@ -22,10 +22,10 @@ import type { NetworkService } from '../network/network-service.interface';
 import type { KeyManager } from './key-managers/key-manager.interface';
 import { CredentialStorage } from './credential-storage';
 import { LocalKeyManager } from './key-managers/local-key-manager';
-import { EncryptedLocalKeyManager } from './key-managers/encrypted-local-key-manager';
 import { EncryptionServiceImpl } from './encryption/encryption-service-impl';
 import { ConfigService } from '../config/config-service.interface';
 import { ALGORITHM_CONFIGS } from './encryption/algorithm-config';
+import { EncryptedSecretStorage } from './storage/encrypted-secret-storage';
 
 /**
  * Currently, the KMS folder contains more files than typical service folders
@@ -60,12 +60,21 @@ export class KmsServiceImpl implements KmsService {
       ALGORITHM_CONFIGS.AES_256_GCM,
     );
 
+    const localSecretStorage = new EncryptedSecretStorage(
+      state,
+      encryptionService,
+    );
+    const localEncryptedSecretStorage = new EncryptedSecretStorage(
+      state,
+      encryptionService,
+    );
+
     // Initialize KeyManagers (each creates its own SecretStorage internally)
     this.keyManagers = new Map<KeyManagerName, KeyManager>([
-      [KEY_MANAGERS.local, new LocalKeyManager(state)],
+      [KEY_MANAGERS.local, new LocalKeyManager(localSecretStorage)],
       [
         KEY_MANAGERS.local_encrypted,
-        new EncryptedLocalKeyManager(state, encryptionService),
+        new LocalKeyManager(localEncryptedSecretStorage),
       ],
     ]);
   }
