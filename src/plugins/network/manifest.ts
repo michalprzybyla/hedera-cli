@@ -119,6 +119,7 @@ export const networkPluginManifest: PluginManifest = {
       },
     },
   ],
+  stateSchemas: [],
 };
 
 export default networkPluginManifest;

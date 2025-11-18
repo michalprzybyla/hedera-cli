@@ -69,6 +69,7 @@ export const hbarPluginManifest: PluginManifest = {
       },
     },
   ],
+  stateSchemas: [],
 };
 
 export default hbarPluginManifest;
