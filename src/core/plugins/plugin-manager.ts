@@ -43,14 +43,16 @@ export class PluginManager {
   async initialize(): Promise<void> {
     this.logger.log('🔌 Loading plugins...');
 
-    for (const pluginPath of this.defaultPlugins) {
+    const loadPromises = this.defaultPlugins.map(async (pluginPath) => {
       try {
         await this.loadPluginFromPath(pluginPath);
         this.logger.log(`✅ Loaded: ${pluginPath}`);
       } catch {
         this.logger.log(`ℹ️  Plugin not available: ${pluginPath}`);
       }
-    }
+    });
+
+    await Promise.all(loadPromises);
 
     // Register all namespaces with the state service
     const namespaces = this.getAllNamespaces();
