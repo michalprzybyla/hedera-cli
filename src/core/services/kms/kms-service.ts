@@ -30,7 +30,7 @@ import { EncryptedSecretStorage } from './storage/encrypted-secret-storage';
 /**
  * Currently, the KMS folder contains more files than typical service folders
  * (which usually have just interface + implementation). This was discussed
- * during review and we decided not to change it now, but we should consider
+ * during review, and we decided not to change it now, but we should consider
  * better organization in the future.
  *
  */
@@ -103,15 +103,12 @@ export class KmsServiceImpl implements KmsService {
     const manager = this.getKeyManager(keyManager);
 
     // 1. Generate key using the specified manager
-    const { publicKey, secret } = manager.generateKey(keyType);
+    const publicKey = manager.generateKey(keyRefId, keyType);
 
-    // 2. Save secret using manager-specific storage strategy
-    manager.saveSecret(keyRefId, secret);
-
-    // 3. Save metadata record
+    // 2. Save metadata record
     this.saveRecord({
       keyRefId,
-      keyManager, // Track which manager owns this key
+      keyManager,
       publicKey,
       labels,
       keyAlgorithm: keyType,
@@ -145,7 +142,7 @@ export class KmsServiceImpl implements KmsService {
       keyType === KeyAlgorithm.ECDSA
         ? PrivateKey.fromStringECDSA(privateKey)
         : PrivateKey.fromStringED25519(privateKey);
-    const keyAlgorithm: KeyAlgorithm = keyType;
+    const keyAlgorithm = keyType as KeyAlgorithm;
     const publicKey = pk.publicKey.toStringRaw();
 
     // Check if key already exists
@@ -161,7 +158,7 @@ export class KmsServiceImpl implements KmsService {
 
     // Create secret object
     const secret = {
-      keyAlgorithm: algorithm,
+      keyAlgorithm,
       privateKey,
       createdAt: new Date().toISOString(),
     };
@@ -298,9 +295,9 @@ export class KmsServiceImpl implements KmsService {
 
     // Use the correct PrivateKey.fromString method based on algorithm
     const privateKey =
-      record.keyAlgorithm === KeyAlgorithm.ED25519
-        ? PrivateKey.fromStringED25519(privateKeyString)
-        : PrivateKey.fromStringECDSA(privateKeyString);
+      record.keyAlgorithm === KeyAlgorithm.ECDSA
+        ? PrivateKey.fromStringECDSA(privateKeyString)
+        : PrivateKey.fromStringED25519(privateKeyString);
 
     // Set the operator on the client
     client.setOperator(accountIdObj, privateKey);

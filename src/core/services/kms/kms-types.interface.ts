@@ -12,7 +12,9 @@ export const KEY_MANAGER_VALUES = ['local', 'local_encrypted'] as const;
 /**
  * Zod schema for runtime validation
  */
-export const keyManagerNameSchema = z.enum(KEY_MANAGER_VALUES);
+export const keyManagerNameSchema = z
+  .enum(KEY_MANAGER_VALUES)
+  .describe('Key manager type (local or localEncrypted)');
 
 /**
  * TypeScript type for compile-time checking

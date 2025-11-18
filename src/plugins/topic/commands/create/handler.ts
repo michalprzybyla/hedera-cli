@@ -94,20 +94,24 @@ export async function createTopic(
     if (adminKey && !topicAdminKeyAlias) {
       // Parse private key - check if it has a key type prefix (e.g., "ed25519:...")
       const { keyType, privateKey } = parseKeyWithType(adminKey);
-      const { keyRefId } = api.kms.importPrivateKey(keyType, privateKey, keyManager, [
-        'topic:admin',
-        `topic:${name}`,
-      ]);
+      const { keyRefId } = api.kms.importPrivateKey(
+        keyType,
+        privateKey,
+        keyManager,
+        ['topic:admin', `topic:${name}`],
+      );
       adminKeyRefId = keyRefId;
     }
 
     if (submitKey && !topicSubmitKeyAlias) {
       // Parse private key - check if it has a key type prefix (e.g., "ed25519:...")
       const { keyType, privateKey } = parseKeyWithType(submitKey);
-      const { keyRefId } = api.kms.importPrivateKey(keyType, privateKey, keyManager, [
-        'topic:submit',
-        `topic:${name}`,
-      ]);
+      const { keyRefId } = api.kms.importPrivateKey(
+        keyType,
+        privateKey,
+        keyManager,
+        ['topic:submit', `topic:${name}`],
+      );
       submitKeyRefId = keyRefId;
     }
 

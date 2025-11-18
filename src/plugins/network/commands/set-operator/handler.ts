@@ -44,10 +44,12 @@ function resolveOperatorFromIdKey(
   validateAccountId(accountId);
   // Default to ecdsa if keyType is not provided
   const keyTypeToUse: KeyAlgorithmType = keyType || KeyAlgorithm.ECDSA;
-  const imported = kmsService.importPrivateKey(keyTypeToUse, privateKey, keyManager, [
-    'network:operator',
-    `network:${targetNetwork}`,
-  ]);
+  const imported = kmsService.importPrivateKey(
+    keyTypeToUse,
+    privateKey,
+    keyManager,
+    ['network:operator', `network:${targetNetwork}`],
+  );
   return {
     accountId,
     keyRefId: imported.keyRefId,

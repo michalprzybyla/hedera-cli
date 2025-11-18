@@ -102,10 +102,12 @@ function resolveFromAccount(
       // Default to ecdsa if keyType is not provided
       const keyTypeToUse: KeyAlgorithmType = keyType || KeyAlgorithm.ECDSA;
 
-      const imported = api.kms.importPrivateKey(keyTypeToUse, privateKey, keyManager, [
-        'hbar:transfer',
-        'temporary',
-      ]);
+      const imported = api.kms.importPrivateKey(
+        keyTypeToUse,
+        privateKey,
+        keyManager,
+        ['hbar:transfer', 'temporary'],
+      );
 
       logger.log(
         `[HBAR] Using from as account ID with private key: ${accountId} (keyType: ${keyTypeToUse})`,

@@ -3,14 +3,15 @@
  * Handles importing existing accounts using the Core API
  * Follows ADR-003 contract: returns CommandExecutionResult
  */
-import { CommandHandlerArgs } from '../../../../core/plugins/plugin.interface';
-import { CommandExecutionResult } from '../../../../core/plugins/plugin.types';
-import { Status } from '../../../../core/shared/constants';
+import { CommandHandlerArgs } from '../../../../core';
+import { CommandExecutionResult } from '../../../../core';
+import { KeyAlgorithm, Status } from '../../../../core/shared/constants';
 import { formatError } from '../../../../core/utils/errors';
 import { ZustandAccountStateHelper } from '../../zustand-state-helper';
 import { ImportAccountOutput } from './output';
 import { parseKeyWithType } from '../../../../core/utils/keys';
 import { KeyManagerName } from '../../../../core/services/kms/kms-types.interface';
+import { AccountData } from '../../schema';
 
 export async function importAccount(
   args: CommandHandlerArgs,
@@ -28,7 +29,6 @@ export async function importAccount(
 
   // Check if name already exists on the current network
   const network = api.network.getCurrentNetwork();
-
 
   // Get keyManager from args or fallback to config
   const keyManager =
@@ -70,10 +70,7 @@ export async function importAccount(
       api.alias.register({
         alias,
         type: 'account',
-        network: api.network.getCurrentNetwork() as
-          | 'mainnet'
-          | 'testnet'
-          | 'previewnet',
+        network: api.network.getCurrentNetwork(),
         entityId: accountId,
         publicKey,
         keyRefId,
@@ -82,20 +79,17 @@ export async function importAccount(
     }
 
     // Create account object (no private key in plugin state)
-    const account = {
+    const account: AccountData = {
       name,
       accountId,
-      type: keyType,
+      type: keyType as KeyAlgorithm,
       publicKey: publicKey,
       evmAddress:
         accountInfo.evmAddress || '0x0000000000000000000000000000000000000000',
       solidityAddress: accountId, // Simplified for mock
       solidityAddressFull: `0x${accountId}`,
       keyRefId,
-      network: api.network.getCurrentNetwork() as
-        | 'mainnet'
-        | 'testnet'
-        | 'previewnet',
+      network: api.network.getCurrentNetwork(),
     };
 
     // Store account in state using the helper

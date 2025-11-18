@@ -120,10 +120,11 @@ export async function createAccount(
 
   try {
     // 1. Generate a new key pair for the account
-    const { keyRefId, publicKey } = api.kms.createLocalPrivateKey(keyType, keyManager, [
-      'account:create',
-      `account:${name}`,
-    ]);
+    const { keyRefId, publicKey } = api.kms.createLocalPrivateKey(
+      keyType,
+      keyManager,
+      ['account:create', `account:${name}`],
+    );
 
     // 2. Create transaction using Core API
     const accountCreateResult = await api.account.createAccount({
@@ -153,10 +154,10 @@ export async function createAccount(
       }
 
       // 5. Store account metadata in plugin state (no private key)
-      const accountData = {
+      const accountData: AccountData = {
         name,
         accountId: result.accountId || '0.0.123456',
-        type: keyType,
+        type: keyType as KeyAlgorithm,
         publicKey: accountCreateResult.publicKey,
         evmAddress: accountCreateResult.evmAddress,
         solidityAddress: accountCreateResult.evmAddress,

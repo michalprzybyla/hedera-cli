@@ -47,10 +47,12 @@ export function resolveTreasuryParameter(
     validateAccountId(accountId);
     // Default to ecdsa if keyType is not provided
     const keyTypeToUse: KeyAlgorithmType = keyType || KeyAlgorithm.ECDSA;
-    const imported = api.kms.importPrivateKey(keyTypeToUse, privateKey, keyManager, [
-      'token:treasury',
-      'temporary',
-    ]);
+    const imported = api.kms.importPrivateKey(
+      keyTypeToUse,
+      privateKey,
+      keyManager,
+      ['token:treasury', 'temporary'],
+    );
     return {
       treasuryId: accountId,
       treasuryKeyRefId: imported.keyRefId,
@@ -131,10 +133,12 @@ export function resolveAccountParameter(
     validateAccountId(accountId);
     // Default to ecdsa if keyType is not provided
     const keyTypeToUse: KeyAlgorithmType = keyType || KeyAlgorithm.ECDSA;
-    const imported = api.kms.importPrivateKey(keyTypeToUse, privateKey, keyManager, [
-      'token:account',
-      'temporary',
-    ]);
+    const imported = api.kms.importPrivateKey(
+      keyTypeToUse,
+      privateKey,
+      keyManager,
+      ['token:account', 'temporary'],
+    );
     return {
       accountId: accountId,
       accountKeyRefId: imported.keyRefId,

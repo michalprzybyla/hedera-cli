@@ -1,5 +1,4 @@
-import type { CredentialType, KeyAlgorithm } from './kms-types.interface';
-import { KmsSignerService } from './kms-signer-service.interface';
+import type { KeyAlgorithm } from './kms-types.interface';
 import type { KeyManagerName } from './kms-types.interface';
 import type { Signer } from './signers/signer.interface';
 import { Client, Transaction as HederaTransaction } from '@hashgraph/sdk';
@@ -41,8 +40,6 @@ export interface KmsService {
    * Gets public key for a keyRefId.
    */
   getPublicKey(keyRefId: string): string | null;
-
-  getSignerHandle(keyRefId: string): KmsSignerService;
 
   /**
    * Gets a signer handle for signing transactions.
