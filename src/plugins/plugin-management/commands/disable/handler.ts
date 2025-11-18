@@ -1,29 +1,30 @@
 /**
- * Remove Plugin Command Handler
- * Removes a plugin entry from the plugin-management state.
+ * Disable Plugin Command Handler
+ * Marks an existing plugin as disabled in the plugin-management state.
  * Follows ADR-003 contract: returns CommandExecutionResult.
  */
 import { CommandHandlerArgs } from '../../../../core/plugins/plugin.interface';
 import { CommandExecutionResult } from '../../../../core/plugins/plugin.types';
 import { Status } from '../../../../core/shared/constants';
 import { formatError } from '../../../../core/utils/errors';
-import { RemovePluginOutput } from './output';
+import { PluginStateEntry } from '../../../../core/plugins/plugin.interface';
 import { PLUGIN_MANAGEMENT_NAMESPACE } from '../../constants';
+import { RemovePluginOutput } from '../../schema';
 
-export async function removePlugin(
+export async function disablePlugin(
   args: CommandHandlerArgs,
 ): Promise<CommandExecutionResult> {
   const { logger, state } = args;
   const { name } = args.args as { name: string };
 
-  logger.log('🗑️ Removing plugin from state...');
+  logger.log('➖ Disabling plugin...');
 
-  // Protect core plugin-management from being removed via CLI
+  // Protect core plugin-management from being disabled via CLI
   if (name === 'plugin-management') {
     const protectedResult: RemovePluginOutput = {
       name,
       removed: false,
-      message: 'Plugin plugin-management is protected and cannot be removed.',
+      message: 'Plugin plugin-management is protected and cannot be disabled.',
     };
 
     return {
@@ -33,13 +34,15 @@ export async function removePlugin(
   }
 
   try {
-    const exists = state.has(PLUGIN_MANAGEMENT_NAMESPACE, name);
+    const existing =
+      state.get<PluginStateEntry>(PLUGIN_MANAGEMENT_NAMESPACE, name) ||
+      undefined;
 
-    if (!exists) {
+    if (!existing) {
       const notFound: RemovePluginOutput = {
         name,
         removed: false,
-        message: `Plugin ${name} is not registered in plugin-management state`,
+        message: `Plugin ${name} is not registered in state`,
       };
 
       return {
@@ -48,12 +51,31 @@ export async function removePlugin(
       };
     }
 
-    state.delete(PLUGIN_MANAGEMENT_NAMESPACE, name);
+    if (!existing.enabled) {
+      const alreadyDisabled: RemovePluginOutput = {
+        name,
+        removed: false,
+        message: `Plugin ${name} is already disabled`,
+      };
+
+      return {
+        status: Status.Success,
+        outputJson: JSON.stringify(alreadyDisabled),
+      };
+    }
+
+    const updated: PluginStateEntry = {
+      ...existing,
+      enabled: false,
+      status: 'unloaded',
+    };
+
+    state.set<PluginStateEntry>(PLUGIN_MANAGEMENT_NAMESPACE, name, updated);
 
     const outputData: RemovePluginOutput = {
       name,
       removed: true,
-      message: `Plugin ${name} removed from plugin-management state`,
+      message: `Plugin ${name} disabled successfully`,
     };
 
     return {
@@ -63,7 +85,7 @@ export async function removePlugin(
   } catch (error: unknown) {
     return {
       status: Status.Failure,
-      errorMessage: formatError('Failed to remove plugin', error),
+      errorMessage: formatError('Failed to disable plugin', error),
     };
   }
 }

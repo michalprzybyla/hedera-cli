@@ -1,57 +1,102 @@
 /**
  * Add Plugin Command Handler
- * Enables or registers a plugin in the plugin-management state.
+ * Adds a new plugin entry to the plugin-management state and enables it.
  *
- * - If the plugin already exists in state, it will be marked as enabled.
- * - If it does not exist, a new entry will be created (treated as non built-in).
+ * Behavior:
+ * - Reads the plugin manifest from the provided path to determine the plugin name.
+ * - Fails if a plugin with the same name already exists in state.
+ * - On success, creates a new PluginStateEntry with enabled = true.
  *
- * This affects which plugins will be loaded on the next CLI start.
  * Follows ADR-003 contract: returns CommandExecutionResult.
  */
+import * as path from 'path';
 import { CommandHandlerArgs } from '../../../../core/plugins/plugin.interface';
 import { CommandExecutionResult } from '../../../../core/plugins/plugin.types';
 import { Status } from '../../../../core/shared/constants';
 import { formatError } from '../../../../core/utils/errors';
 import { AddPluginOutput } from './output';
-import { PluginStateEntry } from '../../../../core/plugins/plugin.interface';
+import {
+  PluginStateEntry,
+  PluginManifest,
+} from '../../../../core/plugins/plugin.interface';
 import { PLUGIN_MANAGEMENT_NAMESPACE } from '../../constants';
 
 export async function addPlugin(
   args: CommandHandlerArgs,
 ): Promise<CommandExecutionResult> {
   const { logger, state } = args;
-  const { name } = args.args as { name: string };
+  const { path: pluginPath } = args.args as { path: string };
 
-  logger.log('➕ Enabling plugin...');
+  logger.log('➕ Adding plugin from path...');
 
   try {
-    const existing =
-      state.get<PluginStateEntry>(PLUGIN_MANAGEMENT_NAMESPACE, name) ||
-      undefined;
+    // @TODO: Normalize plugin paths (relative vs absolute) once CLI packaging
+    // as an npm package is finalized, so built-in and user-added plugins use
+    // a consistent path format.
+    const resolvedPath = path.resolve(String(pluginPath));
+    const manifestPath = path.resolve(resolvedPath, 'manifest.js');
 
-    if (!existing) {
+    logger.log(`🔍 Loading plugin manifest from: ${manifestPath}`);
+
+    const manifestModule = (await import(manifestPath)) as {
+      default: PluginManifest;
+    };
+
+    const manifest = manifestModule.default;
+
+    if (!manifest || !manifest.name) {
       return {
         status: Status.Failure,
-        errorMessage: `Plugin '${name}' not found in plugin-management state`,
+        errorMessage: `No valid manifest found at ${manifestPath}`,
       };
     }
 
-    const wasEnabled = existing.enabled;
+    const pluginName = manifest.name;
 
-    const updated: PluginStateEntry = {
-      ...existing,
+    const existingEntries = state.list<PluginStateEntry>(
+      PLUGIN_MANAGEMENT_NAMESPACE,
+    );
+
+    const alreadyExists = existingEntries.some(
+      (entry) => entry.name === pluginName,
+    );
+
+    if (alreadyExists) {
+      const outputData: AddPluginOutput = {
+        name: pluginName,
+        path: resolvedPath,
+        added: false,
+        message: `Plugin '${pluginName}' already exists in plugin-management state`,
+      };
+
+      return {
+        status: Status.Failure,
+        outputJson: JSON.stringify(outputData),
+      };
+    }
+
+    const newEntry: PluginStateEntry = {
+      name: pluginName,
+      path: resolvedPath,
       enabled: true,
+      builtIn: false,
+      status: 'unloaded',
+      displayName: manifest.displayName,
+      version: manifest.version,
+      description: manifest.description,
     };
 
-    state.set<PluginStateEntry>(PLUGIN_MANAGEMENT_NAMESPACE, name, updated);
+    state.set<PluginStateEntry>(
+      PLUGIN_MANAGEMENT_NAMESPACE,
+      pluginName,
+      newEntry,
+    );
 
     const outputData: AddPluginOutput = {
-      name,
-      path: updated.path,
-      added: !wasEnabled,
-      message: wasEnabled
-        ? `Plugin ${name} is already enabled`
-        : `Plugin ${name} enabled successfully`,
+      name: pluginName,
+      path: resolvedPath,
+      added: true,
+      message: `Plugin '${pluginName}' added and enabled successfully`,
     };
 
     return {

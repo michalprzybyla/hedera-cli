@@ -12,6 +12,14 @@ import {
   REMOVE_PLUGIN_TEMPLATE,
 } from './commands/remove/output';
 import {
+  EnablePluginOutputSchema,
+  ENABLE_PLUGIN_TEMPLATE,
+} from './commands/enable/output';
+import {
+  DisablePluginOutputSchema,
+  DISABLE_PLUGIN_TEMPLATE,
+} from './commands/disable/output';
+import {
   ListPluginsOutputSchema,
   LIST_PLUGINS_TEMPLATE,
 } from './commands/list/output';
@@ -21,6 +29,8 @@ import {
 } from './commands/info/output';
 import { addPlugin } from './commands/add/handler';
 import { removePlugin } from './commands/remove/handler';
+import { enablePlugin } from './commands/enable/handler';
+import { disablePlugin } from './commands/disable/handler';
 import { getPluginList } from './commands/list/handler';
 import { getPluginInfo } from './commands/info/handler';
 
@@ -38,9 +48,10 @@ export const pluginManagementManifest: PluginManifest = {
   commands: [
     {
       name: 'add',
-      summary: 'Enable a plugin',
-      description: 'Enable a plugin by name in the plugin-management state',
-      options: [{ name: 'name', short: 'n', type: 'string', required: true }],
+      summary: 'Add a plugin from path',
+      description:
+        'Add a new plugin to the plugin-management state and enable it',
+      options: [{ name: 'path', short: 'p', type: 'string', required: true }],
       handler: addPlugin,
       output: {
         schema: AddPluginOutputSchema,
@@ -49,13 +60,35 @@ export const pluginManagementManifest: PluginManifest = {
     },
     {
       name: 'remove',
-      summary: 'Remove a plugin',
-      description: 'Remove a plugin from the system',
+      summary: 'Remove a plugin from state',
+      description: 'Remove a plugin from the plugin-management state',
       options: [{ name: 'name', short: 'n', type: 'string', required: true }],
       handler: removePlugin,
       output: {
         schema: RemovePluginOutputSchema,
         humanTemplate: REMOVE_PLUGIN_TEMPLATE,
+      },
+    },
+    {
+      name: 'enable',
+      summary: 'Enable a plugin',
+      description: 'Enable a plugin by name in the plugin-management state',
+      options: [{ name: 'name', short: 'n', type: 'string', required: true }],
+      handler: enablePlugin,
+      output: {
+        schema: EnablePluginOutputSchema,
+        humanTemplate: ENABLE_PLUGIN_TEMPLATE,
+      },
+    },
+    {
+      name: 'disable',
+      summary: 'Disable a plugin',
+      description: 'Disable a plugin by name in the plugin-management state',
+      options: [{ name: 'name', short: 'n', type: 'string', required: true }],
+      handler: disablePlugin,
+      output: {
+        schema: DisablePluginOutputSchema,
+        humanTemplate: DISABLE_PLUGIN_TEMPLATE,
       },
     },
     {
