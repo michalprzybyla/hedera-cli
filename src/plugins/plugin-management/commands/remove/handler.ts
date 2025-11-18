@@ -13,7 +13,8 @@ import { PLUGIN_MANAGEMENT_NAMESPACE } from '../../constants';
 export async function removePlugin(
   args: CommandHandlerArgs,
 ): Promise<CommandExecutionResult> {
-  const { logger, state } = args;
+  const { api, logger } = args;
+  const { state } = api;
   const { name } = args.args as { name: string };
 
   logger.log('🗑️ Removing plugin from state...');
@@ -23,7 +24,8 @@ export async function removePlugin(
     const protectedResult: RemovePluginOutput = {
       name,
       removed: false,
-      message: 'Plugin plugin-management is protected and cannot be removed.',
+      message:
+        'Plugin plugin-management is a core plugin and cannot be removed from state via CLI.',
     };
 
     return {

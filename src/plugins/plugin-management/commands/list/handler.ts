@@ -14,7 +14,8 @@ import { PLUGIN_MANAGEMENT_NAMESPACE } from '../../constants';
 export async function getPluginList(
   args: CommandHandlerArgs,
 ): Promise<CommandExecutionResult> {
-  const { logger, state } = args;
+  const { api, logger } = args;
+  const { state } = api;
 
   logger.log('📋 Getting plugin list...');
 

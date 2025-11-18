@@ -14,7 +14,8 @@ import { PLUGIN_MANAGEMENT_NAMESPACE } from '../../constants';
 export async function enablePlugin(
   args: CommandHandlerArgs,
 ): Promise<CommandExecutionResult> {
-  const { logger, state } = args;
+  const { api, logger } = args;
+  const { state } = api;
   const { name } = args.args as { name: string };
 
   logger.log('✅ Enabling plugin...');
