@@ -367,14 +367,13 @@ All plugin command handlers receive a `CommandHandlerArgs` object (defined in `s
 - `config: ConfigService` – read-only view over CLI configuration (TODO: real implementation pending)
 - `logger: Logger` – structured logging
 
-For handler patterns, ADR‑003 result contracts, and testing examples, see `PLUGIN_ARCHITECTURE_GUIDE.md`.
+For handler patterns, result contracts, and testing examples, see `PLUGIN_ARCHITECTURE_GUIDE.md`.
 
-## Output Schemas & ADR‑003
+## Output Schemas
 
-Core API services are designed to work with structured command outputs defined via Zod schemas and templates. The full specification of output schemas, JSON/Zod schemas, and ADR‑003 integration lives in:
+Core API services are designed to work with structured command outputs defined via Zod schemas and templates. The full specification of output schemas and templates lives in:
 
 - [Output Schemas Guide](./output-schemas-guide.md)
-- [ADR‑003: Result-Oriented Command Handler Contract](./adr/ADR-003-command-handler-result-contract.md)
 
 ## 📚 Related Documentation
 
@@ -382,4 +381,4 @@ Core API services are designed to work with structured command outputs defined v
 - [Architecture Overview](./architecture.md)
 - [Output Schemas Guide](./output-schemas-guide.md)
 - [Contributing Guide](../CONTRIBUTING.md)
-- [ADR-001 Plugin Architecture](./adr/ADR-001-plugin-architecture.md)
+- [Architecture Decision Records](./adr/) - ADRs for interested developers

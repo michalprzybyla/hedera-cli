@@ -1,6 +1,6 @@
 # Output Schemas Guide
 
-This document describes the output schema system implemented according to ADR-003: Result-Oriented Command Handler Contract and CLI Output Control.
+This document describes the output schema system for command handlers and CLI output control.
 
 ## Overview
 
@@ -536,7 +536,7 @@ Balance: {{balance.amount}} {{balance.unit}}
 
 ## Usage in CLI (Future Implementation)
 
-When the CLI implements ADR-003, commands will support:
+Commands support multiple output formats:
 
 ```bash
 # Human-readable output (default)
@@ -803,7 +803,7 @@ export const MY_OUTPUT_SCHEMA = zodToJsonSchema(MyOutputSchema);
 
 ## References
 
-- [ADR-003: Result-Oriented Command Handler Contract](./adr/ADR-003-command-handler-result-contract.md)
+- [Architecture Decision Records](./adr/) - ADRs for interested developers
 - [Zod Documentation](https://zod.dev/)
 - [JSON Schema Documentation](https://json-schema.org/)
 - [Handlebars Template Guide](https://handlebarsjs.com/guide/)

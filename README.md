@@ -226,7 +226,7 @@ Each plugin (or state namespace) uses its own JSON file inside this directory. T
 
 ## Script mode
 
-The CLI supports a global `--script` flag (introduced in [ADR-003](docs/adr/ADR-003-command-handler-result-contract.md)) that suppresses handler logs and prints only the normalized command output. This is useful when running automation pipelines or CI jobs where clean, machine-consumable output is required. Combine `--script` with `--format json|yaml` and `--output <path>` to capture deterministic results without interactive prompts.
+The CLI supports a global `--script` flag that suppresses handler logs and prints only the normalized command output. This is useful when running automation pipelines or CI jobs where clean, machine-consumable output is required. Combine `--script` with `--format json|yaml` and `--output <path>` to capture deterministic results without interactive prompts.
 
 ### Getting Help
 

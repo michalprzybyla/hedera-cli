@@ -1,6 +1,6 @@
 # Token Plugin
 
-Complete token management plugin for the Hedera CLI following the plugin architecture (ADR-001).
+Complete token management plugin for the Hedera CLI following the plugin architecture.
 
 ## 🏗️ Architecture
 
@@ -216,8 +216,8 @@ The plugin includes comprehensive tests for output structure:
 ```typescript
 import { Status } from '../../../core/shared/constants';
 
-// Example ADR-003 compliant test
-describe('Token Plugin ADR-003 Compliance', () => {
+// Example test verifying CommandExecutionResult structure
+describe('Token Plugin Output Structure', () => {
   test('token create command returns CommandExecutionResult', async () => {
     const result = await createTokenHandler(mockArgs);
 

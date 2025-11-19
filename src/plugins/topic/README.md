@@ -1,6 +1,6 @@
 # Topic Plugin
 
-Complete topic management plugin for the Hedera CLI following the plugin architecture (ADR-001).
+Complete topic management plugin for the Hedera CLI following the plugin architecture.
 
 ## 🏗️ Architecture
 

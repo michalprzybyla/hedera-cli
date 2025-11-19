@@ -6,9 +6,9 @@ Complete guide to creating, developing, and testing plugins for the Hedera CLI.
 
 The Hedera CLI uses a plugin-based architecture that allows developers to extend functionality without modifying the core codebase. This guide covers everything you need to know to create plugins and highlights where to find deeper reference material:
 
-- `docs/architecture.md` – system architecture and ADR context
+- `docs/architecture.md` – system architecture
 - `docs/core-api.md` – full Core API reference
-- `docs/output-schemas-guide.md` – ADR-003 output schemas and templates
+- `docs/output-schemas-guide.md` – Output schemas and templates
 
 ## 🏗️ Plugin Architecture
 
@@ -332,11 +332,11 @@ describe('Plugin Integration', () => {
 });
 ```
 
-### 3. ADR-003 Compliance
+### 3. Output Structure Compliance
 
 - Write focused tests that assert every handler returns a `CommandExecutionResult` for both success and failure paths. See `src/plugins/token/__tests__/unit/adr003-compliance.test.ts` for a reusable pattern.
 - Mock the services injected via `CommandHandlerArgs` so you can inspect `status`, `errorMessage`, and `outputJson` without hitting the network or filesystem.
-- Treat regression tests for reserved option filtering and output schema validation as part of the ADR-003 test suite.
+- Treat regression tests for reserved option filtering and output schema validation as part of the output structure compliance test suite.
 
 ## 📦 Plugin Distribution
 
@@ -609,5 +609,5 @@ node dist/hedera-cli.js state-management list --namespace my-plugin-data
 - [Architecture Overview](docs/architecture.md)
 - [Core API Reference](docs/core-api.md)
 - [Contributing Guide](docs/contributing.md)
-- [ADR-001 Plugin Architecture](docs/adr/ADR-001-plugin-architecture.md)
+- [Architecture Decision Records](docs/adr/) - ADRs for interested developers
 - Plugin-specific READMEs: `src/plugins/<plugin-name>/README.md`

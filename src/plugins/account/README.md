@@ -1,6 +1,6 @@
 # Account Plugin
 
-Complete account management plugin for the Hedera CLI following the plugin architecture (ADR-001).
+Complete account management plugin for the Hedera CLI following the plugin architecture.
 
 ## 🏗️ Architecture
 

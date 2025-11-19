@@ -1,6 +1,6 @@
 # HBAR Plugin
 
-Complete HBAR transfer management plugin for the Hedera CLI following the plugin architecture (ADR-001).
+Complete HBAR transfer management plugin for the Hedera CLI following the plugin architecture.
 
 ## 🏗️ Architecture
 

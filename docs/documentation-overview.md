@@ -7,10 +7,9 @@ Technical documentation for developers and contributors working on the Hedera CL
 - **[Architecture Overview](./architecture.md)** - System architecture and design principles
 - **[Plugin Development Guide](../PLUGIN_ARCHITECTURE_GUIDE.md)** - Complete guide to creating plugins
 - **[Core API Reference](./core-api.md)** - Detailed Core API documentation
-- **[Output Schemas Guide](./output-schemas-guide.md)** - ADR-003 output schemas and templates
-- **[ADR-003: Result-Oriented Command Handler Contract](./adr/ADR-003-command-handler-result-contract.md)** - Command result contract and script mode
+- **[Output Schemas Guide](./output-schemas-guide.md)** - Output schemas and templates
 - **[Contributing Guide](../CONTRIBUTING.md)** - Development setup and contribution guidelines
-- **[ADR-001 Plugin Architecture](./adr/ADR-001-plugin-architecture.md)** - Architecture Decision Record
+- **[Architecture Decision Records](./adr/)** - ADRs for interested developers
 
 ## 🏗️ Project Structure
 
@@ -38,7 +37,7 @@ hedera-cli/
 
 ## 🎯 Key Technical Features
 
-- **🔌 Plugin Architecture**: Extensible plugin system based on ADR-001
+- **🔌 Plugin Architecture**: Extensible plugin system
 - **🏦 Real Hedera Integration**: Direct integration with Hedera networks via Mirror Node API
 - **💾 State Management**: Persistent state with Zustand, schema validation, and per-plugin JSON files under `.hedera-cli/state/`
 - **🔐 Credentials Management**: Secure credential handling via KMS and per-network operators
@@ -50,14 +49,13 @@ hedera-cli/
 ### Architecture & Design
 
 - [Architecture Overview](./architecture.md) - System design and service architecture
-- [ADR-001 Plugin Architecture](./adr/ADR-001-plugin-architecture.md) - Architecture decision record
+- [Architecture Decision Records](./adr/) - ADRs for interested developers
 
 ### Development
 
 - [Plugin Development Guide](../PLUGIN_ARCHITECTURE_GUIDE.md) - Creating and developing plugins
 - [Core API Reference](./core-api.md) - Core API services and interfaces
-- [Output Schemas Guide](./output-schemas-guide.md) - Output schemas and ADR-003 integration
-- [ADR-003: Result-Oriented Command Handler Contract](./adr/ADR-003-command-handler-result-contract.md) - Command result contract and script mode
+- [Output Schemas Guide](./output-schemas-guide.md) - Output schemas and templates
 - [Contributing Guide](../CONTRIBUTING.md) - Development setup and guidelines
 
 ## 🔧 Development Workflow

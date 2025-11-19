@@ -4,7 +4,7 @@ This document provides a comprehensive overview of the Hedera CLI architecture, 
 
 ## 🏗️ High-Level Architecture
 
-The Hedera CLI is built on a plugin-based architecture that follows the ADR-001 specification. The system is designed to be extensible, maintainable, and secure.
+The Hedera CLI is built on a plugin-based architecture designed to be extensible, maintainable, and secure.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -42,7 +42,7 @@ The Hedera CLI is built on a plugin-based architecture that follows the ADR-001 
 
 ### Core Principles
 
-The plugin architecture is based on ADR-001 and follows these key principles:
+The plugin architecture follows these key principles:
 
 1. **Stateless Plugins**: Plugins are functionally stateless
 2. **Dependency Injection**: Services are injected into command handlers
@@ -68,7 +68,7 @@ plugin/
 ├── schema.ts                # State/output schemas (Zod + JSON Schema)
 ├── commands/                # One folder per command
 │   ├── create/
-│   │   ├── handler.ts       # Command handler (ADR-003)
+│   │   ├── handler.ts       # Command handler
 │   │   ├── output.ts        # Output schema & template
 │   │   └── index.ts         # Command exports
 │   ├── list/
@@ -443,4 +443,4 @@ Core API
 - [Plugin Development Guide](../PLUGIN_ARCHITECTURE_GUIDE.md)
 - [Core API Reference](./core-api.md)
 - [Contributing Guide](../CONTRIBUTING.md)
-- [ADR-001 Plugin Architecture](./adr/ADR-001-plugin-architecture.md)
+- [Architecture Decision Records](./adr/) - ADRs for interested developers
