@@ -93,7 +93,7 @@ interface CommandExecutionResult {
 
 - **Output Schemas**: Each command defines a Zod schema in `output.ts` for type-safe output validation
 - **Human Templates**: Handlebars templates provide human-readable output formatting
-- **Error Handling**: Handlers never call `process.exit()` directly; all errors are returned in the result
+- **Error Handling**: All errors are returned in the result structure, ensuring consistent error handling
 - **Format Selection**: Output format is controlled by the CLI's `--format` option (default: `human`, or `json` for machine-readable output)
 
 The `outputJson` field contains a JSON string that conforms to the Zod schema defined in each command's `output.ts` file, ensuring type safety and consistent output structure.

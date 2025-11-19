@@ -140,7 +140,7 @@ interface CommandExecutionResult {
 **Output Structure:**
 
 - Each command defines a Zod schema (`commands/*/output.ts`) and Handlebars template
-- Handlers never call `process.exit()`; all errors are returned in the result
+- All errors are returned in the result structure, ensuring consistent error handling
 - CLI handles validation, `--format human|json|yaml`, `--output <path>`, and script-mode suppression
 
 The `outputJson` field contains a JSON string that conforms to the Zod schema defined in each command's `output.ts` file, ensuring type safety and consistent output structure.
