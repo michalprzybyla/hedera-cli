@@ -101,7 +101,7 @@ node dist/hedera-cli.js network set-operator --operator 0.0.123456:302e020100300
 
 The operator credentials are stored in the CLI's state management system. Make sure that each operator account **contains at least 1 Hbar** for transaction fees.
 
-### 6. Set Network
+### 5. Set Network
 
 The CLI uses `testnet` as the default network. You can switch to other networks using the network plugin:
 
@@ -114,6 +114,14 @@ node dist/hedera-cli.js network use --network previewnet
 
 # Switch to localnet
 node dist/hedera-cli.js network use --network localnet
+```
+
+### 6. Set Up Operator Credentials
+
+After setting network for the first time (also this step needs to be done for default `testnet` network) you also need to set up operator credentials. To do this please use the following command
+
+```sh
+node dist/hedera-cli.js network set-operator --operator your-account-id:your-account-private-key
 ```
 
 ### 7. Optional: Setting Up an Alias
