@@ -163,7 +163,7 @@ describe('createTokenFromFileHandler', () => {
       );
       expect(signing.signAndExecuteWith).toHaveBeenCalledWith(
         mockTokenTransaction,
-        { keyRefId: 'treasury-key-ref-id' },
+        ['treasury-key-ref-id'],
       );
       expect(mockAddToken).toHaveBeenCalled();
     });

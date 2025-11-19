@@ -9,7 +9,6 @@ import {
 import { Logger } from '../logger/logger-service.interface';
 import { KmsService } from '../kms/kms-service.interface';
 import { NetworkService } from '../network/network-service.interface';
-import type { SignerRef } from './tx-execution-service.interface';
 import {
   Client,
   TransactionResponse,
@@ -33,46 +32,88 @@ export class TxExecutionServiceImpl implements TxExecutionService {
     this.networkService = networkService;
   }
 
-  /**
-   * Get a fresh Hedera client for the current network
-   */
   private getClient(): Client {
     this.logger.debug('[TX-EXECUTION] Creating client for current network');
-
-    // Get current network from NetworkService
     const network = this.networkService.getCurrentNetwork();
-
-    // Use credentials-state to create client without exposing private keys
     return this.kms.createClient(network);
   }
 
-  /**
-   * Sign and execute a transaction in one operation
-   */
   async signAndExecute(
     transaction: HederaTransaction,
   ): Promise<TransactionResult> {
-    this.logger.debug(`[TX-EXECUTION] Signing and executing transaction`);
+    this.logger.debug(
+      `[TX-EXECUTION] Signing and executing transaction with operator`,
+    );
 
+    const currentNetwork = this.networkService.getCurrentNetwork();
+    const operator = this.networkService.getOperator(currentNetwork);
+    if (!operator) {
+      throw new Error(
+        `[TX-EXECUTION] No operator configured for network: ${currentNetwork}`,
+      );
+    }
+
+    const client = this.getClient();
+    if (!transaction.isFrozen()) {
+      transaction.freezeWith(client);
+    }
+
+    this.logger.debug(
+      `[TX-EXECUTION] Signing with operator key: ${operator.keyRefId}`,
+    );
+    await this.kms.signTransaction(transaction, operator.keyRefId);
+
+    return this.executeAndParseReceipt(transaction, client);
+  }
+
+  async signAndExecuteWith(
+    transaction: HederaTransaction,
+    keyRefIds: string[],
+  ): Promise<TransactionResult> {
+    this.logger.debug(`[TX-EXECUTION] Signing with ${keyRefIds.length} key(s)`);
+
+    const client = this.getClient();
+    if (!transaction.isFrozen()) {
+      transaction.freezeWith(client);
+    }
+
+    const uniqueKeyRefIds = this.validateAndDeduplicateKeys(keyRefIds);
+
+    for (const keyRefId of uniqueKeyRefIds) {
+      this.logger.debug(`[TX-EXECUTION] Signing with key: ${keyRefId}`);
+      await this.kms.signTransaction(transaction, keyRefId);
+    }
+
+    return this.executeAndParseReceipt(transaction, client);
+  }
+
+  /** Validate keys exist in KMS and deduplicate (preserves first occurrence order) */
+  private validateAndDeduplicateKeys(keyRefIds: string[]): string[] {
+    const uniqueKeyRefIds = new Set<string>();
+
+    for (const keyRefId of keyRefIds) {
+      const publicKey = this.kms.getPublicKey(keyRefId);
+      // If key does not exist, skip it because its internal method and always receive validated keys
+      if (publicKey) {
+        uniqueKeyRefIds.add(keyRefId);
+      }
+    }
+
+    if (uniqueKeyRefIds.size < keyRefIds.length) {
+      this.logger.debug(
+        `[TX-EXECUTION] Deduplicated ${keyRefIds.length} keys to ${uniqueKeyRefIds.size} unique key(s)`,
+      );
+    }
+
+    return Array.from(uniqueKeyRefIds);
+  }
+
+  /** Execute transaction and parse receipt (shared by signAndExecute and signAndExecuteWith) */
+  private async executeAndParseReceipt(
+    transaction: HederaTransaction,
+    client: Client,
+  ): Promise<TransactionResult> {
     try {
-      // Get fresh client for current network
-      const client = this.getClient();
-
-      // Get operator keyRefId for signing
-      const currentNetwork = this.networkService.getCurrentNetwork();
-      const operator = this.networkService.getOperator(currentNetwork);
-      if (!operator) {
-        throw new Error('[TX-EXECUTION] No default operator configured');
-      }
-
-      if (!transaction.isFrozen()) {
-        transaction.freezeWith(client);
-      }
-
-      // Sign using credentials-state without exposing private key
-      await this.kms.signTransaction(transaction, operator.keyRefId);
-
-      // Execute the transaction
       const response: TransactionResponse = await transaction.execute(client);
       const receipt: TransactionReceipt = await response.getReceipt(client);
       const record = await response.getRecord(client);
@@ -85,8 +126,6 @@ export class TxExecutionServiceImpl implements TxExecutionService {
         `[TX-EXECUTION] Transaction executed successfully: ${response.transactionId.toString()}`,
       );
 
-      // @TODO Extract logic to parse receipt to reuse in method below
-      // Extract IDs from receipt based on transaction type
       let accountId: string | undefined;
       let tokenId: string | undefined;
       let topicId: string | undefined;
@@ -124,112 +163,10 @@ export class TxExecutionServiceImpl implements TxExecutionService {
         },
       };
     } catch (error) {
-      console.error(`[TX-EXECUTION] Transaction execution failed:`, error);
+      this.logger.error(
+        `[TX-EXECUTION] Transaction execution failed: ${error?.toString()}`,
+      );
       throw error;
     }
-  }
-
-  // New API: minimal delegations to preserve behavior
-  async signAndExecuteWith(
-    transaction: HederaTransaction,
-    signer: SignerRef,
-  ): Promise<TransactionResult> {
-    // @TODO Extract common logic with signAndExecute()
-    // @TODO Unification error handling strategy (try-catch vs none)
-
-    // Get fresh client for current network
-    const client = this.getClient();
-    const keyRefId = this.resolveSignerRef(signer);
-
-    if (!transaction.isFrozen()) {
-      transaction.freezeWith(client);
-    }
-
-    // Sign using credentials-state without exposing private key
-    await this.kms.signTransaction(transaction, keyRefId);
-
-    // Execute the transaction
-    const response: TransactionResponse = await transaction.execute(client);
-    const receipt: TransactionReceipt = await response.getReceipt(client);
-    const record = await response.getRecord(client);
-
-    const consensusTimestamp = record.consensusTimestamp.toDate().toISOString();
-
-    // Extract IDs from receipt based on transaction type
-    let accountId: string | undefined;
-    let tokenId: string | undefined;
-    let topicId: string | undefined;
-    let topicSequenceNumber: number | undefined;
-
-    if (receipt.accountId) {
-      accountId = receipt.accountId.toString();
-    }
-
-    if (receipt.tokenId) {
-      tokenId = receipt.tokenId.toString();
-    }
-
-    if (receipt.topicId) {
-      topicId = receipt.topicId.toString();
-    }
-
-    if (receipt.topicSequenceNumber) {
-      topicSequenceNumber = Number(receipt.topicSequenceNumber);
-    }
-
-    return {
-      transactionId: response.transactionId.toString(),
-      success: receipt.status === Status.Success,
-      accountId,
-      tokenId,
-      topicId,
-      consensusTimestamp,
-      topicSequenceNumber,
-      receipt: {
-        status: {
-          status: receipt.status === Status.Success ? 'success' : 'failed',
-          transactionId: response.transactionId.toString(),
-        },
-      },
-    };
-  }
-
-  freezeTx(transaction: HederaTransaction) {
-    const client = this.getClient();
-    return transaction.freezeWith(client);
-  }
-
-  /**
-   * Resolve a SignerRef to a keyRefId for signing.
-   * Supports both keyRefId and publicKey directly.
-   */
-  private resolveSignerRef(signer: SignerRef): string {
-    if (!signer) throw new Error('[TX-EXECUTION] signer ref is required');
-
-    // If direct keyRefId provided, validate it exists
-    if (signer.keyRefId) {
-      const pub = this.kms.getPublicKey(signer.keyRefId);
-      if (!pub) {
-        throw new Error(
-          `[TX-EXECUTION] Unknown keyRefId: ${signer.keyRefId}. Use 'hcli keys list' to inspect available keys.`,
-        );
-      }
-      return signer.keyRefId;
-    }
-
-    // If publicKey provided, find the corresponding keyRefId
-    if (signer.publicKey) {
-      const keyRefId = this.kms.findByPublicKey(signer.publicKey);
-      if (!keyRefId) {
-        throw new Error(
-          `[TX-EXECUTION] No keyRefId found for public key: ${signer.publicKey}`,
-        );
-      }
-      return keyRefId;
-    }
-
-    throw new Error(
-      '[TX-EXECUTION] SignerRef must provide either keyRefId or publicKey',
-    );
   }
 }

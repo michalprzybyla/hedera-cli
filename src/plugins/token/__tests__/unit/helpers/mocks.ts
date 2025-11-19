@@ -54,7 +54,6 @@ export const makeTxExecutionServiceMock = (
   signAndExecuteWith: jest
     .fn()
     .mockResolvedValue(mockTransactionResults.success),
-  freezeTx: jest.fn().mockImplementation((tx) => tx),
   ...overrides,
 });
 
