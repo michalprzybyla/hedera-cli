@@ -1,6 +1,6 @@
 # Topic Plugin
 
-Complete topic management plugin for the Hedera CLI following the plugin architecture (ADR-001) and result-oriented command handler contract (ADR-003).
+Complete topic management plugin for the Hedera CLI following the plugin architecture (ADR-001).
 
 ## 🏗️ Architecture
 
@@ -8,7 +8,7 @@ Complete topic management plugin for the Hedera CLI following the plugin archite
 - **Manifest-driven** – commands, options, capabilities, and output schemas declared in `manifest.ts`
 - **Namespace isolation** – topic metadata persisted in `topic-topics`
 - **Zod + JSON Schema** – single source of truth for topic state validation
-- **ADR-003 compliance** – every handler returns `CommandExecutionResult`
+- **Structured output** – every handler returns `CommandExecutionResult` with standardized output
 - **Typed Core API access** – topic creation, mirror node queries, alias/KMS coordination
 
 ## 📁 Structure
@@ -40,7 +40,13 @@ src/plugins/topic/
 
 ## 🚀 Commands
 
-All commands output `CommandExecutionResult` with structured JSON validated against the per-command Zod schema and rendered via Handlebars templates.
+All commands return `CommandExecutionResult` with structured output that includes:
+
+- `status`: Success or failure status
+- `errorMessage`: Optional error message (present when status is not 'success')
+- `outputJson`: JSON string conforming to the output schema defined in `output.ts`
+
+Each command defines a Zod schema for output validation and a Handlebars template for human-readable formatting.
 
 ### Topic Create
 
@@ -119,11 +125,25 @@ hcli topic find-message \
 - `api.network` – current network resolution for IDs and filters
 - `api.logger` – progress logging (suppressed automatically in `--script` mode)
 
-## 📤 Output Formatting (ADR-003)
+## 📤 Output Formatting
 
-- Each command defines a Zod schema (`commands/*/output.ts`) and Handlebars template.
-- Handlers never call `process.exit()`; they return `{ status, errorMessage?, outputJson? }`.
-- CLI handles validation, `--format human|json|yaml`, `--output <path>`, and script-mode suppression.
+All commands return structured output through the `CommandExecutionResult` interface:
+
+```typescript
+interface CommandExecutionResult {
+  status: 'success' | 'failure';
+  errorMessage?: string; // Present when status !== 'success'
+  outputJson?: string; // JSON string conforming to the output schema
+}
+```
+
+**Output Structure:**
+
+- Each command defines a Zod schema (`commands/*/output.ts`) and Handlebars template
+- Handlers never call `process.exit()`; all errors are returned in the result
+- CLI handles validation, `--format human|json|yaml`, `--output <path>`, and script-mode suppression
+
+The `outputJson` field contains a JSON string that conforms to the Zod schema defined in each command's `output.ts` file, ensuring type safety and consistent output structure.
 
 ## 📊 State Management
 
@@ -151,4 +171,4 @@ Validation is enforced via Zod at runtime and the generated JSON Schema is embed
 
 - Handlers are unit-tested in isolation with mocked Core API services.
 - Schema parsing is covered through `TopicDataSchema`.
-- ADR-003 compliance tests ensure every handler returns a valid `CommandExecutionResult`.
+- Output structure compliance tests ensure every handler returns a valid `CommandExecutionResult`.

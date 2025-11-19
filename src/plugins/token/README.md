@@ -1,6 +1,6 @@
 # Token Plugin
 
-Complete token management plugin for the Hedera CLI following the plugin architecture (ADR-001) and result-oriented command handler contract (ADR-003).
+Complete token management plugin for the Hedera CLI following the plugin architecture (ADR-001).
 
 ## 🏗️ Architecture
 
@@ -11,7 +11,7 @@ This plugin follows the plugin architecture principles:
 - **Manifest-Driven**: Capabilities declared via manifest with output specifications
 - **Namespace Isolation**: Own state namespace (`token-tokens`)
 - **Type Safety**: Full TypeScript support
-- **ADR-003 Compliance**: All command handlers return `CommandExecutionResult` with structured output
+- **Structured Output**: All command handlers return `CommandExecutionResult` with standardized output
 
 ## 📁 Structure
 
@@ -22,7 +22,7 @@ src/plugins/token/
 ├── commands/
 │   ├── create/
 │   │   ├── handler.ts       # Token creation handler
-│   │   ├── output.ts        # Output schema and template (ADR-003)
+│   │   ├── output.ts        # Output schema and template
 │   │   └── index.ts        # Command exports
 │   ├── transfer/
 │   │   ├── handler.ts       # Token transfer handler
@@ -44,14 +44,20 @@ src/plugins/token/
 ├── resolver-helper.ts       # Token and account resolver utilities
 ├── __tests__/               # Comprehensive test suite
 │   └── unit/
-│       ├── adr003-compliance.test.ts  # ADR-003 compliance tests
+│       ├── adr003-compliance.test.ts  # Output structure compliance tests
 │       └── [other test files...]
 └── index.ts                # Plugin exports
 ```
 
 ## 🚀 Commands
 
-All commands follow ADR-003 contract: handlers return `CommandExecutionResult` with standardized output schemas and human-readable templates.
+All commands return `CommandExecutionResult` with structured output that includes:
+
+- `status`: Success or failure status
+- `errorMessage`: Optional error message (present when status is not 'success')
+- `outputJson`: JSON string conforming to the output schema defined in `output.ts`
+
+Each command defines a Zod schema for output validation and a Handlebars template for human-readable formatting.
 
 ### Token Create
 
@@ -160,14 +166,25 @@ The plugin uses the Core API services:
 - `api.network` - Network information
 - `api.logger` - Logging
 
-## 📤 Output Formatting (ADR-003)
+## 📤 Output Formatting
 
-All commands follow the ADR-003 contract for standardized output:
+All commands return structured output through the `CommandExecutionResult` interface:
+
+```typescript
+interface CommandExecutionResult {
+  status: 'success' | 'failure';
+  errorMessage?: string; // Present when status !== 'success'
+  outputJson?: string; // JSON string conforming to the output schema
+}
+```
+
+**Output Structure:**
 
 - **Output Schemas**: Each command defines a Zod schema in `output.ts` for type-safe output validation
 - **Human Templates**: Handlebars templates provide human-readable output formatting
-- **CommandExecutionResult**: All handlers return `CommandExecutionResult` with `status`, `errorMessage`, and `outputJson` fields
-- **No process.exit()**: Handlers never call `process.exit()` directly; errors are returned in the result
+- **Error Handling**: Handlers never call `process.exit()` directly; all errors are returned in the result
+
+The `outputJson` field contains a JSON string that conforms to the Zod schema defined in each command's `output.ts` file, ensuring type safety and consistent output structure.
 
 ## 📊 State Management
 
@@ -194,7 +211,7 @@ The schema is validated using Zod (`TokenDataSchema`) and stored as JSON Schema 
 
 ## 🧪 Testing
 
-The plugin includes comprehensive tests following ADR-003 patterns:
+The plugin includes comprehensive tests for output structure:
 
 ```typescript
 import { Status } from '../../../core/shared/constants';
@@ -218,14 +235,14 @@ describe('Token Plugin ADR-003 Compliance', () => {
 
 ### Test Structure
 
-- **ADR-003 Compliance**: `adr003-compliance.test.ts` - Tests all handlers return proper `CommandExecutionResult`
+- **Output Compliance**: `adr003-compliance.test.ts` - Tests all handlers return proper `CommandExecutionResult`
 - **Unit Tests**: Individual command handler tests with mocks and fixtures
 - **Integration Tests**: End-to-end token lifecycle tests
 - **Schema Tests**: Validation of input/output schemas
 
 ## 📊 Output Formats
 
-All commands support multiple output formats through ADR-003:
+All commands support multiple output formats:
 
 ### Human-Readable (Default)
 

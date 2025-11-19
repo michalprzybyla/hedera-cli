@@ -9,7 +9,7 @@ This plugin follows the plugin architecture principles:
 - **Stateless**: Plugin is functionally stateless
 - **Dependency Injection**: Services are injected into command handlers
 - **Manifest-Driven**: Capabilities declared via manifest with output specifications
-- **ADR-003 Compliance**: All command handlers return `CommandExecutionResult` with structured output
+- **Structured Output**: All command handlers return `CommandExecutionResult` with standardized output
 - **Type Safety**: Full TypeScript support
 
 ## 📁 Structure
@@ -21,7 +21,7 @@ src/plugins/credentials/
 ├── commands/
 │   ├── list/
 │   │   ├── handler.ts      # List credentials handler
-│   │   ├── output.ts       # Output schema and template (ADR-003)
+│   │   ├── output.ts       # Output schema and template
 │   │   └── index.ts        # Command exports
 │   └── remove/
 │       ├── handler.ts      # Remove credentials handler
@@ -33,7 +33,13 @@ src/plugins/credentials/
 
 ## 🚀 Commands
 
-All commands follow ADR-003 contract: handlers return `CommandExecutionResult` with standardized output schemas and human-readable templates.
+All commands return `CommandExecutionResult` with structured output that includes:
+
+- `status`: Success or failure status
+- `errorMessage`: Optional error message (present when status is not 'success')
+- `outputJson`: JSON string conforming to the output schema defined in `output.ts`
+
+Each command defines a Zod schema for output validation and a Handlebars template for human-readable formatting.
 
 ### List Credentials
 
@@ -71,16 +77,26 @@ The plugin stores credentials metadata in the `credentials-credentials` namespac
 
 The schema is validated using Zod (`CredentialsDataSchema`) and stored as JSON Schema in the plugin manifest for runtime validation.
 
-## 📤 Output Formatting (ADR-003)
+## 📤 Output Formatting
 
-All commands follow the ADR-003 contract for standardized output:
+All commands return structured output through the `CommandExecutionResult` interface:
+
+```typescript
+interface CommandExecutionResult {
+  status: 'success' | 'failure';
+  errorMessage?: string; // Present when status !== 'success'
+  outputJson?: string; // JSON string conforming to the output schema
+}
+```
+
+**Output Structure:**
 
 - **Output Schemas**: Each command defines a Zod schema in `output.ts` for type-safe output validation
 - **Human Templates**: Handlebars templates provide human-readable output formatting
-- **CommandExecutionResult**: All handlers return `CommandExecutionResult` with `status`, `errorMessage`, and `outputJson` fields
-- **No process.exit()**: Handlers never call `process.exit()` directly; errors are returned in the result
+- **Error Handling**: Handlers never call `process.exit()` directly; all errors are returned in the result
+- **Format Selection**: Output format is controlled by the CLI's `--format` option (default: `human`, or `json` for machine-readable output)
 
-Output format is controlled by the CLI's `--format` option (default: `human`, or `json` for machine-readable output).
+The `outputJson` field contains a JSON string that conforms to the Zod schema defined in each command's `output.ts` file, ensuring type safety and consistent output structure.
 
 ## 🔧 Core API Integration
 
