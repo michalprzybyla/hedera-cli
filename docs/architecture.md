@@ -187,7 +187,46 @@ interface HederaMirrornodeService {
 
 ### 6. Config Service
 
-> @TODO: Update this section once the Config Service implementation lands.
+**Purpose**: Manages configuration options for the CLI with type-safe accessors.
+
+**Key Features**:
+
+- Generic configuration option accessors
+- Type validation (boolean, number, string, enum)
+- Default value support for all options
+- State-based persistent storage
+- Options discovery and listing
+
+**Interface**:
+
+```typescript
+interface ConfigService {
+  listOptions(): ConfigOptionDescriptor[];
+  getOption<T = boolean | number | string>(name: string): T;
+  setOption(name: string, value: boolean | number | string): void;
+}
+```
+
+**Configuration Options**:
+
+The service supports the following option types:
+
+- `boolean`: Boolean values
+- `number`: Numeric values
+- `string`: String values
+- `enum`: String values restricted to predefined allowed values
+
+Configuration options include:
+
+- `ed25519_support_enabled` (boolean, default: false)
+- `default_key_manager` (enum: 'local' | 'encrypted_local', default: 'local')
+
+**Implementation Details**:
+
+- Uses State Service with `'config'` namespace for persistent storage
+- Validates types on both read and write operations
+- Returns default values if options are not explicitly set
+- Throws descriptive errors for invalid option names or values
 
 ### 7. Logger Service
 
