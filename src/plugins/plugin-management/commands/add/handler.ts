@@ -19,13 +19,11 @@ import {
   PluginStateEntry,
   PluginManifest,
 } from '../../../../core/plugins/plugin.interface';
-import { PLUGIN_MANAGEMENT_NAMESPACE } from '../../constants';
 
 export async function addPlugin(
   args: CommandHandlerArgs,
 ): Promise<CommandExecutionResult> {
   const { api, logger } = args;
-  const { state } = api;
   const { path: pluginPath } = args.args as { path: string };
 
   logger.log('➕ Adding plugin from path...');
@@ -54,15 +52,19 @@ export async function addPlugin(
 
     const pluginName = manifest.name;
 
-    const existingEntries = state.list<PluginStateEntry>(
-      PLUGIN_MANAGEMENT_NAMESPACE,
-    );
+    const newEntry: PluginStateEntry = {
+      name: pluginName,
+      path: resolvedPath,
+      enabled: true,
+      displayName: manifest.displayName,
+      version: manifest.version,
+      description: manifest.description,
+      commands: manifest.commands?.map((command) => String(command.name)),
+      capabilities: manifest.capabilities,
+    };
+    const result = api.pluginManagement.createEntry(newEntry);
 
-    const alreadyExists = existingEntries.some(
-      (entry) => entry.name === pluginName,
-    );
-
-    if (alreadyExists) {
+    if (result.status === 'duplicate') {
       const outputData: AddPluginOutput = {
         name: pluginName,
         path: resolvedPath,
@@ -75,18 +77,6 @@ export async function addPlugin(
         outputJson: JSON.stringify(outputData),
       };
     }
-
-    const newEntry: PluginStateEntry = {
-      name: pluginName,
-      path: resolvedPath,
-      enabled: true,
-    };
-
-    state.set<PluginStateEntry>(
-      PLUGIN_MANAGEMENT_NAMESPACE,
-      pluginName,
-      newEntry,
-    );
 
     const outputData: AddPluginOutput = {
       name: pluginName,

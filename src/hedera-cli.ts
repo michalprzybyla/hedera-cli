@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
 import { program } from 'commander';
-import { PluginManager } from './core/plugins/plugin-manager';
 import { createCoreApi } from './core/core-api';
 import { CoreApiConfig } from './core/core-api/core-api-config';
 import './core/utils/json-serialize';
 import { DEFAULT_PLUGIN_STATE } from './core/shared/config/cli-options';
 import { registerDisabledPlugin } from './core/utils/register-disabled-plugin';
 import { addDisabledPluginsHelp } from './core/utils/add-disabled-plugins-help';
+import { PluginManager } from './core/plugins/plugin-manager';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const pkg = require('../package.json') as { version?: string };
@@ -34,9 +34,8 @@ async function initializeCLI() {
       format,
     };
 
-    // Create plugin manager
+    // Create core API
     const coreApi = createCoreApi(coreApiConfig);
-
     const pluginManager = new PluginManager(coreApi);
 
     // Initialize or read plugin-management state

@@ -3,14 +3,13 @@
  */
 import { Status } from '../../../../core/shared/constants';
 import { addPlugin } from '../../commands/add/handler';
-import type { StateService } from '../../../../core/services/state/state-service.interface';
 import {
   makeArgs,
   makeLogger,
-  makeStateMock,
 } from '../../../../core/shared/__tests__/helpers/mocks';
 import type { PluginStateEntry } from '../../../../core/plugins/plugin.interface';
 import { CUSTOM_PLUGIN_ENTRY } from './helpers/fixtures';
+import type { PluginManagementService } from '../../../../core/services/plugin-management/plugin-management-service.interface';
 
 // Mock path to produce predictable manifest path
 jest.mock('path', () => ({
@@ -32,15 +31,18 @@ jest.mock(
 describe('plugin-management add command', () => {
   it('should add a new plugin from path and enable it when manifest is valid and name does not exist', async () => {
     const logger = makeLogger();
-    const entries: PluginStateEntry[] = [];
-    const state = makeStateMock() as jest.Mocked<StateService>;
-    state.list.mockReturnValue(entries);
-    state.set.mockImplementation(
-      (_namespace: string, _key: string, value: unknown) => {
-        entries.push(value as PluginStateEntry);
-      },
-    );
-    const api = { state };
+    const createdEntry: PluginStateEntry = {
+      name: 'custom-plugin',
+      path: 'dist/plugins/custom-plugin',
+      enabled: true,
+    };
+    const pluginManagement = {
+      createEntry: jest.fn().mockReturnValue({
+        status: 'created',
+        entry: createdEntry,
+      }),
+    } as unknown as PluginManagementService;
+    const api = { pluginManagement };
 
     const args = makeArgs(api, logger, {
       path: 'dist/plugins/custom-plugin',
@@ -55,19 +57,25 @@ describe('plugin-management add command', () => {
     expect(output.added).toBe(true);
     expect(output.message).toContain('added and enabled successfully');
 
-    expect(entries).toHaveLength(1);
-    expect(entries[0].name).toBe('custom-plugin');
-    expect(entries[0].enabled).toBe(true);
-    expect(entries[0].path).toBe('dist/plugins/custom-plugin');
+    expect(pluginManagement.createEntry).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: 'custom-plugin',
+        path: 'dist/plugins/custom-plugin',
+        enabled: true,
+      }),
+    );
   });
 
   it('should fail when plugin with the same name already exists in state', async () => {
     const logger = makeLogger();
     const existingEntry: PluginStateEntry = { ...CUSTOM_PLUGIN_ENTRY };
-    const entries: PluginStateEntry[] = [existingEntry];
-    const state = makeStateMock() as jest.Mocked<StateService>;
-    state.list.mockReturnValue(entries);
-    const api = { state };
+    const pluginManagement = {
+      createEntry: jest.fn().mockReturnValue({
+        status: 'duplicate',
+        entry: existingEntry,
+      }),
+    } as unknown as PluginManagementService;
+    const api = { pluginManagement };
 
     const args = makeArgs(api, logger, {
       path: 'dist/plugins/custom-plugin',
@@ -83,6 +91,8 @@ describe('plugin-management add command', () => {
     expect(output.added).toBe(false);
     expect(output.message).toContain('already exists');
 
-    expect(entries).toHaveLength(1);
+    expect(pluginManagement.createEntry).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'custom-plugin' }),
+    );
   });
 });

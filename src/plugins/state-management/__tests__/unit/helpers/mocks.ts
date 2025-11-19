@@ -6,6 +6,7 @@ import type { CommandHandlerArgs } from '../../../../../core/plugins/plugin.inte
 import type { Logger } from '../../../../../core/services/logger/logger-service.interface';
 import type { CoreApi } from '../../../../../core/core-api/core-api.interface';
 import type { StateService } from '../../../../../core/services/state/state-service.interface';
+import type { PluginManagementService } from '../../../../../core/services/plugin-management/plugin-management-service.interface';
 import { mockStateData } from './fixtures';
 
 /**
@@ -112,6 +113,15 @@ export const makeCoreApiMock = (
   kms: {} as any,
   hbar: {} as any,
   output: {} as any,
+  pluginManagement: {
+    listEntries: jest.fn().mockReturnValue([]),
+    getEntry: jest.fn(),
+    createEntry: jest.fn(),
+    removeEntry: jest.fn(),
+    enableEntry: jest.fn(),
+    disableEntry: jest.fn(),
+    setEntry: jest.fn(),
+  } as PluginManagementService,
 });
 
 /**
@@ -122,7 +132,18 @@ export const makeArgs = (
   logger: jest.Mocked<Logger>,
   args: Record<string, unknown>,
 ): CommandHandlerArgs => ({
-  api: api as CoreApi,
+  api: {
+    pluginManagement: {
+      listEntries: jest.fn().mockReturnValue([]),
+      getEntry: jest.fn(),
+      createEntry: jest.fn(),
+      removeEntry: jest.fn(),
+      enableEntry: jest.fn(),
+      disableEntry: jest.fn(),
+      setEntry: jest.fn(),
+    } as PluginManagementService,
+    ...api,
+  } as CoreApi,
   logger,
   state: {} as any,
   config: {} as any,

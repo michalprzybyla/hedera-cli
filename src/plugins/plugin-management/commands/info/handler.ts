@@ -13,22 +13,18 @@ import { CommandExecutionResult } from '../../../../core/plugins/plugin.types';
 import { Status } from '../../../../core/shared/constants';
 import { formatError } from '../../../../core/utils/errors';
 import { PluginInfoOutput } from './output';
-import { PLUGIN_MANAGEMENT_NAMESPACE } from '../../constants';
 
 export async function getPluginInfo(
   args: CommandHandlerArgs,
 ): Promise<CommandExecutionResult> {
   const { api, logger } = args;
-  const { state } = api;
   const { name } = args.args as { name: string };
 
   logger.log(`ℹ️  Getting plugin information: ${name}`);
 
   try {
-    const entry = state.get<PluginStateEntry>(
-      PLUGIN_MANAGEMENT_NAMESPACE,
-      name,
-    );
+    const pluginManagement = api.pluginManagement;
+    const entry: PluginStateEntry | undefined = pluginManagement.getEntry(name);
 
     if (!entry) {
       const notFound: PluginInfoOutput = {

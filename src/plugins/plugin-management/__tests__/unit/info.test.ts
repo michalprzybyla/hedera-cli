@@ -3,13 +3,12 @@
  */
 import { Status } from '../../../../core/shared/constants';
 import { getPluginInfo } from '../../commands/info/handler';
-import type { StateService } from '../../../../core/services/state/state-service.interface';
 import {
   makeArgs,
   makeLogger,
-  makeStateMock,
 } from '../../../../core/shared/__tests__/helpers/mocks';
 import type { PluginStateEntry } from '../../../../core/plugins/plugin.interface';
+import type { PluginManagementService } from '../../../../core/services/plugin-management/plugin-management-service.interface';
 
 jest.mock('path', () => ({
   resolve: (...segments: string[]) => segments.join('/'),
@@ -38,9 +37,10 @@ describe('plugin-management info command', () => {
       path: 'dist/plugins/topic',
       enabled: true,
     };
-    const state = makeStateMock() as jest.Mocked<StateService>;
-    state.get.mockReturnValue(entry);
-    const api = { state };
+    const pluginManagement = {
+      getEntry: jest.fn().mockReturnValue(entry),
+    } as unknown as PluginManagementService;
+    const api = { pluginManagement };
 
     const args = makeArgs(api, logger, { name: 'topic' });
 
@@ -70,9 +70,10 @@ describe('plugin-management info command', () => {
       commands: ['run'],
       capabilities: ['custom:run'],
     };
-    const state = makeStateMock() as jest.Mocked<StateService>;
-    state.get.mockReturnValue(entry);
-    const api = { state };
+    const pluginManagement = {
+      getEntry: jest.fn().mockReturnValue(entry),
+    } as unknown as PluginManagementService;
+    const api = { pluginManagement };
 
     const args = makeArgs(api, logger, { name: 'custom-plugin' });
 
@@ -92,9 +93,10 @@ describe('plugin-management info command', () => {
 
   it('should return not found when plugin does not exist', async () => {
     const logger = makeLogger();
-    const state = makeStateMock() as jest.Mocked<StateService>;
-    state.get.mockReturnValue(undefined);
-    const api = { state };
+    const pluginManagement = {
+      getEntry: jest.fn().mockReturnValue(undefined),
+    } as unknown as PluginManagementService;
+    const api = { pluginManagement };
 
     const args = makeArgs(api, logger, { name: 'missing-plugin' });
 

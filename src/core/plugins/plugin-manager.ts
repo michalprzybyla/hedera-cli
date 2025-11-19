@@ -16,6 +16,7 @@ import { formatError } from '../utils/errors';
 import { PLUGIN_MANAGEMENT_NAMESPACE, Status } from '../shared/constants';
 import { filterReservedOptions } from '../utils/filter-reserved-options';
 import { Logger } from '../services/logger/logger-service.interface';
+import { PluginManagementService } from '../services/plugin-management/plugin-management-service.interface';
 
 interface LoadedPlugin {
   manifest: PluginManifest;
@@ -26,12 +27,14 @@ interface LoadedPlugin {
 export class PluginManager {
   private coreApi: CoreApi;
   private logger: Logger;
+  private pluginManagement: PluginManagementService;
   private loadedPlugins: Map<string, LoadedPlugin> = new Map();
   private defaultPlugins: string[] = [];
 
   constructor(coreApi: CoreApi) {
     this.coreApi = coreApi;
     this.logger = coreApi.logger;
+    this.pluginManagement = coreApi.pluginManagement;
   }
 
   /**
@@ -90,17 +93,13 @@ export class PluginManager {
       }));
 
       for (const plugin of initialState) {
-        state.set<PluginStateEntry>(
-          PLUGIN_MANAGEMENT_NAMESPACE,
-          plugin.name,
-          plugin,
-        );
+        this.pluginManagement.setEntry(plugin);
       }
 
       return initialState;
     }
 
-    return state.list<PluginStateEntry>(PLUGIN_MANAGEMENT_NAMESPACE);
+    return this.pluginManagement.listEntries();
   }
 
   /**

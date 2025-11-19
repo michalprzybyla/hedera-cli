@@ -7,39 +7,20 @@ import { CommandHandlerArgs } from '../../../../core/plugins/plugin.interface';
 import { CommandExecutionResult } from '../../../../core/plugins/plugin.types';
 import { Status } from '../../../../core/shared/constants';
 import { formatError } from '../../../../core/utils/errors';
-import { PluginStateEntry } from '../../../../core/plugins/plugin.interface';
-import { PLUGIN_MANAGEMENT_NAMESPACE } from '../../constants';
 import { RemovePluginOutput } from '../../schema';
 
 export async function disablePlugin(
   args: CommandHandlerArgs,
 ): Promise<CommandExecutionResult> {
   const { api, logger } = args;
-  const { state } = api;
   const { name } = args.args as { name: string };
 
   logger.log('➖ Disabling plugin...');
 
-  // Protect core plugin-management from being disabled via CLI
-  if (name === 'plugin-management') {
-    const protectedResult: RemovePluginOutput = {
-      name,
-      removed: false,
-      message: 'Plugin plugin-management is protected and cannot be disabled.',
-    };
-
-    return {
-      status: Status.Success,
-      outputJson: JSON.stringify(protectedResult),
-    };
-  }
-
   try {
-    const existing =
-      state.get<PluginStateEntry>(PLUGIN_MANAGEMENT_NAMESPACE, name) ||
-      undefined;
+    const result = api.pluginManagement.disableEntry(name);
 
-    if (!existing) {
+    if (result.status === 'not-found') {
       const notFound: RemovePluginOutput = {
         name,
         removed: false,
@@ -52,7 +33,21 @@ export async function disablePlugin(
       };
     }
 
-    if (!existing.enabled) {
+    if (result.status === 'protected') {
+      const protectedResult: RemovePluginOutput = {
+        name,
+        removed: false,
+        message:
+          'Plugin plugin-management is protected and cannot be disabled.',
+      };
+
+      return {
+        status: Status.Success,
+        outputJson: JSON.stringify(protectedResult),
+      };
+    }
+
+    if (result.status === 'already-disabled') {
       const alreadyDisabled: RemovePluginOutput = {
         name,
         removed: false,
@@ -64,13 +59,6 @@ export async function disablePlugin(
         outputJson: JSON.stringify(alreadyDisabled),
       };
     }
-
-    const updated: PluginStateEntry = {
-      ...existing,
-      enabled: false,
-    };
-
-    state.set<PluginStateEntry>(PLUGIN_MANAGEMENT_NAMESPACE, name, updated);
 
     const outputData: RemovePluginOutput = {
       name,

@@ -11,6 +11,7 @@ import type { AccountService } from '../../../../../core/services/account/accoun
 import type { TxExecutionService } from '../../../../../core/services/tx-execution/tx-execution-service.interface';
 import type { NetworkService } from '../../../../../core/services/network/network-service.interface';
 import type { AliasService } from '../../../../../core/services/alias/alias-service.interface';
+import type { PluginManagementService } from '../../../../../core/services/plugin-management/plugin-management-service.interface';
 import {
   makeNetworkMock as makeGlobalNetworkMock,
   makeKmsMock as makeGlobalKmsMock,
@@ -189,7 +190,18 @@ export const makeArgs = (
   logger: jest.Mocked<Logger>,
   args: Record<string, unknown>,
 ): CommandHandlerArgs => ({
-  api: api as CoreApi,
+  api: {
+    pluginManagement: {
+      listEntries: jest.fn().mockReturnValue([]),
+      getEntry: jest.fn(),
+      createEntry: jest.fn(),
+      removeEntry: jest.fn(),
+      enableEntry: jest.fn(),
+      disableEntry: jest.fn(),
+      setEntry: jest.fn(),
+    } as PluginManagementService,
+    ...api,
+  } as CoreApi,
   logger,
   state: {} as any,
   config: {} as any,

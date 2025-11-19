@@ -14,6 +14,7 @@ import type { TxExecutionService } from '../../../services/tx-execution/tx-execu
 import type { HederaMirrornodeService } from '../../../services/mirrornode/hedera-mirrornode-service.interface';
 import type { OutputService } from '../../../services/output/output-service.interface';
 import type { HbarService } from '../../../services/hbar/hbar-service.interface';
+import type { PluginManagementService } from '../../../services/plugin-management/plugin-management-service.interface';
 
 /**
  * Create a mocked Logger instance
@@ -174,6 +175,17 @@ const makeOutputMock = (): jest.Mocked<OutputService> => ({
   getFormat: jest.fn().mockReturnValue('human'),
 });
 
+const makePluginManagementServiceMock = (): PluginManagementService =>
+  ({
+    listEntries: jest.fn().mockReturnValue([]),
+    getEntry: jest.fn(),
+    createEntry: jest.fn(),
+    removeEntry: jest.fn(),
+    enableEntry: jest.fn(),
+    disableEntry: jest.fn(),
+    setEntry: jest.fn(),
+  }) as unknown as PluginManagementService;
+
 /**
  * Create CommandHandlerArgs for testing
  */
@@ -199,6 +211,7 @@ export const makeArgs = (
     kms: makeKmsMock(),
     hbar: makeHbarMock(),
     output: makeOutputMock(),
+    pluginManagement: makePluginManagementServiceMock(),
     ...api,
   },
   logger,
