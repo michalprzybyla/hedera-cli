@@ -540,19 +540,19 @@ Commands support multiple output formats:
 
 ```bash
 # Human-readable output (default)
-hedera account create --alias my-account
+hedera account create --name my-account
 
 # JSON output
-hedera account create --alias my-account --format json
+hedera account create --name my-account --format json
 
 # YAML output
-hedera account create --alias my-account --format yaml
+hedera account create --name my-account --format yaml
 
 # Save to file
 hedera account list --output accounts.json --format json
 
 # Script mode (suppress handler logs)
-hedera account create --alias my-account --script
+hedera account create --name my-account --script
 ```
 
 ## Adding New Output Schemas
