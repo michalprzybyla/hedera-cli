@@ -4,7 +4,7 @@
  */
 
 import { CustomFee } from '@hashgraph/sdk';
-import { KeyAlgorithm } from '../services/kms/kms-types.interface';
+import { KeyAlgorithmType } from '../services/kms/kms-types.interface';
 
 /**
  * Supported Hedera networks
@@ -22,7 +22,7 @@ export type SupportedNetwork =
 export interface Account {
   name: string;
   accountId: string;
-  type: KeyAlgorithm;
+  type: KeyAlgorithmType;
   publicKey: string;
   evmAddress: string;
   solidityAddress: string;

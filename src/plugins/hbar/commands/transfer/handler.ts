@@ -18,7 +18,7 @@ import { Logger } from '../../../../core';
 import { SupportedNetwork } from '../../../../core/types/shared.types';
 import { processBalanceInput } from '../../../../core/utils/process-balance-input';
 import { parseIdKeyPair } from '../../../../core/utils/keys';
-import type { KeyAlgorithm as KeyAlgorithmType } from '../../../../core/services/kms/kms-types.interface';
+import type { KeyAlgorithmType as KeyAlgorithmType } from '../../../../core/services/kms/kms-types.interface';
 import { KeyAlgorithm } from '../../../../core/shared/constants';
 import { KeyManagerName } from '../../../../core/services/kms/kms-types.interface';
 

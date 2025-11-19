@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { KeyAlgorithm } from '../../shared/constants';
 
 // KEY MANAGERS - SINGLE SOURCE OF TRUTH
 
@@ -34,8 +35,11 @@ export const KEY_MANAGERS = KEY_MANAGER_VALUES.reduce(
 
 // KEY ALGORITHMS
 
-export const keyAlgorithmSchema = z.enum(['ed25519', 'ecdsa']);
-export type KeyAlgorithm = z.infer<typeof keyAlgorithmSchema>;
+export const keyAlgorithmSchema = z.enum([
+  KeyAlgorithm.ED25519,
+  KeyAlgorithm.ECDSA,
+]);
+export type KeyAlgorithmType = z.infer<typeof keyAlgorithmSchema>;
 
 // CREDENTIAL RECORD (Metadata)
 
@@ -48,7 +52,7 @@ export interface KmsCredentialRecord {
   keyManager: KeyManagerName; // Which KeyManager owns this key
   publicKey: string;
   labels?: string[];
-  keyAlgorithm: KeyAlgorithm;
+  keyAlgorithm: KeyAlgorithmType;
   createdAt: string; // ISO timestamp
 }
 
@@ -59,7 +63,7 @@ export interface KmsCredentialRecord {
  * Each KeyManager has its own SecretStorage implementation.
  */
 export interface KmsCredentialSecret {
-  keyAlgorithm: KeyAlgorithm;
+  keyAlgorithm: KeyAlgorithmType;
   privateKey: string; // Raw private key (plain or encrypted depending on storage)
   mnemonic?: string; // For future HD wallet support
   derivationPath?: string; // For future hardware wallet support

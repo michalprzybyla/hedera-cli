@@ -1,4 +1,4 @@
-import type { KeyAlgorithm } from './kms-types.interface';
+import type { KeyAlgorithmType } from './kms-types.interface';
 import type { KeyManagerName } from './kms-types.interface';
 import type { Signer } from './signers/signer.interface';
 import { Client, Transaction as HederaTransaction } from '@hashgraph/sdk';
@@ -13,7 +13,7 @@ export interface KmsService {
    * @returns keyRefId and publicKey
    */
   createLocalPrivateKey(
-    keyType: KeyAlgorithm,
+    keyType: KeyAlgorithmType,
     keyManager?: KeyManagerName,
     labels?: string[],
   ): {
@@ -30,7 +30,7 @@ export interface KmsService {
    * @returns keyRefId and publicKey
    */
   importPrivateKey(
-    keyType: KeyAlgorithm,
+    keyType: KeyAlgorithmType,
     privateKey: string,
     keyManager?: KeyManagerName,
     labels?: string[],

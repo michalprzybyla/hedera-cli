@@ -1,9 +1,13 @@
 import type { KeyManager } from './key-manager.interface';
 import type { Signer } from '../signers/signer.interface';
-import type { KeyAlgorithm, KmsCredentialSecret } from '../kms-types.interface';
+import type {
+  KeyAlgorithmType,
+  KmsCredentialSecret,
+} from '../kms-types.interface';
 import { PrivateKeySigner } from '../signers/private-key-signer';
 import { PrivateKey } from '@hashgraph/sdk';
 import { SecretStorage } from '../storage/secret-storage.interface';
+import { KeyAlgorithm } from '../../../shared/constants';
 
 /**
  * KeyManager for plaintext local storage.
@@ -16,10 +20,10 @@ export class LocalKeyManager implements KeyManager {
     this.secretStorage = secretStorage;
   }
 
-  generateKey(keyRefId: string, algorithm: KeyAlgorithm): string {
+  generateKey(keyRefId: string, algorithm: KeyAlgorithmType): string {
     // 1. Generate key pair
     const privateKey =
-      algorithm === 'ecdsa'
+      algorithm === KeyAlgorithm.ECDSA
         ? PrivateKey.generateECDSA()
         : PrivateKey.generateED25519();
 
@@ -49,7 +53,7 @@ export class LocalKeyManager implements KeyManager {
   createSigner(
     keyRefId: string,
     publicKey: string,
-    algorithm: KeyAlgorithm,
+    algorithm: KeyAlgorithmType,
   ): Signer {
     const secret = this.readSecret(keyRefId);
     if (!secret) {

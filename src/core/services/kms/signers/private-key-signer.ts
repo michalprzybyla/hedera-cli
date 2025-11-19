@@ -1,6 +1,10 @@
 import type { Signer } from './signer.interface';
-import type { KmsCredentialSecret, KeyAlgorithm } from '../kms-types.interface';
+import type {
+  KmsCredentialSecret,
+  KeyAlgorithmType,
+} from '../kms-types.interface';
 import { PrivateKey } from '@hashgraph/sdk';
+import { KeyAlgorithm } from '../../../shared/constants';
 
 /**
  * Signer for local keys.
@@ -10,7 +14,7 @@ export class PrivateKeySigner implements Signer {
   constructor(
     private readonly publicKey: string,
     private readonly secret: KmsCredentialSecret,
-    private readonly algorithm: KeyAlgorithm,
+    private readonly algorithm: KeyAlgorithmType,
   ) {}
 
   sign(bytes: Uint8Array): Uint8Array {
@@ -19,7 +23,7 @@ export class PrivateKeySigner implements Signer {
     }
 
     const privateKey =
-      this.algorithm === 'ecdsa'
+      this.algorithm === KeyAlgorithm.ECDSA
         ? PrivateKey.fromStringECDSA(this.secret.privateKey)
         : PrivateKey.fromStringED25519(this.secret.privateKey);
 

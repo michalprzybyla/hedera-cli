@@ -13,7 +13,7 @@ import { ZustandAccountStateHelper } from '../../zustand-state-helper';
 import { processBalanceInput } from '../../../../core/utils/process-balance-input';
 import { CreateAccountOutput } from './output';
 import { Hbar } from '@hashgraph/sdk';
-import type { KeyAlgorithm as KeyAlgorithmType } from '../../../../core/services/kms/kms-types.interface';
+import type { KeyAlgorithmType as KeyAlgorithmType } from '../../../../core/services/kms/kms-types.interface';
 import { KeyAlgorithm } from '../../../../core/shared/constants';
 import { KeyManagerName } from '../../../../core/services/kms/kms-types.interface';
 

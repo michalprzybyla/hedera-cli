@@ -1,7 +1,7 @@
 import type { KmsService } from './kms-service.interface';
 import type {
   KmsCredentialRecord,
-  KeyAlgorithm as KeyAlgorithmType,
+  KeyAlgorithmType as KeyAlgorithmType,
   KeyManagerName,
 } from './kms-types.interface';
 import { KeyAlgorithm } from '../../shared/constants';
@@ -26,6 +26,7 @@ import { EncryptionServiceImpl } from './encryption/encryption-service-impl';
 import { ConfigService } from '../config/config-service.interface';
 import { ALGORITHM_CONFIGS } from './encryption/algorithm-config';
 import { EncryptedSecretStorage } from './storage/encrypted-secret-storage';
+import { LocalSecretStorage } from './storage/local-secret-storage';
 
 /**
  * Currently, the KMS folder contains more files than typical service folders
@@ -60,10 +61,7 @@ export class KmsServiceImpl implements KmsService {
       ALGORITHM_CONFIGS.AES_256_GCM,
     );
 
-    const localSecretStorage = new EncryptedSecretStorage(
-      state,
-      encryptionService,
-    );
+    const localSecretStorage = new LocalSecretStorage(state);
     const localEncryptedSecretStorage = new EncryptedSecretStorage(
       state,
       encryptionService,
@@ -119,7 +117,7 @@ export class KmsServiceImpl implements KmsService {
   }
 
   importPrivateKey(
-    keyType: KeyAlgorithmType,
+    keyType: KeyAlgorithm,
     privateKey: string,
     keyManager: KeyManagerName = KEY_MANAGERS.local,
     labels?: string[],
@@ -142,7 +140,6 @@ export class KmsServiceImpl implements KmsService {
       keyType === KeyAlgorithm.ECDSA
         ? PrivateKey.fromStringECDSA(privateKey)
         : PrivateKey.fromStringED25519(privateKey);
-    const keyAlgorithm = keyType as KeyAlgorithm;
     const publicKey = pk.publicKey.toStringRaw();
 
     // Check if key already exists
@@ -158,7 +155,7 @@ export class KmsServiceImpl implements KmsService {
 
     // Create secret object
     const secret = {
-      keyAlgorithm,
+      keyAlgorithm: keyType,
       privateKey,
       createdAt: new Date().toISOString(),
     };
@@ -172,7 +169,7 @@ export class KmsServiceImpl implements KmsService {
       keyManager,
       publicKey,
       labels,
-      keyAlgorithm,
+      keyAlgorithm: keyType,
       createdAt: new Date().toISOString(),
     });
 
