@@ -38,7 +38,7 @@ async function initializeCLI() {
     const pluginManager = new PluginManager(coreApi);
 
     // Initialize plugins, register disabled stubs, and load all manifests
-    const pluginState = await pluginManager.initializeAndRegister(
+    const pluginState = await pluginManager.initializePlugins(
       program,
       DEFAULT_PLUGIN_STATE,
     );

@@ -126,7 +126,7 @@ export class PluginManager {
   /**
    * Fully initialize plugins: seed state, register disabled stubs, load all.
    */
-  async initializeAndRegister(
+  async initializePlugins(
     program: Command,
     defaultState: PluginManifest[],
   ): Promise<PluginStateEntry[]> {
