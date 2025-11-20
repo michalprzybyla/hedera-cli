@@ -38,20 +38,11 @@ async function initializeCLI() {
     const coreApi = createCoreApi(coreApiConfig);
     const pluginManager = new PluginManager(coreApi);
 
-    // Initialize or read plugin-management state
-    const pluginState =
-      pluginManager.initializePluginState(DEFAULT_PLUGIN_STATE);
-
-    // Derive list of enabled plugin paths from state
-    const enabledPluginPaths = pluginState
-      .filter((plugin) => plugin.enabled)
-      .map((plugin) => plugin.path);
+    // Initialize or read plugin-management state and configure defaults
+    const pluginState = pluginManager.setupDefaultPlugins(DEFAULT_PLUGIN_STATE);
 
     // Register stubs for disabled plugins so we can log "Plugin is disabled" message
     registerDisabledPlugin(program, pluginState);
-
-    // Set default plugins based on state
-    pluginManager.setDefaultPlugins(enabledPluginPaths);
 
     // Initialize plugins
     await pluginManager.initialize();
