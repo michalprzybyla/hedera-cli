@@ -65,10 +65,34 @@ hcli hbar transfer \
 
 **Options:**
 
+<<<<<<< HEAD
+
 - `-b, --balance <string>` - Amount in HBAR (display units by default, add "t" for tinybar). Example: "1" = 1 HBAR, "100t" = 100 tinybar (required)
 - `-t, --to <string>` - Recipient account ID or name (required)
 - `-f, --from <string>` - Sender account: either an account-id:private-key pair or account name (optional, defaults to operator)
 - `-m, --memo <string>` - Transfer memo (optional)
+
+=======
+
+- `-a, --amount <number>` - Amount in tinybars (required)
+- `-t, --to <string>` - Recipient account (required)
+- `-f, --from <string>` - Sender account (optional, defaults to operator from env)
+- `-m, --memo <string>` - Transfer memo (optional)
+
+**Examples:**
+
+```bash
+# Transfer using names
+hcli hbar transfer -a 1000000 -f alice -t bob
+
+# Transfer using account IDs
+hcli hbar transfer -a 5000000 -f 0.0.123456 -t 0.0.789012
+
+# Transfer from operator account
+hcli hbar transfer -a 100000 -t myaccount
+```
+
+> > > > > > > ce42f440 (feat: standarize option names (#73))
 
 ## 🔧 Core API Integration
 

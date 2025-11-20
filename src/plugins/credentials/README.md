@@ -75,11 +75,28 @@ hcli credentials remove --key-ref-id key-ref-123
 
 **Options:**
 
-- `-k, --key-ref-id <string>` - Key reference ID to remove (required)
+- `--id, -i` (required): Key reference ID to remove
 
 ## 📊 State Management
 
-The plugin stores credentials metadata in the `credentials-credentials` namespace using the following schema:
+```bash
+hedera credentials remove --id key-ref-123
+```
+
+**Output:**
+
+```json
+{
+  "keyRefId": "key-ref-123",
+  "removed": true
+}
+```
+
+## Plugin Architecture
+
+### State Management
+
+The plugin stores credentials metadata using the following schema:
 
 ```typescript
 {
