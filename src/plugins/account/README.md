@@ -86,7 +86,6 @@ hcli account import \
 ```bash
 hcli account balance --account myaccount
 hcli account balance --account 0.0.123456 --hbar-only
-hcli account balance --account myaccount --token-id 0.0.789012
 ```
 
 ### Account List

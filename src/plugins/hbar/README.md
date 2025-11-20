@@ -66,6 +66,7 @@ hcli hbar transfer \
 **Options:**
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 - `-b, --balance <string>` - Amount in HBAR (display units by default, add "t" for tinybar). Example: "1" = 1 HBAR, "100t" = 100 tinybar (required)
 - `-t, --to <string>` - Recipient account ID or name (required)
@@ -73,6 +74,10 @@ hcli hbar transfer \
 - `-m, --memo <string>` - Transfer memo (optional)
 
 =======
+
+=======
+
+> > > > > > > origin/main
 
 - `-a, --amount <number>` - Amount in tinybars (required)
 - `-t, --to <string>` - Recipient account (required)

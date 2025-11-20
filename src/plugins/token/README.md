@@ -207,6 +207,19 @@ This applies to:
 - Association keys in `create-from-file` command
 - Account keys in `treasury-id:key` format
 
+### Private Key Format
+
+Private keys can optionally be prefixed with their key type:
+
+- **With prefix**: `ed25519:12345676543212345` or `ecdsa:12345676543212345`
+- **Without prefix**: `12345676543212345` (defaults to `ecdsa`)
+
+This applies to:
+
+- Treasury keys in `create-from-file` command (both string format and legacy object format)
+- Association keys in `create-from-file` command
+- Account keys in `treasury-id:key` format
+
 ## 🔧 Core API Integration
 
 The plugin uses the Core API services:
