@@ -23,46 +23,14 @@ export const RESERVED_LONG_OPTIONS = new Set<string>([
   'version',
 ]);
 
-export interface DefaultPluginConfig {
-  name: string;
-  manifest: PluginManifest;
-}
-
-export const DEFAULT_PLUGIN_STATE: DefaultPluginConfig[] = [
-  {
-    name: accountPluginManifest.name,
-    manifest: accountPluginManifest,
-  },
-  {
-    name: tokenPluginManifest.name,
-    manifest: tokenPluginManifest,
-  },
-  {
-    name: networkPluginManifest.name,
-    manifest: networkPluginManifest,
-  },
-  {
-    name: pluginManagementManifest.name,
-    manifest: pluginManagementManifest,
-  },
-  {
-    name: credentialsPluginManifest.name,
-    manifest: credentialsPluginManifest,
-  },
-  {
-    name: stateManagementPluginManifest.name,
-    manifest: stateManagementPluginManifest,
-  },
-  {
-    name: topicPluginManifest.name,
-    manifest: topicPluginManifest,
-  },
-  {
-    name: hbarPluginManifest.name,
-    manifest: hbarPluginManifest,
-  },
-  {
-    name: configPluginManifest.name,
-    manifest: configPluginManifest,
-  },
+export const DEFAULT_PLUGIN_STATE: PluginManifest[] = [
+  accountPluginManifest,
+  tokenPluginManifest,
+  networkPluginManifest,
+  pluginManagementManifest,
+  credentialsPluginManifest,
+  stateManagementPluginManifest,
+  topicPluginManifest,
+  hbarPluginManifest,
+  configPluginManifest,
 ];

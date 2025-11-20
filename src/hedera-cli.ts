@@ -5,7 +5,6 @@ import { createCoreApi } from './core/core-api';
 import { CoreApiConfig } from './core/core-api/core-api-config';
 import './core/utils/json-serialize';
 import { DEFAULT_PLUGIN_STATE } from './core/shared/config/cli-options';
-import { registerDisabledPlugin } from './core/utils/register-disabled-plugin';
 import { addDisabledPluginsHelp } from './core/utils/add-disabled-plugins-help';
 import { PluginManager } from './core/plugins/plugin-manager';
 
@@ -38,14 +37,11 @@ async function initializeCLI() {
     const coreApi = createCoreApi(coreApiConfig);
     const pluginManager = new PluginManager(coreApi);
 
-    // Initialize or read plugin-management state and configure defaults
-    const pluginState = pluginManager.setupDefaultPlugins(DEFAULT_PLUGIN_STATE);
-
-    // Register stubs for disabled plugins so we can log "Plugin is disabled" message
-    registerDisabledPlugin(program, pluginState);
-
-    // Initialize plugins
-    await pluginManager.initialize();
+    // Initialize plugins, register disabled stubs, and load all manifests
+    const pluginState = await pluginManager.initializeAndRegister(
+      program,
+      DEFAULT_PLUGIN_STATE,
+    );
 
     // Register plugin commands
     pluginManager.registerCommands(program);

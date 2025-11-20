@@ -14,8 +14,10 @@ import {
 import { CommandSpec } from './plugin.types';
 import { formatError } from '../utils/errors';
 import { Status } from '../shared/constants';
-import { DefaultPluginConfig } from '../shared/config/cli-options';
 import { filterReservedOptions } from '../utils/filter-reserved-options';
+import { registerDisabledPlugin } from '../utils/register-disabled-plugin';
+import { Logger } from '../services/logger/logger-service.interface';
+import { PluginManagementService } from '../services/plugin-management/plugin-management-service.interface';
 
 interface LoadedPlugin {
   manifest: PluginManifest;
@@ -27,9 +29,13 @@ export class PluginManager {
   private coreApi: CoreApi;
   private loadedPlugins: Map<string, LoadedPlugin> = new Map();
   private defaultPlugins: string[] = [];
+  private logger: Logger;
+  private pluginManagement: PluginManagementService;
 
   constructor(coreApi: CoreApi) {
     this.coreApi = coreApi;
+    this.logger = coreApi.logger;
+    this.pluginManagement = coreApi.pluginManagement;
   }
 
   /**
@@ -43,14 +49,14 @@ export class PluginManager {
    * Initialize and load default plugins
    */
   async initialize(): Promise<void> {
-    this.coreApi.logger.log('🔌 Loading plugins...');
+    this.logger.log('🔌 Loading plugins...');
 
     for (const pluginPath of this.defaultPlugins) {
       try {
         await this.loadPluginFromPath(pluginPath);
-        this.coreApi.logger.log(`✅ Loaded: ${pluginPath}`);
+        this.logger.log(`✅ Loaded: ${pluginPath}`);
       } catch {
-        this.coreApi.logger.log(`ℹ️  Plugin not available: ${pluginPath}`);
+        this.logger.log(`ℹ️  Plugin not available: ${pluginPath}`);
       }
     }
 
@@ -60,42 +66,39 @@ export class PluginManager {
       this.coreApi.state.registerNamespaces(namespaces);
     }
 
-    this.coreApi.logger.log(`✅ Plugin system ready`);
+    this.logger.log(`✅ Plugin system ready`);
   }
 
   /**
    * Initialize plugin-management state with default plugins if not present.
    * Returns the current list of plugin state entries.
    */
-  initializePluginState(
-    defaultState: DefaultPluginConfig[],
-  ): PluginStateEntry[] {
-    const existingEntries = this.coreApi.pluginManagement.listPlugins();
+  initializePluginState(defaultState: PluginManifest[]): PluginStateEntry[] {
+    const existingEntries = this.pluginManagement.listPlugins();
 
     if (existingEntries.length === 0) {
-      this.coreApi.logger.log(
+      this.logger.log(
         '[PLUGIN-MANAGEMENT] Initializing default plugin state (first run)...',
       );
 
-      const initialState: PluginStateEntry[] = defaultState.map((plugin) => {
-        const defaultPath = this.getDefaultPluginPath(plugin.name);
+      const initialState: PluginStateEntry[] = defaultState.map((manifest) => {
+        const pluginName = manifest.name;
+        const defaultPath = this.getDefaultPluginPath(pluginName);
 
         return {
-          name: plugin.name,
+          name: pluginName,
           path: defaultPath,
           enabled: true,
-          displayName: plugin.manifest.displayName ?? plugin.name,
-          version: plugin.manifest.version,
-          description: plugin.manifest.description,
-          commands: plugin.manifest.commands?.map((command) =>
-            String(command.name),
-          ),
-          capabilities: plugin.manifest.capabilities,
+          displayName: manifest.displayName ?? pluginName,
+          version: manifest.version,
+          description: manifest.description,
+          commands: manifest.commands?.map((command) => String(command.name)),
+          capabilities: manifest.capabilities,
         };
       });
 
       for (const plugin of initialState) {
-        this.coreApi.pluginManagement.upsertPlugin(plugin);
+        this.pluginManagement.upsertPlugin(plugin);
       }
 
       return initialState;
@@ -108,7 +111,7 @@ export class PluginManager {
    * Initialize plugin state and configure default plugin loading.
    * Returns the current list of plugin state entries.
    */
-  setupDefaultPlugins(defaultState: DefaultPluginConfig[]): PluginStateEntry[] {
+  setupDefaultPlugins(defaultState: PluginManifest[]): PluginStateEntry[] {
     const pluginState = this.initializePluginState(defaultState);
 
     const enabledPluginPaths = pluginState
@@ -117,6 +120,19 @@ export class PluginManager {
 
     this.setDefaultPlugins(enabledPluginPaths);
 
+    return pluginState;
+  }
+
+  /**
+   * Fully initialize plugins: seed state, register disabled stubs, load all.
+   */
+  async initializeAndRegister(
+    program: Command,
+    defaultState: PluginManifest[],
+  ): Promise<PluginStateEntry[]> {
+    const pluginState = this.setupDefaultPlugins(defaultState);
+    registerDisabledPlugin(program, pluginState);
+    await this.initialize();
     return pluginState;
   }
 
@@ -133,18 +149,18 @@ export class PluginManager {
    * Add a plugin dynamically
    */
   async addPlugin(pluginPath: string): Promise<void> {
-    this.coreApi.logger.log(`➕ Adding plugin: ${pluginPath}`);
+    this.logger.log(`➕ Adding plugin: ${pluginPath}`);
     await this.loadPluginFromPath(pluginPath);
-    this.coreApi.logger.log(`✅ Plugin added: ${pluginPath}`);
+    this.logger.log(`✅ Plugin added: ${pluginPath}`);
   }
 
   /**
    * Remove a plugin
    */
   removePlugin(pluginName: string): void {
-    this.coreApi.logger.log(`➖ Removing plugin: ${pluginName}`);
+    this.logger.log(`➖ Removing plugin: ${pluginName}`);
     this.loadedPlugins.delete(pluginName);
-    this.coreApi.logger.log(`✅ Plugin removed: ${pluginName}`);
+    this.logger.log(`✅ Plugin removed: ${pluginName}`);
   }
 
   /**
@@ -229,7 +245,7 @@ export class PluginManager {
       this.registerSingleCommand(pluginCommand, plugin, commandSpec);
     }
 
-    this.coreApi.logger.log(`✅ Registered commands for: ${pluginName}`);
+    this.logger.log(`✅ Registered commands for: ${pluginName}`);
   }
 
   /**
@@ -256,7 +272,7 @@ export class PluginManager {
       const { allowed, filtered } = filterReservedOptions(commandSpec.options);
 
       if (filtered.length > 0) {
-        this.coreApi.logger.log(
+        this.logger.log(
           `⚠️  Plugin ${plugin.manifest.name} command ${commandName}: filtered reserved option(s) ${filtered
             .map((n) => `--${n}`)
             .join(', ')} (reserved by core CLI)`,
@@ -347,7 +363,7 @@ export class PluginManager {
       api: this.coreApi,
       state: this.coreApi.state,
       config: this.coreApi.config,
-      logger: this.coreApi.logger,
+      logger: this.logger,
     };
 
     const result = await commandSpec.handler(handlerArgs);
