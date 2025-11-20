@@ -12,12 +12,13 @@ export const PluginInfoSchema = z.object({
   description: z.string().describe('Plugin description'),
   commands: z.array(z.string()).describe('Available commands'),
   capabilities: z.array(z.string()).describe('Plugin capabilities'),
+  enabled: z.boolean().describe('Whether plugin is enabled'),
 });
 
 // Plugin list item schema
 export const PluginListItemSchema = z.object({
   name: z.string().describe('Plugin name'),
-  displayName: z.string().describe('Plugin display name'),
+  enabled: z.boolean().describe('Whether plugin is enabled'),
 });
 
 // Add plugin output schema

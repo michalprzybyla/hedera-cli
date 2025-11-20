@@ -20,7 +20,7 @@ export async function getPluginList(
 
     const plugins = entries.map((entry) => ({
       name: entry.name,
-      displayName: entry.displayName ?? entry.name,
+      enabled: entry.enabled,
     }));
 
     const outputData: ListPluginsOutput = {

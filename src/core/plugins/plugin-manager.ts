@@ -77,11 +77,22 @@ export class PluginManager {
         '[PLUGIN-MANAGEMENT] Initializing default plugin state (first run)...',
       );
 
-      const initialState: PluginStateEntry[] = defaultState.map((plugin) => ({
-        name: plugin.name,
-        path: plugin.path,
-        enabled: true,
-      }));
+      const initialState: PluginStateEntry[] = defaultState.map((plugin) => {
+        const defaultPath = this.getDefaultPluginPath(plugin.name);
+
+        return {
+          name: plugin.name,
+          path: defaultPath,
+          enabled: true,
+          displayName: plugin.manifest.displayName ?? plugin.name,
+          version: plugin.manifest.version,
+          description: plugin.manifest.description,
+          commands: plugin.manifest.commands?.map((command) =>
+            String(command.name),
+          ),
+          capabilities: plugin.manifest.capabilities,
+        };
+      });
 
       for (const plugin of initialState) {
         this.coreApi.pluginManagement.upsertPlugin(plugin);
@@ -193,6 +204,10 @@ export class PluginManager {
         formatError(`Failed to load plugin from ${pluginPath}: `, error),
       );
     }
+  }
+
+  private getDefaultPluginPath(name: string): string {
+    return `./dist/plugins/${name}`;
   }
 
   /**

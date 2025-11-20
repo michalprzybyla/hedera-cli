@@ -14,6 +14,7 @@ export const PLUGIN_INFO_TEMPLATE = `{{#if found}}
    Name: {{plugin.name}}
    Version: {{plugin.version}}
    Display Name: {{plugin.displayName}}
+   Enabled: {{plugin.enabled}}
    Description: {{plugin.description}}
    Commands: {{plugin.commands}}
    Capabilities: {{plugin.capabilities}}

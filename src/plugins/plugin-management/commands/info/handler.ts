@@ -3,10 +3,8 @@
  * Handles getting detailed information about a specific plugin
  * Follows ADR-003 contract: returns CommandExecutionResult
  */
-import * as path from 'path';
 import {
   CommandHandlerArgs,
-  PluginManifest,
   PluginStateEntry,
 } from '../../../../core/plugins/plugin.interface';
 import { CommandExecutionResult } from '../../../../core/plugins/plugin.types';
@@ -39,32 +37,15 @@ export async function getPluginInfo(
       };
     }
 
-    let manifest: PluginManifest | undefined;
-    try {
-      manifest = await loadPluginManifest(entry.path);
-    } catch (manifestError: unknown) {
-      logger.warn(
-        `[PLUGIN-MANAGEMENT] Failed to load plugin manifest for ${name}: ${formatError('', manifestError)}`,
-      );
-    }
-
-    const commands =
-      manifest?.commands?.map((command) => String(command.name)) ??
-      entry.commands ??
-      [];
-
-    const capabilities = manifest?.capabilities ?? entry.capabilities ?? [];
-
     const pluginInfo = {
       name: entry.name,
-      version: manifest?.version ?? entry.version ?? 'unknown',
-      displayName: manifest?.displayName ?? entry.displayName ?? entry.name,
+      version: entry.version ?? 'unknown',
+      displayName: entry.displayName ?? entry.name,
       description:
-        manifest?.description ??
-        entry.description ??
-        'No description available for this plugin.',
-      commands,
-      capabilities,
+        entry.description ?? 'No description available for this plugin.',
+      commands: entry.commands ?? [],
+      capabilities: entry.capabilities ?? [],
+      enabled: entry.enabled,
     };
 
     const outputData: PluginInfoOutput = {
@@ -83,48 +64,4 @@ export async function getPluginInfo(
       errorMessage: formatError('Failed to get plugin information', error),
     };
   }
-}
-
-async function loadPluginManifest(
-  pluginPath: string,
-): Promise<PluginManifest | undefined> {
-  // Manifests are emitted as JS when plugins are bundled, so we rely on manifest.js.
-  const manifestPath = path.resolve(pluginPath, 'manifest.js');
-
-  try {
-    const module = (await import(manifestPath)) as {
-      default: PluginManifest;
-    };
-
-    if (module?.default) {
-      return module.default;
-    }
-  } catch (error) {
-    if (shouldRetryLoad(error, manifestPath)) {
-      return undefined;
-    }
-
-    throw error;
-  }
-
-  return undefined;
-}
-
-function shouldRetryLoad(error: unknown, manifestPath: string): boolean {
-  if (!error || typeof error !== 'object') {
-    return false;
-  }
-
-  const err = error as NodeJS.ErrnoException;
-  const message = typeof err.message === 'string' ? err.message : '';
-
-  if (
-    err.code === 'MODULE_NOT_FOUND' ||
-    err.code === 'ERR_MODULE_NOT_FOUND' ||
-    message.includes('Cannot find module')
-  ) {
-    return message.includes(manifestPath);
-  }
-
-  return false;
 }

@@ -1,3 +1,14 @@
+import type { PluginManifest } from '../../plugins/plugin.types';
+import accountPluginManifest from '../../../plugins/account/manifest';
+import tokenPluginManifest from '../../../plugins/token/manifest';
+import networkPluginManifest from '../../../plugins/network/manifest';
+import pluginManagementManifest from '../../../plugins/plugin-management/manifest';
+import credentialsPluginManifest from '../../../plugins/credentials/manifest';
+import stateManagementPluginManifest from '../../../plugins/state-management/manifest';
+import topicPluginManifest from '../../../plugins/topic/manifest';
+import hbarPluginManifest from '../../../plugins/hbar/manifest';
+import configPluginManifest from '../../../plugins/config/manifest';
+
 export const RESERVED_LONG_OPTIONS = new Set<string>([
   'format',
   'json',
@@ -12,53 +23,46 @@ export const RESERVED_LONG_OPTIONS = new Set<string>([
   'version',
 ]);
 
-/**
- * Default set of built-in plugins shipped with the CLI.
- * These are used to bootstrap the plugin-management state on first run.
- *
- * The structure mirrors `PluginStateEntry` in `core/plugins/plugin-state.ts`
- * but we use a plain object type here to avoid a direct import from core/plugins.
- */
 export interface DefaultPluginConfig {
   name: string;
-  path: string;
+  manifest: PluginManifest;
 }
 
 export const DEFAULT_PLUGIN_STATE: DefaultPluginConfig[] = [
   {
-    name: 'account',
-    path: './dist/plugins/account',
+    name: accountPluginManifest.name,
+    manifest: accountPluginManifest,
   },
   {
-    name: 'token',
-    path: './dist/plugins/token',
+    name: tokenPluginManifest.name,
+    manifest: tokenPluginManifest,
   },
   {
-    name: 'network',
-    path: './dist/plugins/network',
+    name: networkPluginManifest.name,
+    manifest: networkPluginManifest,
   },
   {
-    name: 'plugin-management',
-    path: './dist/plugins/plugin-management',
+    name: pluginManagementManifest.name,
+    manifest: pluginManagementManifest,
   },
   {
-    name: 'credentials',
-    path: './dist/plugins/credentials',
+    name: credentialsPluginManifest.name,
+    manifest: credentialsPluginManifest,
   },
   {
-    name: 'state-management',
-    path: './dist/plugins/state-management',
+    name: stateManagementPluginManifest.name,
+    manifest: stateManagementPluginManifest,
   },
   {
-    name: 'topic',
-    path: './dist/plugins/topic',
+    name: topicPluginManifest.name,
+    manifest: topicPluginManifest,
   },
   {
-    name: 'hbar',
-    path: './dist/plugins/hbar',
+    name: hbarPluginManifest.name,
+    manifest: hbarPluginManifest,
   },
   {
-    name: 'config',
-    path: './dist/plugins/config',
+    name: configPluginManifest.name,
+    manifest: configPluginManifest,
   },
 ];
