@@ -183,7 +183,7 @@ const makePluginManagementServiceMock = (): PluginManagementService =>
     removePlugin: jest.fn(),
     enablePlugin: jest.fn(),
     disablePlugin: jest.fn(),
-    upsertPlugin: jest.fn(),
+    savePluginState: jest.fn(),
   }) as unknown as PluginManagementService;
 
 /**

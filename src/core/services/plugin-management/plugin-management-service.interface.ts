@@ -57,5 +57,5 @@ export interface PluginManagementService {
   removePlugin(name: string): PluginManagementRemoveResult;
   enablePlugin(name: string): PluginManagementEnableResult;
   disablePlugin(name: string): PluginManagementDisableResult;
-  upsertPlugin(entry: PluginStateEntry): void;
+  savePluginState(entry: PluginStateEntry): void;
 }

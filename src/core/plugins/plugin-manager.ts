@@ -98,7 +98,7 @@ export class PluginManager {
       });
 
       for (const plugin of initialState) {
-        this.pluginManagement.upsertPlugin(plugin);
+        this.pluginManagement.savePluginState(plugin);
       }
 
       return initialState;

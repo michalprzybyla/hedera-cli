@@ -223,7 +223,7 @@ export const makeApiMocks = (config?: ApiMocksConfig) => {
       removePlugin: jest.fn(),
       enablePlugin: jest.fn(),
       disablePlugin: jest.fn(),
-      upsertPlugin: jest.fn(),
+      savePluginState: jest.fn(),
     } as PluginManagementService,
   };
 

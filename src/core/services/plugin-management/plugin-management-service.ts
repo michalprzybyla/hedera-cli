@@ -42,7 +42,7 @@ export class PluginManagementServiceImpl implements PluginManagementService {
       };
     }
 
-    this.upsertPlugin(entry);
+    this.savePluginState(entry);
 
     return { status: PluginManagementCreateStatus.Created, entry };
   }
@@ -79,7 +79,7 @@ export class PluginManagementServiceImpl implements PluginManagementService {
       enabled: true,
     };
 
-    this.upsertPlugin(updated);
+    this.savePluginState(updated);
 
     return { status: PluginManagementEnableStatus.Enabled, entry: updated };
   }
@@ -104,12 +104,12 @@ export class PluginManagementServiceImpl implements PluginManagementService {
       enabled: false,
     };
 
-    this.upsertPlugin(updated);
+    this.savePluginState(updated);
 
     return { status: PluginManagementDisableStatus.Disabled, entry: updated };
   }
 
-  upsertPlugin(entry: PluginStateEntry): void {
+  savePluginState(entry: PluginStateEntry): void {
     this.state.set<PluginStateEntry>(
       PLUGIN_MANAGEMENT_NAMESPACE,
       entry.name,

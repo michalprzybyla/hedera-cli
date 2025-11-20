@@ -120,7 +120,7 @@ export const makeCoreApiMock = (
     removePlugin: jest.fn(),
     enablePlugin: jest.fn(),
     disablePlugin: jest.fn(),
-    upsertPlugin: jest.fn(),
+    savePluginState: jest.fn(),
   } as PluginManagementService,
 });
 
@@ -140,7 +140,7 @@ export const makeArgs = (
       removePlugin: jest.fn(),
       enablePlugin: jest.fn(),
       disablePlugin: jest.fn(),
-      upsertPlugin: jest.fn(),
+      savePluginState: jest.fn(),
     } as PluginManagementService,
     ...api,
   } as CoreApi,
