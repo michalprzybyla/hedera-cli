@@ -24,7 +24,8 @@ export async function getPluginInfo(
 
   try {
     const pluginManagement = api.pluginManagement;
-    const entry: PluginStateEntry | undefined = pluginManagement.getEntry(name);
+    const entry: PluginStateEntry | undefined =
+      pluginManagement.getPlugin(name);
 
     if (!entry) {
       const notFound: PluginInfoOutput = {

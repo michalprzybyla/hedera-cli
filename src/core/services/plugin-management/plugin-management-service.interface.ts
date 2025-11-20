@@ -21,11 +21,11 @@ export type PluginManagementDisableResult =
   | { status: 'protected' };
 
 export interface PluginManagementService {
-  listEntries(): PluginStateEntry[];
-  getEntry(name: string): PluginStateEntry | undefined;
-  createEntry(entry: PluginStateEntry): PluginManagementCreateResult;
-  removeEntry(name: string): PluginManagementRemoveResult;
-  enableEntry(name: string): PluginManagementEnableResult;
-  disableEntry(name: string): PluginManagementDisableResult;
-  setEntry(entry: PluginStateEntry): void;
+  listPlugins(): PluginStateEntry[];
+  getPlugin(name: string): PluginStateEntry | undefined;
+  addPlugin(entry: PluginStateEntry): PluginManagementCreateResult;
+  removePlugin(name: string): PluginManagementRemoveResult;
+  enablePlugin(name: string): PluginManagementEnableResult;
+  disablePlugin(name: string): PluginManagementDisableResult;
+  upsertPlugin(entry: PluginStateEntry): void;
 }

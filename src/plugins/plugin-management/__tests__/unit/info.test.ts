@@ -38,7 +38,7 @@ describe('plugin-management info command', () => {
       enabled: true,
     };
     const pluginManagement = {
-      getEntry: jest.fn().mockReturnValue(entry),
+      getPlugin: jest.fn().mockReturnValue(entry),
     } as unknown as PluginManagementService;
     const api = { pluginManagement };
 
@@ -71,7 +71,7 @@ describe('plugin-management info command', () => {
       capabilities: ['custom:run'],
     };
     const pluginManagement = {
-      getEntry: jest.fn().mockReturnValue(entry),
+      getPlugin: jest.fn().mockReturnValue(entry),
     } as unknown as PluginManagementService;
     const api = { pluginManagement };
 
@@ -94,7 +94,7 @@ describe('plugin-management info command', () => {
   it('should return not found when plugin does not exist', async () => {
     const logger = makeLogger();
     const pluginManagement = {
-      getEntry: jest.fn().mockReturnValue(undefined),
+      getPlugin: jest.fn().mockReturnValue(undefined),
     } as unknown as PluginManagementService;
     const api = { pluginManagement };
 

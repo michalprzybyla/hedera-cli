@@ -70,7 +70,7 @@ export class PluginManager {
   initializePluginState(
     defaultState: DefaultPluginConfig[],
   ): PluginStateEntry[] {
-    const existingEntries = this.coreApi.pluginManagement.listEntries();
+    const existingEntries = this.coreApi.pluginManagement.listPlugins();
 
     if (existingEntries.length === 0) {
       this.coreApi.logger.log(
@@ -84,7 +84,7 @@ export class PluginManager {
       }));
 
       for (const plugin of initialState) {
-        this.coreApi.pluginManagement.setEntry(plugin);
+        this.coreApi.pluginManagement.upsertPlugin(plugin);
       }
 
       return initialState;

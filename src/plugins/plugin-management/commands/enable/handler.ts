@@ -17,7 +17,7 @@ export async function enablePlugin(
   logger.log('✅ Enabling plugin...');
 
   try {
-    const result = api.pluginManagement.enableEntry(name);
+    const result = api.pluginManagement.enablePlugin(name);
 
     if (result.status === 'not-found') {
       return {

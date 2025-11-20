@@ -18,7 +18,7 @@ export async function removePlugin(
   logger.log('🗑️ Removing plugin from state...');
 
   try {
-    const result = api.pluginManagement.removeEntry(name);
+    const result = api.pluginManagement.removePlugin(name);
 
     if (result.status === 'protected') {
       const protectedResult: RemovePluginOutput = {

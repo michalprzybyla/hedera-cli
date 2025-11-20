@@ -114,13 +114,13 @@ export const makeCoreApiMock = (
   hbar: {} as any,
   output: {} as any,
   pluginManagement: {
-    listEntries: jest.fn().mockReturnValue([]),
-    getEntry: jest.fn(),
-    createEntry: jest.fn(),
-    removeEntry: jest.fn(),
-    enableEntry: jest.fn(),
-    disableEntry: jest.fn(),
-    setEntry: jest.fn(),
+    listPlugins: jest.fn().mockReturnValue([]),
+    getPlugin: jest.fn(),
+    addPlugin: jest.fn(),
+    removePlugin: jest.fn(),
+    enablePlugin: jest.fn(),
+    disablePlugin: jest.fn(),
+    upsertPlugin: jest.fn(),
   } as PluginManagementService,
 });
 
@@ -134,13 +134,13 @@ export const makeArgs = (
 ): CommandHandlerArgs => ({
   api: {
     pluginManagement: {
-      listEntries: jest.fn().mockReturnValue([]),
-      getEntry: jest.fn(),
-      createEntry: jest.fn(),
-      removeEntry: jest.fn(),
-      enableEntry: jest.fn(),
-      disableEntry: jest.fn(),
-      setEntry: jest.fn(),
+      listPlugins: jest.fn().mockReturnValue([]),
+      getPlugin: jest.fn(),
+      addPlugin: jest.fn(),
+      removePlugin: jest.fn(),
+      enablePlugin: jest.fn(),
+      disablePlugin: jest.fn(),
+      upsertPlugin: jest.fn(),
     } as PluginManagementService,
     ...api,
   } as CoreApi,

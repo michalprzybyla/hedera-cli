@@ -16,11 +16,11 @@ export class PluginManagementServiceImpl implements PluginManagementService {
     this.state = state;
   }
 
-  listEntries(): PluginStateEntry[] {
+  listPlugins(): PluginStateEntry[] {
     return this.state.list<PluginStateEntry>(PLUGIN_MANAGEMENT_NAMESPACE);
   }
 
-  getEntry(name: string): PluginStateEntry | undefined {
+  getPlugin(name: string): PluginStateEntry | undefined {
     const entry = this.state.get<PluginStateEntry>(
       PLUGIN_MANAGEMENT_NAMESPACE,
       name,
@@ -28,24 +28,24 @@ export class PluginManagementServiceImpl implements PluginManagementService {
     return entry ?? undefined;
   }
 
-  createEntry(entry: PluginStateEntry): PluginManagementCreateResult {
-    const existing = this.getEntry(entry.name);
+  addPlugin(entry: PluginStateEntry): PluginManagementCreateResult {
+    const existing = this.getPlugin(entry.name);
 
     if (existing) {
       return { status: 'duplicate', entry: existing };
     }
 
-    this.setEntry(entry);
+    this.upsertPlugin(entry);
 
     return { status: 'created', entry };
   }
 
-  removeEntry(name: string): PluginManagementRemoveResult {
+  removePlugin(name: string): PluginManagementRemoveResult {
     if (name === 'plugin-management') {
       return { status: 'protected' };
     }
 
-    const existing = this.getEntry(name);
+    const existing = this.getPlugin(name);
 
     if (!existing) {
       return { status: 'not-found' };
@@ -56,8 +56,8 @@ export class PluginManagementServiceImpl implements PluginManagementService {
     return { status: 'removed', entry: existing };
   }
 
-  enableEntry(name: string): PluginManagementEnableResult {
-    const entry = this.getEntry(name);
+  enablePlugin(name: string): PluginManagementEnableResult {
+    const entry = this.getPlugin(name);
 
     if (!entry) {
       return { status: 'not-found' };
@@ -72,17 +72,17 @@ export class PluginManagementServiceImpl implements PluginManagementService {
       enabled: true,
     };
 
-    this.setEntry(updated);
+    this.upsertPlugin(updated);
 
     return { status: 'enabled', entry: updated };
   }
 
-  disableEntry(name: string): PluginManagementDisableResult {
+  disablePlugin(name: string): PluginManagementDisableResult {
     if (name === 'plugin-management') {
       return { status: 'protected' };
     }
 
-    const entry = this.getEntry(name);
+    const entry = this.getPlugin(name);
 
     if (!entry) {
       return { status: 'not-found' };
@@ -97,12 +97,12 @@ export class PluginManagementServiceImpl implements PluginManagementService {
       enabled: false,
     };
 
-    this.setEntry(updated);
+    this.upsertPlugin(updated);
 
     return { status: 'disabled', entry: updated };
   }
 
-  setEntry(entry: PluginStateEntry): void {
+  upsertPlugin(entry: PluginStateEntry): void {
     this.state.set<PluginStateEntry>(
       PLUGIN_MANAGEMENT_NAMESPACE,
       entry.name,

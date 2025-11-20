@@ -13,7 +13,7 @@ describe('plugin-management enable command', () => {
   it('should enable a disabled plugin', async () => {
     const logger = makeLogger();
     const pluginManagement = {
-      enableEntry: jest.fn().mockReturnValue({
+      enablePlugin: jest.fn().mockReturnValue({
         status: 'enabled',
         entry: {
           name: 'custom-plugin',
@@ -30,7 +30,7 @@ describe('plugin-management enable command', () => {
 
     expect(result.status).toBe(Status.Success);
     expect(result.outputJson).toBeDefined();
-    expect(pluginManagement.enableEntry).toHaveBeenCalledWith('custom-plugin');
+    expect(pluginManagement.enablePlugin).toHaveBeenCalledWith('custom-plugin');
 
     const output = JSON.parse(result.outputJson!);
     expect(output.name).toBe('custom-plugin');
@@ -41,7 +41,7 @@ describe('plugin-management enable command', () => {
   it('should return success with appropriate message when plugin is already enabled', async () => {
     const logger = makeLogger();
     const pluginManagement = {
-      enableEntry: jest.fn().mockReturnValue({
+      enablePlugin: jest.fn().mockReturnValue({
         status: 'already-enabled',
         entry: {
           name: 'custom-plugin',
@@ -58,7 +58,7 @@ describe('plugin-management enable command', () => {
 
     expect(result.status).toBe(Status.Success);
     expect(result.outputJson).toBeDefined();
-    expect(pluginManagement.enableEntry).toHaveBeenCalledWith('custom-plugin');
+    expect(pluginManagement.enablePlugin).toHaveBeenCalledWith('custom-plugin');
 
     const output = JSON.parse(result.outputJson!);
     expect(output.name).toBe('custom-plugin');
@@ -69,7 +69,7 @@ describe('plugin-management enable command', () => {
   it('should return failure when plugin does not exist in state', async () => {
     const logger = makeLogger();
     const pluginManagement = {
-      enableEntry: jest.fn().mockReturnValue({ status: 'not-found' }),
+      enablePlugin: jest.fn().mockReturnValue({ status: 'not-found' }),
     } as unknown as PluginManagementService;
     const api = { pluginManagement };
 
@@ -82,6 +82,8 @@ describe('plugin-management enable command', () => {
       "Plugin 'unknown-plugin' not found in plugin-management state",
     );
     expect(result.outputJson).toBeUndefined();
-    expect(pluginManagement.enableEntry).toHaveBeenCalledWith('unknown-plugin');
+    expect(pluginManagement.enablePlugin).toHaveBeenCalledWith(
+      'unknown-plugin',
+    );
   });
 });

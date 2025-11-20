@@ -18,7 +18,7 @@ export async function disablePlugin(
   logger.log('➖ Disabling plugin...');
 
   try {
-    const result = api.pluginManagement.disableEntry(name);
+    const result = api.pluginManagement.disablePlugin(name);
 
     if (result.status === 'not-found') {
       const notFound: RemovePluginOutput = {

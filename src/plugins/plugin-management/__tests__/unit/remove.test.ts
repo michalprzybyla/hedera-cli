@@ -13,7 +13,7 @@ describe('plugin-management remove command', () => {
   it('should remove an existing plugin from state', async () => {
     const logger = makeLogger();
     const pluginManagement = {
-      removeEntry: jest.fn().mockReturnValue({
+      removePlugin: jest.fn().mockReturnValue({
         status: 'removed',
         entry: {
           name: 'custom-plugin',
@@ -36,13 +36,13 @@ describe('plugin-management remove command', () => {
     expect(output.removed).toBe(true);
     expect(output.message).toContain('removed from plugin-management state');
 
-    expect(pluginManagement.removeEntry).toHaveBeenCalledWith('custom-plugin');
+    expect(pluginManagement.removePlugin).toHaveBeenCalledWith('custom-plugin');
   });
 
   it('should return success with message when plugin does not exist', async () => {
     const logger = makeLogger();
     const pluginManagement = {
-      removeEntry: jest.fn().mockReturnValue({
+      removePlugin: jest.fn().mockReturnValue({
         status: 'not-found',
       }),
     } as unknown as PluginManagementService;
@@ -66,7 +66,7 @@ describe('plugin-management remove command', () => {
   it('should protect plugin-management from being removed', async () => {
     const logger = makeLogger();
     const pluginManagement = {
-      removeEntry: jest.fn().mockReturnValue({
+      removePlugin: jest.fn().mockReturnValue({
         status: 'protected',
       }),
     } as unknown as PluginManagementService;
@@ -86,7 +86,7 @@ describe('plugin-management remove command', () => {
       'is a core plugin and cannot be removed from state via CLI',
     );
 
-    expect(pluginManagement.removeEntry).toHaveBeenCalledWith(
+    expect(pluginManagement.removePlugin).toHaveBeenCalledWith(
       'plugin-management',
     );
   });

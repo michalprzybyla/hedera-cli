@@ -62,7 +62,7 @@ export async function addPlugin(
       commands: manifest.commands?.map((command) => String(command.name)),
       capabilities: manifest.capabilities,
     };
-    const result = api.pluginManagement.createEntry(newEntry);
+    const result = api.pluginManagement.addPlugin(newEntry);
 
     if (result.status === 'duplicate') {
       const outputData: AddPluginOutput = {

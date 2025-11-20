@@ -37,7 +37,7 @@ describe('plugin-management add command', () => {
       enabled: true,
     };
     const pluginManagement = {
-      createEntry: jest.fn().mockReturnValue({
+      addPlugin: jest.fn().mockReturnValue({
         status: 'created',
         entry: createdEntry,
       }),
@@ -57,7 +57,7 @@ describe('plugin-management add command', () => {
     expect(output.added).toBe(true);
     expect(output.message).toContain('added and enabled successfully');
 
-    expect(pluginManagement.createEntry).toHaveBeenCalledWith(
+    expect(pluginManagement.addPlugin).toHaveBeenCalledWith(
       expect.objectContaining({
         name: 'custom-plugin',
         path: 'dist/plugins/custom-plugin',
@@ -70,7 +70,7 @@ describe('plugin-management add command', () => {
     const logger = makeLogger();
     const existingEntry: PluginStateEntry = { ...CUSTOM_PLUGIN_ENTRY };
     const pluginManagement = {
-      createEntry: jest.fn().mockReturnValue({
+      addPlugin: jest.fn().mockReturnValue({
         status: 'duplicate',
         entry: existingEntry,
       }),
@@ -91,7 +91,7 @@ describe('plugin-management add command', () => {
     expect(output.added).toBe(false);
     expect(output.message).toContain('already exists');
 
-    expect(pluginManagement.createEntry).toHaveBeenCalledWith(
+    expect(pluginManagement.addPlugin).toHaveBeenCalledWith(
       expect.objectContaining({ name: 'custom-plugin' }),
     );
   });

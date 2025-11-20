@@ -177,13 +177,13 @@ const makeOutputMock = (): jest.Mocked<OutputService> => ({
 
 const makePluginManagementServiceMock = (): PluginManagementService =>
   ({
-    listEntries: jest.fn().mockReturnValue([]),
-    getEntry: jest.fn(),
-    createEntry: jest.fn(),
-    removeEntry: jest.fn(),
-    enableEntry: jest.fn(),
-    disableEntry: jest.fn(),
-    setEntry: jest.fn(),
+    listPlugins: jest.fn().mockReturnValue([]),
+    getPlugin: jest.fn(),
+    addPlugin: jest.fn(),
+    removePlugin: jest.fn(),
+    enablePlugin: jest.fn(),
+    disablePlugin: jest.fn(),
+    upsertPlugin: jest.fn(),
   }) as unknown as PluginManagementService;
 
 /**

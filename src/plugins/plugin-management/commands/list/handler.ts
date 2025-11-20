@@ -16,7 +16,7 @@ export async function getPluginList(
   logger.log('📋 Getting plugin list...');
 
   try {
-    const entries = api.pluginManagement.listEntries();
+    const entries = api.pluginManagement.listPlugins();
 
     const plugins = entries.map((entry) => ({
       name: entry.name,
