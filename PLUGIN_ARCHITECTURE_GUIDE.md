@@ -6,15 +6,15 @@ Complete guide to creating, developing, and testing plugins for the Hedera CLI.
 
 The Hedera CLI uses a plugin-based architecture that allows developers to extend functionality without modifying the core codebase. This guide covers everything you need to know to create plugins and highlights where to find deeper reference material:
 
-- `docs/architecture.md` – system architecture
-- `docs/core-api.md` – full Core API reference
-- `docs/output-schemas-guide.md` – Output schemas and templates
+- [`docs/architecture.md`](docs/architecture.md) – system architecture
+- [`docs/core-api.md`](docs/core-api.md) – full Core API reference
+- [`docs/output-schemas-guide.md`](docs/output-schemas-guide.md) – Output schemas and templates
 
 ## 🏗️ Plugin Architecture
 
 ### Core Principles
 
-- **Stateless Plugins**: Plugins are functionally stateless
+- **Stateless Plugins**: Plugins are functionally stateless—they don't maintain internal state between command executions. Instead, all persistent data is managed through the Core API's State Service, which stores data in namespaced JSON files on disk. This ensures plugins can be reloaded, tested in isolation, and composed without side effects. Each command handler receives fresh service instances via dependency injection and returns deterministic results based solely on inputs and external state.
 - **Dependency Injection**: Services are injected into command handlers
 - **Manifest-Driven**: Plugins declare capabilities via manifests
 - **Namespace Isolation**: Each plugin has its own state namespace
@@ -26,9 +26,20 @@ The Hedera CLI uses a plugin-based architecture that allows developers to extend
 my-plugin/
 ├── manifest.ts              # Plugin manifest (required)
 ├── commands/                # Command handlers
-│   ├── create.ts
-│   ├── list.ts
-│   └── ...
+│   ├── create/
+│   │   ├── handler.ts       # Command handler
+│   │   ├── output.ts        # Output schema & template
+│   │   └── index.ts         # Command exports
+│   ├── list/
+│   │   ├── handler.ts
+│   │   ├── output.ts
+│   │   └── index.ts
+│   └── ...                  # Other commands
+├── __tests__/               # Plugin tests
+│   └── unit/                # Unit tests
+│       ├── create.test.ts
+│       ├── list.test.ts
+│       └── helpers/         # Test helpers and mocks
 ├── schema.ts                # State schema (optional)
 ├── types.ts                 # Plugin-specific types (optional)
 └── index.ts                 # Plugin entry point (optional)
@@ -42,8 +53,12 @@ Every plugin must have a `manifest.ts` file that declares its capabilities:
 
 ```typescript
 import { PluginManifest } from '../../core/plugins/plugin.interface';
-import { MyPluginCreateOutputSchema } from './schema';
-import { MY_PLUGIN_CREATE_TEMPLATE } from './templates';
+import {
+  MyPluginCreateOutputSchema,
+  MY_PLUGIN_CREATE_TEMPLATE,
+} from './commands/create';
+import { createHandler } from './commands/create/handler';
+import { MY_PLUGIN_NAMESPACE, MY_PLUGIN_JSON_SCHEMA } from './schema';
 
 export const myPluginManifest: PluginManifest = {
   name: 'my-plugin',
@@ -66,10 +81,22 @@ export const myPluginManifest: PluginManifest = {
       summary: 'Create a new item',
       description: 'Create a new item in the system',
       options: [
-        { name: 'name', type: 'string', required: true },
-        { name: 'value', type: 'string', required: false },
+        {
+          name: 'name',
+          short: 'n',
+          type: 'string',
+          required: true,
+          description: 'Name of the item to create',
+        },
+        {
+          name: 'value',
+          short: 'v',
+          type: 'string',
+          required: false,
+          description: 'Optional value for the item',
+        },
       ],
-      handler: './commands/create',
+      handler: createHandler,
       output: {
         schema: MyPluginCreateOutputSchema,
         humanTemplate: MY_PLUGIN_CREATE_TEMPLATE,
@@ -93,7 +120,11 @@ export const myPluginManifest: PluginManifest = {
 };
 ```
 
-Each entry in `commands` **must** provide an `output` block that references a Zod schema and (optionally) a template for human-readable output. The CLI relies on this metadata to validate `outputJson` and render results in line with ADR-003.
+Each entry in `commands` **must** provide an `output` block that references a Zod schema and (optionally) a template for human-readable output. The CLI relies on this metadata to validate `outputJson` and render results in line with [ADR-003](../docs/adr/ADR-003-command-handler-result-contract.md).
+
+Human-readable output templates use [Handlebars](https://handlebarsjs.com/) syntax for variable interpolation, conditionals, and iteration. Handlebars allows you to create flexible, readable output formats using expressions like `{{variable}}` for interpolation, `{{#if condition}}...{{/if}}` for conditionals, and `{{#each items}}...{{/each}}` for loops.
+
+#### Output Schema and Template (commands/create/output.ts)
 
 ```typescript
 export const MY_PLUGIN_CREATE_TEMPLATE = `
@@ -112,7 +143,7 @@ Command handlers are the core of plugin functionality. Each command handler rece
 import { CommandHandlerArgs } from '../../../core/plugins/plugin.interface';
 import { CommandExecutionResult } from '../../../core/plugins/plugin.types';
 import { Status } from '../../../core/shared/constants';
-import { MyPluginCreateOutputSchema } from './schema';
+import { MyPluginCreateOutputSchema } from './output';
 
 export async function createHandler(
   args: CommandHandlerArgs,
@@ -241,7 +272,7 @@ Plugins interact with the Hedera network exclusively through the Core API. Comma
 - **How to use**: extract `api` from `CommandHandlerArgs` and call the service you need (e.g. `api.token.createTokenAssociationTransaction`, `api.mirror.getAccount`, `api.output.handleCommandOutput`).
 - **Best practice**: keep service usage close to business logic; avoid recreating SDK clients manually—Core API already manages credentials, network selection, and output handling.
 
-For a complete reference (interfaces, return types, advanced usage patterns), see `docs/core-api.md`.
+For a complete reference (interfaces, return types, advanced usage patterns), see [`docs/core-api.md`](docs/core-api.md).
 
 ## 🖨️ Output Formatting Pipeline
 
@@ -259,8 +290,8 @@ Command handlers hand off their structured results to the Core API’s output se
 Create unit tests for your command handlers:
 
 ```typescript
-// __tests__/commands/create.test.ts
-import { createHandler } from '../commands/create';
+// __tests__/unit/create.test.ts
+import { createHandler } from '../commands/create/handler';
 import { CommandHandlerArgs } from '../../../core/plugins/plugin.interface';
 
 describe('Create Command', () => {
@@ -309,32 +340,67 @@ describe('Create Command', () => {
 });
 ```
 
-### 2. Integration Testing
+### 2. Testing Handler Interactions
 
-Test plugins with the full CLI:
+Test how multiple handlers work together or test handlers with complex service interactions:
 
 ```typescript
-// __tests__/integration.test.ts
-import { exec } from 'child_process';
-import { promisify } from 'util';
+// __tests__/unit/handler-integration.test.ts
+import { createHandler } from '../commands/create/handler';
+import { listHandler } from '../commands/list/handler';
+import { CommandHandlerArgs } from '../../../core/plugins/plugin.interface';
+import { Status } from '../../../core/shared/constants';
+import {
+  makeLogger,
+  makeArgs,
+} from '../../../core/shared/__tests__/helpers/mocks';
+import { makeApiMocks } from './helpers/mocks';
 
-const execAsync = promisify(exec);
+describe('Handler Integration', () => {
+  it('should create and list items together', async () => {
+    const logger = makeLogger();
+    const api = makeApiMocks();
+    const state = {
+      set: jest.fn(),
+      get: jest.fn(),
+      has: jest.fn(),
+    };
 
-describe('Plugin Integration', () => {
-  it('should execute plugin commands', async () => {
-    const { stdout } = await execAsync(
-      'node dist/hedera-cli.js my-plugin create --name test',
-    );
+    const createArgs: CommandHandlerArgs = {
+      args: { name: 'test-item' },
+      api,
+      state,
+      logger,
+    };
 
-    expect(stdout).toContain('Creating item: test');
-    expect(stdout).toContain('✅ Item created successfully');
+    // Create an item
+    const createResult = await createHandler(createArgs);
+    expect(createResult.status).toBe(Status.Success);
+    expect(state.set).toHaveBeenCalled();
+
+    // List items
+    const listArgs: CommandHandlerArgs = {
+      args: {},
+      api,
+      state: {
+        ...state,
+        list: jest.fn().mockReturnValue([{ name: 'test-item' }]),
+      },
+      logger,
+    };
+
+    const listResult = await listHandler(listArgs);
+    expect(listResult.status).toBe(Status.Success);
+    expect(listResult.outputJson).toContain('test-item');
   });
 });
 ```
 
 ### 3. Output Structure Compliance
 
-- Write focused tests that assert every handler returns a `CommandExecutionResult` for both success and failure paths. See `src/plugins/token/__tests__/unit/adr003-compliance.test.ts` for a reusable pattern.
+Ensure your plugins comply with the [ADR-003 command handler result contract](../docs/adr/ADR-003-command-handler-result-contract.md). This contract defines the structure that command handlers must return.
+
+- Write focused tests that assert every handler returns a `CommandExecutionResult` for both success and failure paths. See [`src/plugins/token/__tests__/unit/adr003-compliance.test.ts`](../src/plugins/token/__tests__/unit/adr003-compliance.test.ts) for a reusable pattern.
 - Mock the services injected via `CommandHandlerArgs` so you can inspect `status`, `errorMessage`, and `outputJson` without hitting the network or filesystem.
 - Treat regression tests for reserved option filtering and output schema validation as part of the output structure compliance test suite.
 
@@ -521,7 +587,7 @@ api.state.set('data', 'key', data);
 
 ### 3. Command Options
 
-Define clear, descriptive command options:
+Define clear, descriptive command options. Each option can have both a long form (`--name`) and a short form (`-n`) for convenience:
 
 ```typescript
 {
@@ -529,19 +595,43 @@ Define clear, descriptive command options:
   options: [
     {
       name: 'name',
+      short: 'n',
       type: 'string',
       required: true,
       description: 'Name of the item to create'
     },
     {
       name: 'balance',
+      short: 'b',
       type: 'number',
       required: false,
       default: 1000,
       description: 'Initial balance in tinybars'
     },
+    {
+      name: 'key-type',
+      short: 't',
+      type: 'string',
+      required: false,
+      default: 'ECDSA',
+      description: 'Key type for the account'
+    },
   ],
 }
+```
+
+**Usage in CLI:**
+Both long and short forms can be used interchangeably:
+
+```bash
+# Using long forms
+my-plugin create --name my-item --balance 1000 --key-type ECDSA
+
+# Using short forms
+my-plugin create -n my-item -b 1000 -t ECDSA
+
+# Mixing long and short forms
+my-plugin create --name my-item -b 1000 -t ECDSA
 ```
 
 #### Reserved Options

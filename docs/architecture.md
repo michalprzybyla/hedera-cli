@@ -17,13 +17,18 @@ The Hedera CLI is built on a plugin-based architecture designed to be extensible
 ├─────────────────────────────────────────────────────────────┤
 │  Core Services Layer                                        │
 │  ├── Account Transaction Service                            │
+│  ├── Token Service                                          │
+│  ├── Topic Service                                          │
 │  ├── TxExecutionService                                     │
 │  ├── State Service (Zustand)                                │
 │  ├── Mirror Node Service                                    │
 │  ├── Network Service                                        │
 │  ├── Config Service                                         │
 │  ├── Logger Service                                         │
-│  └── Credentials Service                                    │
+│  ├── KMS Service                                            │
+│  ├── Alias Service                                          │
+│  ├── HBAR Service                                           │
+│  └── Output Service                                         │
 ├─────────────────────────────────────────────────────────────┤
 │  Plugin Layer                                               │
 │  ├── Account Plugin                                         │
@@ -32,6 +37,7 @@ The Hedera CLI is built on a plugin-based architecture designed to be extensible
 │  ├── Topic Plugin                                           │
 │  ├── HBAR Plugin                                            │
 │  ├── Credentials Plugin                                     │
+│  ├── Config Plugin                                          │
 │  ├── Plugin Management Plugin                               │
 │  ├── State Management Plugin                                │
 │  └── [Custom Plugins]                                       │
@@ -81,7 +87,7 @@ plugin/
     └── unit/                # Unit tests for handlers/schemas
 ```
 
-For a detailed, step‑by‑step plugin development guide, see `PLUGIN_ARCHITECTURE_GUIDE.md` in the repository root.
+For a detailed, step‑by‑step plugin development guide, see [`PLUGIN_ARCHITECTURE_GUIDE.md`](../PLUGIN_ARCHITECTURE_GUIDE.md) in the repository root.
 
 ## 🛠️ Core Services
 
@@ -292,14 +298,27 @@ Configuration options include:
 
 ```
 Core API
-├── Account Transaction Service
-├── TxExecutionService
-│   └── Credentials Service
 ├── State Service (Zustand)
+├── Network Service
+│   └── State Service
+├── Config Service
+│   └── State Service
+├── KMS Service
+│   ├── State Service
+│   ├── Network Service
+│   └── Config Service
+├── TxExecutionService
+│   ├── KMS Service
+│   └── Network Service
+├── Account Transaction Service
+├── Token Service
+├── Topic Service
 ├── Mirror Node Service
 │   └── Network Service
-├── Network Service
-├── Config Service
+├── Alias Service
+│   └── State Service
+├── HBAR Service
+├── Output Service
 └── Logger Service
 ```
 
@@ -307,8 +326,9 @@ Core API
 
 ### 1. Credential Management
 
-- Credentials are stored securely in state
-- Environment variable fallback for CI/CD
+- Credentials are stored securely in state using namespaced storage
+- Operator credentials are managed per-network through the Network Service
+- Keys are stored in the KMS (Key Management Service) with encrypted storage
 - No hardcoded credentials in code
 
 ### 2. Plugin Isolation

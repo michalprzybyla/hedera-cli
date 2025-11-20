@@ -310,15 +310,19 @@ api.logger.debug('Debug information...');
 
 ### KMS Service
 
-Manages operator credentials and key management securely.
+Manages operator credentials and key management securely. **Private keys are never exposed to other services** - all signing operations are handled internally by the KMS using key references (`keyRefId`). This ensures that sensitive key material stays isolated within the KMS service.
 
 ```typescript
 interface KmsService {
-  createLocalPrivateKey(labels?: string[]): {
+  createLocalPrivateKey(
+    keyType: KeyAlgorithm,
+    labels?: string[],
+  ): {
     keyRefId: string;
     publicKey: string;
   };
   importPrivateKey(
+    keyType: KeyAlgorithm,
     privateKey: string,
     labels?: string[],
   ): { keyRefId: string; publicKey: string };
@@ -340,20 +344,30 @@ interface KmsService {
 }
 ```
 
-**Usage Example:**
+**Usage Examples:**
 
 ```typescript
-// Create and import keys
-const keyPair = api.kms.createLocalPrivateKey(['my-key']);
-const imported = api.kms.importPrivateKey('private-key-string');
+// Create and import keys (private keys are encrypted and stored securely)
+const keyPair = api.kms.createLocalPrivateKey('ECDSA', ['my-key']);
+const imported = api.kms.importPrivateKey('ECDSA', 'private-key-string', [
+  'imported',
+]);
 
-// Get public key
+// Get public key (only public keys are exposed, never private keys)
 const publicKey = api.kms.getPublicKey(keyPair.keyRefId);
 
-// List all keys
+// List all keys (returns metadata, no private keys exposed)
 const allKeys = api.kms.list();
 
-// Create Hedera client (automatically uses network-specific operator)
+// Sign transaction using keyRefId (private key never leaves KMS)
+const transaction = new AccountCreateTransaction();
+await api.kms.signTransaction(transaction, keyPair.keyRefId);
+
+// Get signer handle for advanced signing operations (opaque handle, no key exposure)
+const signer = api.kms.getSignerHandle(keyPair.keyRefId);
+const signature = await signer.sign(messageBytes);
+
+// Create Hedera client (automatically uses network-specific operator, keys managed internally)
 const client = api.kms.createClient('testnet');
 ```
 
@@ -362,20 +376,24 @@ const client = api.kms.createClient('testnet');
 All plugin command handlers receive a `CommandHandlerArgs` object (defined in `src/core/plugins/plugin.interface.ts`) that provides:
 
 ```typescript
-// Account types
-interface Account {
-  name: string;
-  accountId: string;
-  type: KeyAlgorithm; // 'ecdsa' | 'ed25519'
-  publicKey: string;
-  evmAddress: string;
-  solidityAddress: string;
-  solidityAddressFull: string;
-  privateKey: string;
-  network: string;
+interface CommandHandlerArgs {
+  args: Record<string, unknown>; // Parsed CLI arguments
+  api: CoreApi; // Core API instance injected per execution
+  state: StateManager; // Namespaced access to persisted state
+  config: ConfigView; // CLI configuration access (get/set/list options)
+  logger: Logger; // Structured logging
 }
+```
 
-For handler patterns, result contracts, and testing examples, see `PLUGIN_ARCHITECTURE_GUIDE.md`.
+**Field Details:**
+
+- `args` – Parsed command-line arguments from the user
+- `api` – Complete Core API instance with all services (account, token, kms, mirror, etc.)
+- `state` – StateManager (alias for StateService) providing namespaced state storage
+- `config` – ConfigView (alias for ConfigService) for accessing and modifying CLI configuration options
+- `logger` – Structured logging interface with log, verbose, error, warn, and debug methods
+
+For handler patterns, result contracts, and testing examples, see [`PLUGIN_ARCHITECTURE_GUIDE.md`](../PLUGIN_ARCHITECTURE_GUIDE.md).
 
 ## Output Schemas
 
@@ -390,4 +408,7 @@ Core API services are designed to work with structured command outputs defined v
 - [Output Schemas Guide](./output-schemas-guide.md)
 - [Contributing Guide](../CONTRIBUTING.md)
 - [Architecture Decision Records](./adr/) - ADRs for interested developers
+
+```
+
 ```

@@ -217,16 +217,11 @@ The CLI externalizes both its immutable base configuration and mutable runtime s
 
 ## State directory location
 
-By default, the CLI stores plugin state in a per-user directory:
+By default, the CLI stores plugin state in a directory relative to the current working directory:
 
-- macOS / Linux: `~/.hedera-cli/state/`
-- Windows: `%APPDATA%/hedera-cli/state/`
+- **Default location**: `./.hedera-cli/state/` (in the current working directory)
 
 Each plugin (or state namespace) uses its own JSON file inside this directory. These files are managed by the CLI; you typically should not edit them manually.
-
-## Script mode
-
-The CLI supports a global `--script` flag that suppresses handler logs and prints only the normalized command output. This is useful when running automation pipelines or CI jobs where clean, machine-consumable output is required. Combine `--script` with `--format json|yaml` and `--output <path>` to capture deterministic results without interactive prompts.
 
 ### Getting Help
 

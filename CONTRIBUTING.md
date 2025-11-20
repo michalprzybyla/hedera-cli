@@ -53,7 +53,7 @@ Please run linting and formatting checks before opening a PR.
 
 Most feature work lives in the built‑in plugins under `src/plugins/` (for example, `src/plugins/account`, `src/plugins/token`, etc.).
 
-- Follow the structure and patterns described in `PLUGIN_ARCHITECTURE_GUIDE.md`.
+- Follow the structure and patterns described in [`PLUGIN_ARCHITECTURE_GUIDE.md`](./PLUGIN_ARCHITECTURE_GUIDE.md).
 - When you change a plugin’s behaviour or commands, update that plugin’s `README.md` to match and other documentation files if needed.
 - Add or update tests under the plugin’s `__tests__/` directory to cover new or changed behaviour.
 

@@ -728,8 +728,6 @@ try {
 }
 ```
 
-## Migration Guide
-
 ### For Plugin Developers
 
 #### Migrating to Zod Schemas (Recommended)
