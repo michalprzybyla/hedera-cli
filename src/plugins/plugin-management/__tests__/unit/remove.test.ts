@@ -8,13 +8,14 @@ import {
   makeLogger,
 } from '../../../../core/shared/__tests__/helpers/mocks';
 import type { PluginManagementService } from '../../../../core/services/plugin-management/plugin-management-service.interface';
+import { PluginManagementRemoveStatus } from '../../../../core/services/plugin-management/plugin-management-service.interface';
 
 describe('plugin-management remove command', () => {
   it('should remove an existing plugin from state', async () => {
     const logger = makeLogger();
     const pluginManagement = {
       removePlugin: jest.fn().mockReturnValue({
-        status: 'removed',
+        status: PluginManagementRemoveStatus.Removed,
         entry: {
           name: 'custom-plugin',
           path: 'dist/plugins/custom-plugin',
@@ -43,7 +44,7 @@ describe('plugin-management remove command', () => {
     const logger = makeLogger();
     const pluginManagement = {
       removePlugin: jest.fn().mockReturnValue({
-        status: 'not-found',
+        status: PluginManagementRemoveStatus.NotFound,
       }),
     } as unknown as PluginManagementService;
     const api = { pluginManagement };
@@ -67,7 +68,7 @@ describe('plugin-management remove command', () => {
     const logger = makeLogger();
     const pluginManagement = {
       removePlugin: jest.fn().mockReturnValue({
-        status: 'protected',
+        status: PluginManagementRemoveStatus.Protected,
       }),
     } as unknown as PluginManagementService;
     const api = { pluginManagement };

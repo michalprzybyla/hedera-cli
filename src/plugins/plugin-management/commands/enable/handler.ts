@@ -8,6 +8,7 @@ import { CommandExecutionResult } from '../../../../core/plugins/plugin.types';
 import { Status } from '../../../../core/shared/constants';
 import { formatError } from '../../../../core/utils/errors';
 import { AddPluginOutput } from '../add/output';
+import { PluginManagementEnableStatus } from '../../../../core/services/plugin-management/plugin-management-service.interface';
 export async function enablePlugin(
   args: CommandHandlerArgs,
 ): Promise<CommandExecutionResult> {
@@ -19,7 +20,7 @@ export async function enablePlugin(
   try {
     const result = api.pluginManagement.enablePlugin(name);
 
-    if (result.status === 'not-found') {
+    if (result.status === PluginManagementEnableStatus.NotFound) {
       return {
         status: Status.Failure,
         errorMessage: `Plugin '${name}' not found in plugin-management state`,
@@ -29,9 +30,9 @@ export async function enablePlugin(
     const outputData: AddPluginOutput = {
       name,
       path: result.entry?.path ?? 'unknown',
-      added: result.status === 'enabled',
+      added: result.status === PluginManagementEnableStatus.Enabled,
       message:
-        result.status === 'already-enabled'
+        result.status === PluginManagementEnableStatus.AlreadyEnabled
           ? `Plugin ${name} is already enabled`
           : `Plugin ${name} enabled successfully`,
     };

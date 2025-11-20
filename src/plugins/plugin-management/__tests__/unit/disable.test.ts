@@ -8,13 +8,14 @@ import {
   makeLogger,
 } from '../../../../core/shared/__tests__/helpers/mocks';
 import type { PluginManagementService } from '../../../../core/services/plugin-management/plugin-management-service.interface';
+import { PluginManagementDisableStatus } from '../../../../core/services/plugin-management/plugin-management-service.interface';
 
 describe('plugin-management disable command', () => {
   it('should disable an enabled plugin', async () => {
     const logger = makeLogger();
     const pluginManagement = {
       disablePlugin: jest.fn().mockReturnValue({
-        status: 'disabled',
+        status: PluginManagementDisableStatus.Disabled,
         entry: {
           name: 'custom-plugin',
           path: 'dist/plugins/custom-plugin',
@@ -45,7 +46,7 @@ describe('plugin-management disable command', () => {
     const logger = makeLogger();
     const pluginManagement = {
       disablePlugin: jest.fn().mockReturnValue({
-        status: 'already-disabled',
+        status: PluginManagementDisableStatus.AlreadyDisabled,
         entry: {
           name: 'custom-plugin',
           path: 'dist/plugins/custom-plugin',
@@ -75,7 +76,9 @@ describe('plugin-management disable command', () => {
   it('should protect plugin-management from being disabled', async () => {
     const logger = makeLogger();
     const pluginManagement = {
-      disablePlugin: jest.fn().mockReturnValue({ status: 'protected' }),
+      disablePlugin: jest
+        .fn()
+        .mockReturnValue({ status: PluginManagementDisableStatus.Protected }),
     } as unknown as PluginManagementService;
     const api = { pluginManagement };
 
@@ -98,7 +101,9 @@ describe('plugin-management disable command', () => {
   it('should return success with message when plugin does not exist', async () => {
     const logger = makeLogger();
     const pluginManagement = {
-      disablePlugin: jest.fn().mockReturnValue({ status: 'not-found' }),
+      disablePlugin: jest
+        .fn()
+        .mockReturnValue({ status: PluginManagementDisableStatus.NotFound }),
     } as unknown as PluginManagementService;
     const api = { pluginManagement };
 

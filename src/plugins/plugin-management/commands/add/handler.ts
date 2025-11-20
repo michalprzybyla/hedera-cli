@@ -19,6 +19,7 @@ import {
   PluginStateEntry,
   PluginManifest,
 } from '../../../../core/plugins/plugin.interface';
+import { PluginManagementCreateStatus } from '../../../../core/services/plugin-management/plugin-management-service.interface';
 
 export async function addPlugin(
   args: CommandHandlerArgs,
@@ -64,7 +65,7 @@ export async function addPlugin(
     };
     const result = api.pluginManagement.addPlugin(newEntry);
 
-    if (result.status === 'duplicate') {
+    if (result.status === PluginManagementCreateStatus.Duplicate) {
       const outputData: AddPluginOutput = {
         name: pluginName,
         path: resolvedPath,

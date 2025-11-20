@@ -10,6 +10,7 @@ import {
 import type { PluginStateEntry } from '../../../../core/plugins/plugin.interface';
 import { CUSTOM_PLUGIN_ENTRY } from './helpers/fixtures';
 import type { PluginManagementService } from '../../../../core/services/plugin-management/plugin-management-service.interface';
+import { PluginManagementCreateStatus } from '../../../../core/services/plugin-management/plugin-management-service.interface';
 
 // Mock path to produce predictable manifest path
 jest.mock('path', () => ({
@@ -38,7 +39,7 @@ describe('plugin-management add command', () => {
     };
     const pluginManagement = {
       addPlugin: jest.fn().mockReturnValue({
-        status: 'created',
+        status: PluginManagementCreateStatus.Created,
         entry: createdEntry,
       }),
     } as unknown as PluginManagementService;
@@ -71,7 +72,7 @@ describe('plugin-management add command', () => {
     const existingEntry: PluginStateEntry = { ...CUSTOM_PLUGIN_ENTRY };
     const pluginManagement = {
       addPlugin: jest.fn().mockReturnValue({
-        status: 'duplicate',
+        status: PluginManagementCreateStatus.Duplicate,
         entry: existingEntry,
       }),
     } as unknown as PluginManagementService;

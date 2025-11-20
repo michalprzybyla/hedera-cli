@@ -8,13 +8,14 @@ import {
   makeLogger,
 } from '../../../../core/shared/__tests__/helpers/mocks';
 import type { PluginManagementService } from '../../../../core/services/plugin-management/plugin-management-service.interface';
+import { PluginManagementEnableStatus } from '../../../../core/services/plugin-management/plugin-management-service.interface';
 
 describe('plugin-management enable command', () => {
   it('should enable a disabled plugin', async () => {
     const logger = makeLogger();
     const pluginManagement = {
       enablePlugin: jest.fn().mockReturnValue({
-        status: 'enabled',
+        status: PluginManagementEnableStatus.Enabled,
         entry: {
           name: 'custom-plugin',
           path: 'dist/plugins/custom-plugin',
@@ -42,7 +43,7 @@ describe('plugin-management enable command', () => {
     const logger = makeLogger();
     const pluginManagement = {
       enablePlugin: jest.fn().mockReturnValue({
-        status: 'already-enabled',
+        status: PluginManagementEnableStatus.AlreadyEnabled,
         entry: {
           name: 'custom-plugin',
           path: 'dist/plugins/custom-plugin',
@@ -69,7 +70,9 @@ describe('plugin-management enable command', () => {
   it('should return failure when plugin does not exist in state', async () => {
     const logger = makeLogger();
     const pluginManagement = {
-      enablePlugin: jest.fn().mockReturnValue({ status: 'not-found' }),
+      enablePlugin: jest
+        .fn()
+        .mockReturnValue({ status: PluginManagementEnableStatus.NotFound }),
     } as unknown as PluginManagementService;
     const api = { pluginManagement };
 

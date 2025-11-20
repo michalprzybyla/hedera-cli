@@ -3,10 +3,14 @@ import { StateService } from '../state/state-service.interface';
 import { PLUGIN_MANAGEMENT_NAMESPACE } from '../../shared/constants';
 import {
   PluginManagementDisableResult,
+  PluginManagementDisableStatus,
   PluginManagementEnableResult,
+  PluginManagementEnableStatus,
   PluginManagementService,
   PluginManagementCreateResult,
+  PluginManagementCreateStatus,
   PluginManagementRemoveResult,
+  PluginManagementRemoveStatus,
 } from './plugin-management-service.interface';
 
 export class PluginManagementServiceImpl implements PluginManagementService {
@@ -32,39 +36,42 @@ export class PluginManagementServiceImpl implements PluginManagementService {
     const existing = this.getPlugin(entry.name);
 
     if (existing) {
-      return { status: 'duplicate', entry: existing };
+      return {
+        status: PluginManagementCreateStatus.Duplicate,
+        entry: existing,
+      };
     }
 
     this.upsertPlugin(entry);
 
-    return { status: 'created', entry };
+    return { status: PluginManagementCreateStatus.Created, entry };
   }
 
   removePlugin(name: string): PluginManagementRemoveResult {
     if (name === 'plugin-management') {
-      return { status: 'protected' };
+      return { status: PluginManagementRemoveStatus.Protected };
     }
 
     const existing = this.getPlugin(name);
 
     if (!existing) {
-      return { status: 'not-found' };
+      return { status: PluginManagementRemoveStatus.NotFound };
     }
 
     this.state.delete(PLUGIN_MANAGEMENT_NAMESPACE, name);
 
-    return { status: 'removed', entry: existing };
+    return { status: PluginManagementRemoveStatus.Removed, entry: existing };
   }
 
   enablePlugin(name: string): PluginManagementEnableResult {
     const entry = this.getPlugin(name);
 
     if (!entry) {
-      return { status: 'not-found' };
+      return { status: PluginManagementEnableStatus.NotFound };
     }
 
     if (entry.enabled) {
-      return { status: 'already-enabled', entry };
+      return { status: PluginManagementEnableStatus.AlreadyEnabled, entry };
     }
 
     const updated: PluginStateEntry = {
@@ -74,22 +81,22 @@ export class PluginManagementServiceImpl implements PluginManagementService {
 
     this.upsertPlugin(updated);
 
-    return { status: 'enabled', entry: updated };
+    return { status: PluginManagementEnableStatus.Enabled, entry: updated };
   }
 
   disablePlugin(name: string): PluginManagementDisableResult {
     if (name === 'plugin-management') {
-      return { status: 'protected' };
+      return { status: PluginManagementDisableStatus.Protected };
     }
 
     const entry = this.getPlugin(name);
 
     if (!entry) {
-      return { status: 'not-found' };
+      return { status: PluginManagementDisableStatus.NotFound };
     }
 
     if (!entry.enabled) {
-      return { status: 'already-disabled', entry };
+      return { status: PluginManagementDisableStatus.AlreadyDisabled, entry };
     }
 
     const updated: PluginStateEntry = {
@@ -99,7 +106,7 @@ export class PluginManagementServiceImpl implements PluginManagementService {
 
     this.upsertPlugin(updated);
 
-    return { status: 'disabled', entry: updated };
+    return { status: PluginManagementDisableStatus.Disabled, entry: updated };
   }
 
   upsertPlugin(entry: PluginStateEntry): void {

@@ -8,6 +8,7 @@ import { CommandExecutionResult } from '../../../../core/plugins/plugin.types';
 import { Status } from '../../../../core/shared/constants';
 import { formatError } from '../../../../core/utils/errors';
 import { RemovePluginOutput } from './output';
+import { PluginManagementRemoveStatus } from '../../../../core/services/plugin-management/plugin-management-service.interface';
 
 export async function removePlugin(
   args: CommandHandlerArgs,
@@ -20,7 +21,7 @@ export async function removePlugin(
   try {
     const result = api.pluginManagement.removePlugin(name);
 
-    if (result.status === 'protected') {
+    if (result.status === PluginManagementRemoveStatus.Protected) {
       const protectedResult: RemovePluginOutput = {
         name,
         removed: false,
@@ -34,7 +35,7 @@ export async function removePlugin(
       };
     }
 
-    if (result.status === 'not-found') {
+    if (result.status === PluginManagementRemoveStatus.NotFound) {
       const notFound: RemovePluginOutput = {
         name,
         removed: false,
