@@ -287,17 +287,47 @@ const hasCustomSetting = api.config.hasValue('custom.setting');
 
 ### Logger Service
 
-Provides structured logging capabilities.
+Provides structured logging capabilities with configurable log levels.
 
 ```typescript
+export type LogLevel = 'error' | 'warn' | 'log' | 'debug' | 'verbose';
+
 interface Logger {
   log(message: string): void;
   verbose(message: string): void;
   error(message: string): void;
   warn(message: string): void;
   debug(message: string): void;
+
+  /**
+   * Set minimal log level.
+   * Messages below this level are filtered out.
+   */
+  setLevel(level: LogLevel): void;
 }
 ```
+
+**Log level behaviour:**
+
+- `error` – only critical errors
+- `warn` – warnings + errors
+- `log` – normal informational logs + warnings + errors (default)
+- `debug` – debug details + log + warn + error
+- `verbose` – all logs
+
+The global log level is controlled by the config option `log_level`:
+
+- allowed values: `error`, `warn`, `log`, `debug`, `verbose`
+- default: `log`
+- configure via CLI, for example:
+
+```bash
+hcli config set -o log_level -v error
+hcli config set -o log_level -v debug
+```
+
+All logger output is written to **stderr** so that structured command output on stdout
+remains clean and can be piped or parsed safely.
 
 **Usage Example:**
 
