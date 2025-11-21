@@ -44,26 +44,7 @@ export class TxExecutionServiceImpl implements TxExecutionService {
     this.logger.debug(
       `[TX-EXECUTION] Signing and executing transaction with operator`,
     );
-
-    const currentNetwork = this.networkService.getCurrentNetwork();
-    const operator = this.networkService.getOperator(currentNetwork);
-    if (!operator) {
-      throw new Error(
-        `[TX-EXECUTION] No operator configured for network: ${currentNetwork}`,
-      );
-    }
-
-    const client = this.getClient();
-    if (!transaction.isFrozen()) {
-      transaction.freezeWith(client);
-    }
-
-    this.logger.debug(
-      `[TX-EXECUTION] Signing with operator key: ${operator.keyRefId}`,
-    );
-    await this.kms.signTransaction(transaction, operator.keyRefId);
-
-    return this.executeAndParseReceipt(transaction, client);
+    return this.signAndExecuteWith(transaction, []);
   }
 
   async signAndExecuteWith(
@@ -77,7 +58,7 @@ export class TxExecutionServiceImpl implements TxExecutionService {
       transaction.freezeWith(client);
     }
 
-    const uniqueKeyRefIds = this.validateAndDeduplicateKeys(keyRefIds);
+    const uniqueKeyRefIds = this.deduplicateKeys(keyRefIds);
 
     for (const keyRefId of uniqueKeyRefIds) {
       this.logger.debug(`[TX-EXECUTION] Signing with key: ${keyRefId}`);
@@ -87,24 +68,9 @@ export class TxExecutionServiceImpl implements TxExecutionService {
     return this.executeAndParseReceipt(transaction, client);
   }
 
-  /** Validate keys exist in KMS and deduplicate (preserves first occurrence order) */
-  private validateAndDeduplicateKeys(keyRefIds: string[]): string[] {
-    const uniqueKeyRefIds = new Set<string>();
-
-    for (const keyRefId of keyRefIds) {
-      const publicKey = this.kms.getPublicKey(keyRefId);
-      // If key does not exist, skip it because its internal method and always receive validated keys
-      if (publicKey) {
-        uniqueKeyRefIds.add(keyRefId);
-      }
-    }
-
-    if (uniqueKeyRefIds.size < keyRefIds.length) {
-      this.logger.debug(
-        `[TX-EXECUTION] Deduplicated ${keyRefIds.length} keys to ${uniqueKeyRefIds.size} unique key(s)`,
-      );
-    }
-
+  /** Deduplicate keys */
+  private deduplicateKeys(keyRefIds: string[]): string[] {
+    const uniqueKeyRefIds = new Set<string>(keyRefIds);
     return Array.from(uniqueKeyRefIds);
   }
 
