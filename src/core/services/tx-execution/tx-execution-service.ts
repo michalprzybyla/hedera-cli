@@ -58,7 +58,7 @@ export class TxExecutionServiceImpl implements TxExecutionService {
       transaction.freezeWith(client);
     }
 
-    const uniqueKeyRefIds = this.deduplicateKeys(keyRefIds);
+    const uniqueKeyRefIds = new Set<string>(keyRefIds);
 
     for (const keyRefId of uniqueKeyRefIds) {
       this.logger.debug(`[TX-EXECUTION] Signing with key: ${keyRefId}`);
@@ -66,12 +66,6 @@ export class TxExecutionServiceImpl implements TxExecutionService {
     }
 
     return this.executeAndParseReceipt(transaction, client);
-  }
-
-  /** Deduplicate keys */
-  private deduplicateKeys(keyRefIds: string[]): string[] {
-    const uniqueKeyRefIds = new Set<string>(keyRefIds);
-    return Array.from(uniqueKeyRefIds);
   }
 
   /** Execute transaction and parse receipt (shared by signAndExecute and signAndExecuteWith) */
