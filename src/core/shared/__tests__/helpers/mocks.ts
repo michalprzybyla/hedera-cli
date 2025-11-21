@@ -187,6 +187,15 @@ const makePluginManagementServiceMock = (): PluginManagementService =>
   }) as unknown as PluginManagementService;
 
 /**
+ * Create a mocked ConfigService
+ */
+export const makeConfigMock = (): jest.Mocked<ConfigService> => ({
+  listOptions: jest.fn().mockReturnValue([]),
+  getOption: jest.fn().mockReturnValue('local'), // Default key manager
+  setOption: jest.fn(),
+});
+
+/**
  * Create CommandHandlerArgs for testing
  */
 export const makeArgs = (
@@ -205,7 +214,7 @@ export const makeArgs = (
     state: {} as any,
     mirror: {} as any,
     network: makeNetworkMock('testnet'),
-    config: {} as any,
+    config: makeConfigMock(),
     logger,
     alias: makeAliasMock(),
     kms: makeKmsMock(),
@@ -216,7 +225,7 @@ export const makeArgs = (
   },
   logger,
   state: {} as StateService,
-  config: {} as ConfigService,
+  config: makeConfigMock(),
   args,
 });
 
