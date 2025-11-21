@@ -21,8 +21,8 @@ export type ConfigView = ConfigService;
 
 export interface PluginStateEntry {
   name: string;
-  path: string;
   enabled: boolean;
+  path?: string;
   displayName?: string;
   version?: string;
   description?: string;

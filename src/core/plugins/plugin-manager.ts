@@ -83,16 +83,14 @@ export class PluginManager {
 
       const initialState: PluginStateEntry[] = defaultState.map((manifest) => {
         const pluginName = manifest.name;
-        const defaultPath = this.getDefaultPluginPath(pluginName);
 
         return {
           name: pluginName,
-          path: defaultPath,
           enabled: true,
           displayName: manifest.displayName ?? pluginName,
           version: manifest.version,
           description: manifest.description,
-          commands: manifest.commands?.map((command) => String(command.name)),
+          commands: manifest.commands?.map((command) => command.name),
           capabilities: manifest.capabilities,
         };
       });
@@ -114,9 +112,17 @@ export class PluginManager {
   setupDefaultPlugins(defaultState: PluginManifest[]): PluginStateEntry[] {
     const pluginState = this.initializePluginState(defaultState);
 
-    const enabledPluginPaths = pluginState
-      .filter((plugin) => plugin.enabled)
-      .map((plugin) => plugin.path);
+    const enabledPluginPaths = defaultState
+      .map((manifest) => {
+        const stateEntry = pluginState.find(
+          (entry) => entry.name === manifest.name,
+        );
+        if (!stateEntry || !stateEntry.enabled) {
+          return undefined;
+        }
+        return this.getDefaultPluginPath(manifest.name);
+      })
+      .filter((p): p is string => Boolean(p));
 
     this.setDefaultPlugins(enabledPluginPaths);
 
@@ -213,7 +219,7 @@ export class PluginManager {
         status: 'loaded',
       };
 
-      this.loadedPlugins.set(String(manifest.name), loadedPlugin);
+      this.loadedPlugins.set(manifest.name, loadedPlugin);
       return loadedPlugin;
     } catch (error) {
       throw new Error(
