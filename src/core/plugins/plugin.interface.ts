@@ -23,9 +23,5 @@ export interface PluginStateEntry {
   name: string;
   enabled: boolean;
   path?: string;
-  displayName?: string;
-  version?: string;
   description?: string;
-  commands?: string[];
-  capabilities?: string[];
 }

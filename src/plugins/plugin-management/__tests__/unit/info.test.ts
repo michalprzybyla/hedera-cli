@@ -7,21 +7,46 @@ import {
   makeArgs,
   makeLogger,
 } from '../../../../core/shared/__tests__/helpers/mocks';
-import type { PluginStateEntry } from '../../../../core/plugins/plugin.interface';
 import type { PluginManagementService } from '../../../../core/services/plugin-management/plugin-management-service.interface';
+import type { PluginStateEntry } from '../../../../core/plugins/plugin.interface';
+
+jest.mock('path', () => ({
+  resolve: (...segments: string[]) => segments.join('/'),
+  join: jest.fn(),
+}));
+
+jest.mock(
+  'dist/plugins/topic/manifest.js',
+  () => ({
+    default: {
+      name: 'topic',
+      version: '2.0.0',
+      displayName: 'Topic Plugin',
+      description: 'Manage Hedera topics',
+      commands: [{ name: 'list' }, { name: 'create' }],
+      capabilities: ['topic:list', 'topic:create'],
+    },
+  }),
+  { virtual: true },
+);
+
+jest.mock(
+  'dist/plugins/custom-plugin/manifest.js',
+  () => ({
+    default: {
+      name: 'custom-plugin',
+    },
+  }),
+  { virtual: true },
+);
 
 describe('plugin-management info command', () => {
-  it('should return plugin information from state', async () => {
+  it('should return plugin information loaded from manifest', async () => {
     const logger = makeLogger();
     const entry: PluginStateEntry = {
       name: 'topic',
       enabled: true,
-      path: './dist/plugins/topic',
-      displayName: 'Topic Plugin',
-      version: '2.0.0',
-      description: 'Manage Hedera topics',
-      commands: ['list', 'create'],
-      capabilities: ['topic:list', 'topic:create'],
+      path: 'dist/plugins/topic',
     };
     const pluginManagement = {
       getPlugin: jest.fn().mockReturnValue(entry),
@@ -49,7 +74,7 @@ describe('plugin-management info command', () => {
     const logger = makeLogger();
     const entry: PluginStateEntry = {
       name: 'custom-plugin',
-      path: './dist/plugins/custom-plugin',
+      path: 'dist/plugins/custom-plugin',
       enabled: true,
     };
     const pluginManagement = {

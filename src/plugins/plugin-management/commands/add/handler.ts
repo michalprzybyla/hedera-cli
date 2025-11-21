@@ -57,11 +57,6 @@ export async function addPlugin(
       name: pluginName,
       path: resolvedPath,
       enabled: true,
-      displayName: manifest.displayName,
-      version: manifest.version,
-      description: manifest.description,
-      commands: manifest.commands?.map((command) => String(command.name)),
-      capabilities: manifest.capabilities,
     };
     const result = api.pluginManagement.addPlugin(newEntry);
 

@@ -1,11 +1,13 @@
 /**
  * Plugin Info Command Handler
- * Handles getting detailed information about a specific plugin
- * Follows ADR-003 contract: returns CommandExecutionResult
+ * Returns plugin information based on the latest manifest.
+ * Follows ADR-003 contract: returns CommandExecutionResult.
  */
+import * as path from 'path';
 import {
   CommandHandlerArgs,
   PluginStateEntry,
+  PluginManifest,
 } from '../../../../core/plugins/plugin.interface';
 import { CommandExecutionResult } from '../../../../core/plugins/plugin.types';
 import { Status } from '../../../../core/shared/constants';
@@ -24,27 +26,43 @@ export async function getPluginInfo(
     const pluginManagement = api.pluginManagement;
     const entry: PluginStateEntry | undefined =
       pluginManagement.getPlugin(name);
-
     if (!entry) {
       const notFound: PluginInfoOutput = {
         found: false,
         message: `Plugin ${name} not found in plugin-management state`,
       };
-
       return {
         status: Status.Success,
         outputJson: JSON.stringify(notFound),
       };
     }
 
+    const basePath = entry.path ?? path.resolve('./dist/plugins', entry.name);
+    const manifestPath = path.resolve(basePath, 'manifest.js');
+
+    logger.log(`🔍 Loading plugin manifest for info from: ${manifestPath}`);
+
+    const manifestModule = (await import(manifestPath)) as {
+      default: PluginManifest;
+    };
+
+    const manifest = manifestModule.default;
+
+    if (!manifest) {
+      return {
+        status: Status.Failure,
+        errorMessage: `No valid manifest found at ${manifestPath}`,
+      };
+    }
+
     const pluginInfo = {
-      name: entry.name,
-      version: entry.version ?? 'unknown',
-      displayName: entry.displayName ?? entry.name,
+      name: manifest.name,
+      version: manifest.version ?? 'unknown',
+      displayName: manifest.displayName ?? manifest.name,
       description:
-        entry.description ?? 'No description available for this plugin.',
-      commands: entry.commands ?? [],
-      capabilities: entry.capabilities ?? [],
+        manifest.description ?? 'No description available for this plugin.',
+      commands: manifest.commands?.map((command) => command.name) ?? [],
+      capabilities: manifest.capabilities ?? [],
       enabled: entry.enabled,
     };
 

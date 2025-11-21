@@ -12,11 +12,9 @@ export { AddPluginOutputSchema as EnablePluginOutputSchema };
 export const ENABLE_PLUGIN_TEMPLATE = `{{#if added}}
 ✅ Plugin enabled successfully
    Name: {{name}}
-   Path: {{path}}
 {{else}}
 ❌ Failed to enable plugin
    Name: {{name}}
-   Path: {{path}}
    Error: {{message}}
 {{/if}}`;
 

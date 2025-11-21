@@ -87,11 +87,7 @@ export class PluginManager {
         return {
           name: pluginName,
           enabled: true,
-          displayName: manifest.displayName ?? pluginName,
-          version: manifest.version,
           description: manifest.description,
-          commands: manifest.commands?.map((command) => command.name),
-          capabilities: manifest.capabilities,
         };
       });
 
