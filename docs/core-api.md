@@ -294,7 +294,6 @@ export type LogLevel = 'error' | 'warn' | 'info' | 'debug';
 
 interface Logger {
   info(message: string): void;
-  log(message: string): void;
   error(message: string): void;
   warn(message: string): void;
   debug(message: string): void;
@@ -331,7 +330,7 @@ remains clean and can be piped or parsed safely.
 **Usage Example:**
 
 ```typescript
-api.logger.log('Processing request...');
+api.logger.info('Processing request...');
 api.logger.warn('Deprecated feature used');
 api.logger.error('Failed to process request');
 api.logger.debug('Debug information...');
@@ -429,7 +428,7 @@ interface CommandHandlerArgs {
 - `api` – Complete Core API instance with all services (account, token, kms, mirror, etc.)
 - `state` – StateManager (alias for StateService) providing namespaced state storage
 - `config` – ConfigView (alias for ConfigService) for accessing and modifying CLI configuration options
-- `logger` – Structured logging interface with info/log, error, warn, and debug methods
+- `logger` – Structured logging interface with info, error, warn, and debug methods
 
 For handler patterns, result contracts, and testing examples, see [`PLUGIN_ARCHITECTURE_GUIDE.md`](../PLUGIN_ARCHITECTURE_GUIDE.md).
 

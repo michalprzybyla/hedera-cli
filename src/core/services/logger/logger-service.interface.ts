@@ -9,14 +9,9 @@ export type LogLevel = (typeof LOG_LEVEL_VALUES)[number];
 
 export interface Logger {
   /**
-   * Log a message
+   * Log an informational message
    */
   info(message: string): void;
-
-  /**
-   * Log a message (alias for info)
-   */
-  log(message: string): void;
 
   /**
    * Log an error message

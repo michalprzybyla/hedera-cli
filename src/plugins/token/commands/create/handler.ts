@@ -241,8 +241,8 @@ export async function createToken(
     treasuryKeyRefId = resolvedTreasury.treasuryKeyRefId;
     treasuryPublicKey = resolvedTreasury.treasuryPublicKey;
 
-    logger.log(`🏦 Using custom treasury account: ${treasuryId}`);
-    logger.log(`🔑 Will sign with treasury key`);
+    logger.info(`🏦 Using custom treasury account: ${treasuryId}`);
+    logger.info(`🔑 Will sign with treasury key`);
   }
 
   // Validate and determine maxSupply
@@ -255,9 +255,9 @@ export async function createToken(
     );
   }
 
-  logger.log(`Creating token: ${name} (${symbol})`);
+  logger.info(`Creating token: ${name} (${symbol})`);
   if (finalMaxSupply !== undefined) {
-    logger.log(`Max supply: ${finalMaxSupply}`);
+    logger.info(`Max supply: ${finalMaxSupply}`);
   }
 
   try {
@@ -323,7 +323,7 @@ export async function createToken(
     });
 
     tokenState.saveToken(result.tokenId, tokenData);
-    logger.log(`   Token data saved to state`);
+    logger.info(`   Token data saved to state`);
 
     // Register alias if provided
     if (alias) {
@@ -334,7 +334,7 @@ export async function createToken(
         entityId: result.tokenId,
         createdAt: result.consensusTimestamp,
       });
-      logger.log(`   Name registered: ${alias}`);
+      logger.info(`   Name registered: ${alias}`);
     }
 
     // Prepare output data

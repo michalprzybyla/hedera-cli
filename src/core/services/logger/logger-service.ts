@@ -61,10 +61,6 @@ export class LoggerService implements Logger {
     this.output('info', message);
   }
 
-  log(message: string): void {
-    this.info(message);
-  }
-
   error(message: string): void {
     this.output('error', message);
   }

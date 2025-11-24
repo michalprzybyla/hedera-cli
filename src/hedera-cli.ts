@@ -49,7 +49,7 @@ async function initializeCLI() {
     // Add disabled plugins section to help output
     addDisabledPluginsHelp(program, pluginState);
 
-    coreApi.logger.log('✅ CLI ready');
+    coreApi.logger.info('✅ CLI ready');
 
     // Parse arguments and execute command
     await program.parseAsync(process.argv);

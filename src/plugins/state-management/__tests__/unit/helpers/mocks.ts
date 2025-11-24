@@ -14,7 +14,6 @@ import { mockStateData } from './fixtures';
  */
 export const makeLogger = (): jest.Mocked<Logger> => ({
   info: jest.fn(),
-  log: jest.fn(),
   error: jest.fn(),
   debug: jest.fn(),
   warn: jest.fn(),

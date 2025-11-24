@@ -41,7 +41,6 @@ describe('Token State Management', () => {
       info: jest.fn(),
       warn: jest.fn(),
       error: jest.fn(),
-      log: jest.fn(),
       setLevel: jest.fn(),
     } as jest.Mocked<Logger>;
 
