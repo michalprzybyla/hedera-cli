@@ -8,6 +8,12 @@ import { DEFAULT_PLUGIN_STATE } from './core/shared/config/cli-options';
 import { addDisabledPluginsHelp } from './core/utils/add-disabled-plugins-help';
 import { PluginManager } from './core/plugins/plugin-manager';
 import { CoreApi } from './core/core-api/core-api.interface';
+import {
+  setupGlobalErrorHandlers,
+  setGlobalOutputFormat,
+  formatAndExitWithError,
+} from './core/utils/error-handler';
+import { validateOutputFormat } from './core/shared/validation/validate-output-format.zod';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const pkg = require('../package.json') as { version?: string };
@@ -21,12 +27,15 @@ program
 async function initializeCLI() {
   let coreApi: CoreApi | undefined;
   try {
-    // Pre-parse arguments to get format before creating core API
+    console.error('🚀 Starting Hedera CLI...');
+
     program.parseOptions(process.argv.slice(2));
     const opts = program.opts();
+    const format = validateOutputFormat(opts.format);
 
-    const formatOption = opts.format as string | undefined;
-    const format = formatOption === 'json' ? 'json' : 'human';
+    // Setup global error handlers with validated format
+    setGlobalOutputFormat(format);
+    setupGlobalErrorHandlers();
 
     // Create core API config
     const coreApiConfig: CoreApiConfig = {
@@ -55,14 +64,9 @@ async function initializeCLI() {
     await program.parseAsync(process.argv);
     process.exit(0);
   } catch (error) {
-    if (coreApi) {
-      coreApi.logger.error(`❌ CLI execution failed: ${String(error)}`);
-    } else {
-      console.error('❌ CLI execution failed:', error);
-    }
-    process.exit(1);
+    formatAndExitWithError('CLI initialization failed', error);
   }
 }
 
 // Start the CLI
-initializeCLI();
+void initializeCLI();
