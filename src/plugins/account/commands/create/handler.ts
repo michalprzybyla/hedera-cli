@@ -12,10 +12,11 @@ import { formatError } from '../../../../core/utils/errors';
 import { ZustandAccountStateHelper } from '../../zustand-state-helper';
 import { processBalanceInput } from '../../../../core/utils/process-balance-input';
 import { CreateAccountOutput } from './output';
-import { AccountId, Hbar } from '@hashgraph/sdk';
+import { Hbar } from '@hashgraph/sdk';
 import type { KeyAlgorithmType as KeyAlgorithmType } from '../../../../core/services/kms/kms-types.interface';
 import { KeyAlgorithm } from '../../../../core/shared/constants';
 import { KeyManagerName } from '../../../../core/services/kms/kms-types.interface';
+import { buildAccountAddresses } from '../../utils/account-address';
 
 /**
  * Validates that an account has sufficient balance for an operation.
@@ -153,24 +154,27 @@ export async function createAccount(
         });
       }
 
-      const assignedAccountId = result.accountId || '0.0.123456';
-      const solidityAddressHex =
-        AccountId.fromString(assignedAccountId).toSolidityAddress();
+      if (!result.accountId) {
+        throw new Error(
+          'Transaction completed but did not return an account ID, unable to derive addresses',
+        );
+      }
 
-      const solidityAddressFull = `0x${solidityAddressHex}`;
-      const evmAddressFinal =
-        keyType === KeyAlgorithm.ECDSA
-          ? accountCreateResult.evmAddress
-          : solidityAddressFull;
+      const { evmAddress, solidityAddress, solidityAddressFull } =
+        buildAccountAddresses({
+          accountId: result.accountId,
+          publicKey: accountCreateResult.publicKey,
+          keyType,
+        });
 
       // 5. Store account metadata in plugin state (no private key)
       const accountData: AccountData = {
         name,
-        accountId: assignedAccountId,
+        accountId: result.accountId,
         type: keyType as KeyAlgorithm,
         publicKey: accountCreateResult.publicKey,
-        evmAddress: evmAddressFinal,
-        solidityAddress: solidityAddressHex,
+        evmAddress,
+        solidityAddress,
         solidityAddressFull,
         keyRefId,
         network: api.network.getCurrentNetwork() as AccountData['network'],
@@ -186,7 +190,7 @@ export async function createAccount(
         ...(alias && { alias }),
         network: accountData.network,
         transactionId: result.transactionId || '',
-        evmAddress: evmAddressFinal,
+        evmAddress,
         publicKey: accountData.publicKey,
       };
 

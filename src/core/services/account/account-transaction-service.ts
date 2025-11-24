@@ -2,8 +2,7 @@
  * Real implementation of Account Transaction Service
  * Uses Hedera SDK to create actual transactions and queries
  */
-import { KeyAlgorithm, ZERO_EVM_ADDRESS } from '../../shared/constants';
-import type { KeyAlgorithmType } from '../kms/kms-types.interface';
+import { KeyAlgorithm } from '../../shared/constants';
 import {
   AccountCreateTransaction,
   AccountInfoQuery,
@@ -54,9 +53,6 @@ export class AccountServiceImpl implements AccountService {
       transaction.setMaxAutomaticTokenAssociations(params.maxAutoAssociations);
     }
 
-    // Generate EVM address from the public key
-    const evmAddress = this.generateEvmAddress(params.publicKey, keyType);
-
     this.logger.debug(
       `[ACCOUNT TX] Created transaction for account with key: ${params.publicKey}`,
     );
@@ -64,22 +60,7 @@ export class AccountServiceImpl implements AccountService {
     return Promise.resolve({
       transaction,
       publicKey: params.publicKey,
-      evmAddress,
     });
-  }
-
-  private generateEvmAddress(
-    publicKeyString: string,
-    keyType: KeyAlgorithmType,
-  ): string {
-    if (keyType === KeyAlgorithm.ECDSA) {
-      const publicKey = PublicKey.fromStringECDSA(publicKeyString);
-      const evmAddress = publicKey.toEvmAddress();
-      return evmAddress.startsWith('0x') ? evmAddress : `0x${evmAddress}`;
-    }
-
-    // Placeholder used until mirror receipt provides actual address for non-ECDSA keys
-    return ZERO_EVM_ADDRESS;
   }
 
   /**
