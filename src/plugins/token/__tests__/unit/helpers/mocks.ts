@@ -21,11 +21,12 @@ import { mockTransactionResults } from './fixtures';
  * Create a mocked Logger
  */
 export const makeLogger = (): jest.Mocked<Logger> => ({
+  info: jest.fn(),
   log: jest.fn(),
   error: jest.fn(),
   debug: jest.fn(),
-  verbose: jest.fn(),
   warn: jest.fn(),
+  setLevel: jest.fn(),
 });
 
 /**
@@ -207,11 +208,12 @@ export const makeApiMocks = (config?: ApiMocksConfig) => {
       listOptions: jest.fn().mockReturnValue([]),
     } as unknown as ConfigService,
     logger: {
+      info: jest.fn(),
       log: jest.fn(),
       error: jest.fn(),
       debug: jest.fn(),
-      verbose: jest.fn(),
       warn: jest.fn(),
+      setLevel: jest.fn(),
     } as jest.Mocked<Logger>,
     hbar: {
       transferTinybar: jest.fn(),

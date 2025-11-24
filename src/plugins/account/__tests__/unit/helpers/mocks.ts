@@ -33,11 +33,12 @@ import {
  * Create a mocked Logger
  */
 export const makeLogger = (): jest.Mocked<Logger> => ({
+  info: jest.fn(),
   log: jest.fn(),
   error: jest.fn(),
   debug: jest.fn(),
-  verbose: jest.fn(),
   warn: jest.fn(),
+  setLevel: jest.fn(),
 });
 
 /**

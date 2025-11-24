@@ -20,11 +20,12 @@ import type { PluginManagementService } from '../../../services/plugin-managemen
  * Create a mocked Logger instance
  */
 export const makeLogger = (): jest.Mocked<Logger> => ({
+  info: jest.fn(),
   log: jest.fn(),
   error: jest.fn(),
   debug: jest.fn(),
-  verbose: jest.fn(),
   warn: jest.fn(),
+  setLevel: jest.fn(),
 });
 
 /**

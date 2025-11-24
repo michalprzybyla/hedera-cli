@@ -3,13 +3,7 @@
  * Provides consistent logging interface for plugins
  */
 
-export const LOG_LEVEL_VALUES = [
-  'error',
-  'warn',
-  'log',
-  'debug',
-  'verbose',
-] as const;
+export const LOG_LEVEL_VALUES = ['error', 'warn', 'info', 'debug'] as const;
 
 export type LogLevel = (typeof LOG_LEVEL_VALUES)[number];
 
@@ -17,12 +11,12 @@ export interface Logger {
   /**
    * Log a message
    */
-  log(message: string): void;
+  info(message: string): void;
 
   /**
-   * Log a verbose message (debug level)
+   * Log a message (alias for info)
    */
-  verbose(message: string): void;
+  log(message: string): void;
 
   /**
    * Log an error message

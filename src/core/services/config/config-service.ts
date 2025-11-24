@@ -34,7 +34,7 @@ const CONFIG_OPTIONS: Record<string, OptionSpec> = {
   },
   log_level: {
     type: 'enum',
-    default: 'log',
+    default: 'info',
     allowedValues: LOG_LEVEL_VALUES,
   },
   default_key_manager: {

@@ -7,11 +7,12 @@ import type { ConfigService } from '../../../../../core/services/config/config-s
 import type { CommandHandlerArgs } from '../../../../../core/plugins/plugin.interface';
 
 export const makeLogger = (): jest.Mocked<Logger> => ({
+  info: jest.fn(),
   log: jest.fn(),
   error: jest.fn(),
   debug: jest.fn(),
-  verbose: jest.fn(),
   warn: jest.fn(),
+  setLevel: jest.fn(),
 });
 
 export const makeConfigServiceMock = (

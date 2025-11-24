@@ -3,13 +3,12 @@ import { LogLevel, Logger } from './logger-service.interface';
 const LOG_LEVEL_PRIORITY: Record<LogLevel, number> = {
   error: 0,
   warn: 1,
-  log: 2,
+  info: 2,
   debug: 3,
-  verbose: 4,
 };
 
 export class LoggerService implements Logger {
-  private currentLevel: LogLevel = 'log';
+  private currentLevel: LogLevel = 'info';
 
   private shouldLog(level: LogLevel): boolean {
     return LOG_LEVEL_PRIORITY[level] <= LOG_LEVEL_PRIORITY[this.currentLevel];
@@ -21,12 +20,10 @@ export class LoggerService implements Logger {
         return '[ERROR]';
       case 'warn':
         return '[WARN]';
-      case 'log':
-        return '[LOG]';
+      case 'info':
+        return '[INFO]';
       case 'debug':
         return '[DEBUG]';
-      case 'verbose':
-        return '[VERBOSE]';
       default:
         return '';
     }
@@ -47,9 +44,8 @@ export class LoggerService implements Logger {
       case 'warn':
         console.warn(fullMessage);
         break;
-      case 'log':
+      case 'info':
       case 'debug':
-      case 'verbose':
         console.error(fullMessage);
         break;
       default:
@@ -61,12 +57,12 @@ export class LoggerService implements Logger {
     this.currentLevel = level;
   }
 
-  log(message: string): void {
-    this.output('log', message);
+  info(message: string): void {
+    this.output('info', message);
   }
 
-  verbose(message: string): void {
-    this.output('verbose', message);
+  log(message: string): void {
+    this.info(message);
   }
 
   error(message: string): void {

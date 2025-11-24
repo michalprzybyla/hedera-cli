@@ -290,11 +290,11 @@ const hasCustomSetting = api.config.hasValue('custom.setting');
 Provides structured logging capabilities with configurable log levels.
 
 ```typescript
-export type LogLevel = 'error' | 'warn' | 'log' | 'debug' | 'verbose';
+export type LogLevel = 'error' | 'warn' | 'info' | 'debug';
 
 interface Logger {
+  info(message: string): void;
   log(message: string): void;
-  verbose(message: string): void;
   error(message: string): void;
   warn(message: string): void;
   debug(message: string): void;
@@ -311,14 +311,13 @@ interface Logger {
 
 - `error` – only critical errors
 - `warn` – warnings + errors
-- `log` – normal informational logs + warnings + errors (default)
-- `debug` – debug details + log + warn + error
-- `verbose` – all logs
+- `info` – normal informational logs + warnings + errors (default)
+- `debug` – debug details + info + warn + error
 
 The global log level is controlled by the config option `log_level`:
 
-- allowed values: `error`, `warn`, `log`, `debug`, `verbose`
-- default: `log`
+- allowed values: `error`, `warn`, `info`, `debug`
+- default: `info`
 - configure via CLI, for example:
 
 ```bash
@@ -430,7 +429,7 @@ interface CommandHandlerArgs {
 - `api` – Complete Core API instance with all services (account, token, kms, mirror, etc.)
 - `state` – StateManager (alias for StateService) providing namespaced state storage
 - `config` – ConfigView (alias for ConfigService) for accessing and modifying CLI configuration options
-- `logger` – Structured logging interface with log, verbose, error, warn, and debug methods
+- `logger` – Structured logging interface with info/log, error, warn, and debug methods
 
 For handler patterns, result contracts, and testing examples, see [`PLUGIN_ARCHITECTURE_GUIDE.md`](../PLUGIN_ARCHITECTURE_GUIDE.md).
 
