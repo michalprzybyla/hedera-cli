@@ -60,9 +60,7 @@ export class CoreApiImplementation implements CoreApi {
     this.config = new ConfigServiceImpl(this.state);
 
     // Configure logger level from config service
-    const configuredLogLevel = this.config.getOption<string>(
-      'log_level',
-    ) as LogLevel;
+    const configuredLogLevel = this.config.getOption<LogLevel>('log_level');
     this.logger.setLevel(configuredLogLevel);
 
     this.logger.log('🚀 Starting Hedera CLI...');
