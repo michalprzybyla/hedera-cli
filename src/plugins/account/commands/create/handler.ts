@@ -12,7 +12,7 @@ import { formatError } from '../../../../core/utils/errors';
 import { ZustandAccountStateHelper } from '../../zustand-state-helper';
 import { processBalanceInput } from '../../../../core/utils/process-balance-input';
 import { CreateAccountOutput } from './output';
-import { Hbar } from '@hashgraph/sdk';
+import { AccountId, Hbar } from '@hashgraph/sdk';
 import type { KeyAlgorithmType as KeyAlgorithmType } from '../../../../core/services/kms/kms-types.interface';
 import { KeyAlgorithm } from '../../../../core/shared/constants';
 import { KeyManagerName } from '../../../../core/services/kms/kms-types.interface';
@@ -153,15 +153,25 @@ export async function createAccount(
         });
       }
 
+      const assignedAccountId = result.accountId || '0.0.123456';
+      const solidityAddressHex =
+        AccountId.fromString(assignedAccountId).toSolidityAddress();
+
+      const solidityAddressFull = `0x${solidityAddressHex}`;
+      const evmAddressFinal =
+        keyType === KeyAlgorithm.ECDSA
+          ? accountCreateResult.evmAddress
+          : solidityAddressFull;
+
       // 5. Store account metadata in plugin state (no private key)
       const accountData: AccountData = {
         name,
-        accountId: result.accountId || '0.0.123456',
+        accountId: assignedAccountId,
         type: keyType as KeyAlgorithm,
         publicKey: accountCreateResult.publicKey,
-        evmAddress: accountCreateResult.evmAddress,
-        solidityAddress: accountCreateResult.evmAddress,
-        solidityAddressFull: accountCreateResult.evmAddress,
+        evmAddress: evmAddressFinal,
+        solidityAddress: solidityAddressHex,
+        solidityAddressFull,
         keyRefId,
         network: api.network.getCurrentNetwork() as AccountData['network'],
       };
@@ -176,7 +186,7 @@ export async function createAccount(
         ...(alias && { alias }),
         network: accountData.network,
         transactionId: result.transactionId || '',
-        evmAddress: accountData.evmAddress,
+        evmAddress: evmAddressFinal,
         publicKey: accountData.publicKey,
       };
 

@@ -12,6 +12,7 @@ import { ImportAccountOutput } from './output';
 import { parseKeyWithType } from '../../../../core/utils/keys';
 import { KeyManagerName } from '../../../../core/services/kms/kms-types.interface';
 import { AccountData } from '../../schema';
+import { AccountId } from '@hashgraph/sdk';
 
 export async function importAccount(
   args: CommandHandlerArgs,
@@ -78,16 +79,23 @@ export async function importAccount(
       });
     }
 
+    const solidityAddressHex =
+      AccountId.fromString(accountId).toSolidityAddress();
+    const solidityAddressFull = `0x${solidityAddressHex}`;
+    const evmAddress =
+      accountInfo.evmAddress && accountInfo.evmAddress !== ''
+        ? accountInfo.evmAddress
+        : solidityAddressFull;
+
     // Create account object (no private key in plugin state)
     const account: AccountData = {
       name,
       accountId,
       type: keyType as KeyAlgorithm,
       publicKey: publicKey,
-      evmAddress:
-        accountInfo.evmAddress || '0x0000000000000000000000000000000000000000',
-      solidityAddress: accountId, // Simplified for mock
-      solidityAddressFull: `0x${accountId}`,
+      evmAddress,
+      solidityAddress: solidityAddressHex,
+      solidityAddressFull,
       keyRefId,
       network: api.network.getCurrentNetwork(),
     };
@@ -103,7 +111,7 @@ export async function importAccount(
       ...(alias && { alias }),
       network: account.network,
       balance: BigInt(accountInfo.balance.balance.toString()),
-      evmAddress: account.evmAddress,
+      evmAddress,
     };
 
     return {

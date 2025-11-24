@@ -15,3 +15,5 @@ export enum KeyAlgorithm {
   ECDSA = 'ecdsa',
   ED25519 = 'ed25519',
 }
+
+export const ZERO_EVM_ADDRESS = '0x0000000000000000000000000000000000000000';
