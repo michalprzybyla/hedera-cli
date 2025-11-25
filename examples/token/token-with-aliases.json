@@ -1,0 +1,11 @@
+{
+  "name": "token-aliases-example",
+  "symbol": "TAL",
+  "decimals": 10,
+  "supplyType": "infinite",
+  "initialSupply": 1000,
+  "treasury": "test1",
+  "keys": {
+    "adminKey": "test1"
+  }
+}
