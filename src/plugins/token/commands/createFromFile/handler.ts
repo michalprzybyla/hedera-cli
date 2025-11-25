@@ -12,7 +12,10 @@ import { TransactionResult } from '../../../../core/services/tx-execution/tx-exe
 import { SupportedNetwork } from '../../../../core/types/shared.types';
 import { ZustandTokenStateHelper } from '../../zustand-state-helper';
 import { TokenData } from '../../schema';
-import { resolveTreasuryParameter } from '../../resolver-helper';
+import {
+  resolveTreasuryParameter,
+  resolveKeyParameter,
+} from '../../resolver-helper';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { z } from 'zod';
@@ -219,6 +222,7 @@ function resolveTreasuryFromDefinition(
  * @param result - Transaction result
  * @param tokenDefinition - Token definition from file
  * @param treasury - Resolved treasury information
+ * @param adminPublicKey - Resolved admin public key
  * @param network - Current network
  * @returns Token data object for state storage
  */
@@ -226,6 +230,7 @@ function buildTokenDataFromFile(
   result: TransactionResult,
   tokenDefinition: TokenFileDefinition,
   treasury: TreasuryFromFileResolution,
+  adminPublicKey: string,
   network: SupportedNetwork,
 ): TokenData {
   return {
@@ -240,7 +245,7 @@ function buildTokenDataFromFile(
       | 'INFINITE',
     maxSupply: tokenDefinition.maxSupply,
     keys: {
-      adminKey: tokenDefinition.keys.adminKey,
+      adminKey: adminPublicKey,
       supplyKey: tokenDefinition.keys.supplyKey || '',
       wipeKey: tokenDefinition.keys.wipeKey || '',
       kycKey: tokenDefinition.keys.kycKey || '',
@@ -352,8 +357,11 @@ export async function createTokenFromFile(
     // 1. Read and validate token file
     const tokenDefinition = await readAndValidateTokenFile(filename, logger);
 
-    // 2. Resolve treasury (supports both string and object formats)
+    // 2. Check if token name already exists as alias
     const network = api.network.getCurrentNetwork();
+    api.alias.availableOrThrow(tokenDefinition.name, network);
+
+    // 3. Resolve treasury (supports both string and object formats)
     const treasury = resolveTreasuryFromDefinition(
       tokenDefinition.treasury,
       api,
@@ -363,7 +371,18 @@ export async function createTokenFromFile(
       tokenDefinition.name,
     );
 
-    // 3. Create and execute token transaction
+    // 4. Resolve adminKey (supports alias or raw private key)
+    const adminKey = resolveKeyParameter(tokenDefinition.keys.adminKey, api, {
+      keyManager,
+      tags: ['token:admin', `token:${tokenDefinition.name}`],
+    });
+
+    if (!adminKey || !adminKey.keyRefId) {
+      throw new Error('Unable to resolve admin key for the token');
+    }
+    logger.info(`🔑 Resolved admin key for signing`);
+
+    // 5. Create token transaction
     const tokenCreateTransaction = api.token.createTokenTransaction({
       name: tokenDefinition.name,
       symbol: tokenDefinition.symbol,
@@ -374,7 +393,7 @@ export async function createTokenFromFile(
         | 'FINITE'
         | 'INFINITE',
       maxSupplyRaw: tokenDefinition.maxSupply,
-      adminKey: tokenDefinition.keys.adminKey,
+      adminKey: adminKey.publicKey,
       customFees: tokenDefinition.customFees.map((fee) => ({
         type: fee.type,
         amount: fee.amount,
@@ -384,26 +403,31 @@ export async function createTokenFromFile(
       })),
     });
 
-    logger.info(`🔑 Using treasury key for signing transaction`);
+    // 6. Sign with both admin key and treasury key
+    const signingKeys = [adminKey.keyRefId, treasury.treasuryKeyRefId];
+    logger.info(
+      `🔑 Signing transaction with admin key and treasury key (${signingKeys.length} keys)`,
+    );
     const result = await api.txExecution.signAndExecuteWith(
       tokenCreateTransaction,
-      [treasury.treasuryKeyRefId],
+      signingKeys,
     );
 
-    // 4. Verify success
+    // 7. Verify success
     if (!result.success || !result.tokenId) {
       throw new Error('Token creation failed - no token ID returned');
     }
 
-    // 5. Build token data for state
+    // 8. Build token data for state
     const tokenData = buildTokenDataFromFile(
       result,
       tokenDefinition,
       treasury,
+      adminKey.publicKey,
       network,
     );
 
-    // 7. Process associations if specified
+    // 9. Process associations if specified
     const successfulAssociations = await processTokenAssociations(
       result.tokenId,
       tokenDefinition.associations,
@@ -413,11 +437,21 @@ export async function createTokenFromFile(
     );
     tokenData.associations = successfulAssociations;
 
-    // 8. Save token to state
+    // 10. Save token to state
     tokenState.saveToken(result.tokenId, tokenData);
     logger.info(`   Token data saved to state`);
 
-    // 9. Store script arguments if provided
+    // 11. Register token name as alias
+    api.alias.register({
+      alias: tokenDefinition.name,
+      type: 'token',
+      network,
+      entityId: result.tokenId,
+      createdAt: result.consensusTimestamp,
+    });
+    logger.info(`   Name registered: ${tokenDefinition.name}`);
+
+    // 12. Store script arguments if provided
     if (scriptArgs.length > 0) {
       logger.debug(`Storing script arguments: ${scriptArgs.join(', ')}`);
       // Note: In a full implementation, you'd store these in the state or dynamic variables system
