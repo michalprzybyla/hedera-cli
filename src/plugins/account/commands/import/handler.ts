@@ -12,7 +12,7 @@ import { ImportAccountOutput } from './output';
 import { parseKeyWithType } from '../../../../core/utils/keys';
 import { KeyManagerName } from '../../../../core/services/kms/kms-types.interface';
 import { AccountData } from '../../schema';
-import { buildAccountAddresses } from '../../utils/account-address';
+import { buildAccountEvmAddress } from '../../utils/account-address';
 
 export async function importAccount(
   args: CommandHandlerArgs,
@@ -79,13 +79,12 @@ export async function importAccount(
       });
     }
 
-    const { evmAddress, solidityAddress, solidityAddressFull } =
-      buildAccountAddresses({
-        accountId,
-        publicKey,
-        keyType,
-        existingEvmAddress: accountInfo.evmAddress,
-      });
+    const evmAddress = buildAccountEvmAddress({
+      accountId,
+      publicKey,
+      keyType,
+      existingEvmAddress: accountInfo.evmAddress,
+    });
 
     // Create account object (no private key in plugin state)
     const account: AccountData = {
@@ -94,8 +93,6 @@ export async function importAccount(
       type: keyType as KeyAlgorithm,
       publicKey: publicKey,
       evmAddress,
-      solidityAddress,
-      solidityAddressFull,
       keyRefId,
       network: api.network.getCurrentNetwork(),
     };

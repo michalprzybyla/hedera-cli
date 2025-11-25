@@ -2,17 +2,11 @@ import { AccountId, PublicKey } from '@hashgraph/sdk';
 import { KeyAlgorithm } from '../../../core/shared/constants';
 import type { KeyAlgorithmType } from '../../../core/services/kms/kms-types.interface';
 
-interface BuildAccountAddressesParams {
+interface BuildAccountEvmAddressParams {
   accountId: string;
   publicKey: string;
   keyType: KeyAlgorithmType;
   existingEvmAddress?: string | null;
-}
-
-interface AccountAddresses {
-  evmAddress: string;
-  solidityAddress: string;
-  solidityAddressFull: string;
 }
 
 const ensureHexAddressPrefix = (address: string): string => {
@@ -22,12 +16,12 @@ const ensureHexAddressPrefix = (address: string): string => {
   return address.startsWith('0x') ? address : `0x${address}`;
 };
 
-export function buildAccountAddresses({
+export function buildAccountEvmAddress({
   accountId,
   publicKey,
   keyType,
   existingEvmAddress,
-}: BuildAccountAddressesParams): AccountAddresses {
+}: BuildAccountEvmAddressParams): string {
   if (!accountId) {
     throw new Error('accountId is required to derive account addresses');
   }
@@ -41,11 +35,7 @@ export function buildAccountAddresses({
       : undefined;
 
   if (evmAddress) {
-    return {
-      evmAddress,
-      solidityAddress,
-      solidityAddressFull,
-    };
+    return evmAddress;
   }
 
   if (keyType === KeyAlgorithm.ECDSA) {
@@ -56,16 +46,8 @@ export function buildAccountAddresses({
     }
     const ecdsaPublicKey = PublicKey.fromStringECDSA(publicKey);
     const alias = ecdsaPublicKey.toEvmAddress();
-    return {
-      evmAddress: ensureHexAddressPrefix(alias),
-      solidityAddress,
-      solidityAddressFull,
-    };
+    return ensureHexAddressPrefix(alias);
   }
 
-  return {
-    evmAddress: solidityAddressFull,
-    solidityAddress,
-    solidityAddressFull,
-  };
+  return solidityAddressFull;
 }

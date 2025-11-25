@@ -16,7 +16,7 @@ import { Hbar } from '@hashgraph/sdk';
 import type { KeyAlgorithmType as KeyAlgorithmType } from '../../../../core/services/kms/kms-types.interface';
 import { KeyAlgorithm } from '../../../../core/shared/constants';
 import { KeyManagerName } from '../../../../core/services/kms/kms-types.interface';
-import { buildAccountAddresses } from '../../utils/account-address';
+import { buildAccountEvmAddress } from '../../utils/account-address';
 
 /**
  * Validates that an account has sufficient balance for an operation.
@@ -160,12 +160,11 @@ export async function createAccount(
         );
       }
 
-      const { evmAddress, solidityAddress, solidityAddressFull } =
-        buildAccountAddresses({
-          accountId: result.accountId,
-          publicKey: accountCreateResult.publicKey,
-          keyType,
-        });
+      const evmAddress = buildAccountEvmAddress({
+        accountId: result.accountId,
+        publicKey: accountCreateResult.publicKey,
+        keyType,
+      });
 
       // 5. Store account metadata in plugin state (no private key)
       const accountData: AccountData = {
@@ -174,8 +173,6 @@ export async function createAccount(
         type: keyType as KeyAlgorithm,
         publicKey: accountCreateResult.publicKey,
         evmAddress,
-        solidityAddress,
-        solidityAddressFull,
         keyRefId,
         network: api.network.getCurrentNetwork() as AccountData['network'],
       };
