@@ -56,6 +56,7 @@ describe('account plugin - balance command (ADR-003)', () => {
     const output: AccountBalanceOutput = JSON.parse(result.outputJson!);
     expect(output.accountId).toBe('0.0.1001');
     expect(output.hbarBalance).toBe('123456');
+    expect(output.hbarOnly).toBe(true);
     expect(output.tokenBalances).toBeUndefined();
   });
 

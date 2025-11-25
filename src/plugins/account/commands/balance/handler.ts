@@ -90,6 +90,7 @@ export async function getAccountBalance(
     const outputData: AccountBalanceOutput = {
       accountId,
       hbarBalance: hbarBalance,
+      hbarOnly: hbarOnly || undefined,
     };
 
     // Get token balances if not only HBAR

@@ -14,6 +14,7 @@ import {
 export const AccountBalanceOutputSchema = z.object({
   accountId: EntityIdSchema,
   hbarBalance: TinybarSchema,
+  hbarOnly: z.boolean().optional(),
   tokenBalances: z
     .array(
       z.object({
@@ -31,6 +32,7 @@ export type AccountBalanceOutput = z.infer<typeof AccountBalanceOutputSchema>;
  */
 export const ACCOUNT_BALANCE_TEMPLATE = `
 💰 Account Balance: {{hbarBalance}} tinybars
+{{#unless hbarOnly}}
 {{#if tokenBalances}}
 🪙 Token Balances:
 {{#each tokenBalances}}
@@ -39,4 +41,5 @@ export const ACCOUNT_BALANCE_TEMPLATE = `
 {{else}}
    No token balances found
 {{/if}}
+{{/unless}}
 `.trim();
