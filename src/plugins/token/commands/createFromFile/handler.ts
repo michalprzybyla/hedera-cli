@@ -343,7 +343,6 @@ export async function createTokenFromFile(
 
   // Extract command arguments
   const filename = args.args['file'] as string;
-  const scriptArgs = (args.args['args'] as string[]) || [];
   const keyManagerArg = args.args.keyManager as KeyManagerName | undefined;
 
   // Get keyManager from args or fallback to config
@@ -450,12 +449,6 @@ export async function createTokenFromFile(
       createdAt: result.consensusTimestamp,
     });
     logger.info(`   Name registered: ${tokenDefinition.name}`);
-
-    // 12. Store script arguments if provided
-    if (scriptArgs.length > 0) {
-      logger.debug(`Storing script arguments: ${scriptArgs.join(', ')}`);
-      // Note: In a full implementation, you'd store these in the state or dynamic variables system
-    }
 
     // Prepare output data
     const outputData: CreateTokenFromFileOutput = {
