@@ -531,10 +531,7 @@ describe('createTokenFromFileHandler', () => {
         decimals: 2,
         supplyType: 'finite',
         initialSupply: 1000,
-        treasury: {
-          accountId: '0.0.123456',
-          key: 'treasury-key',
-        },
+        treasury: '0.0.123456:treasury-key',
         keys: {
           adminKey: 'admin-key',
         },
@@ -569,14 +566,11 @@ describe('createTokenFromFileHandler', () => {
       // expect(logger.error).toHaveBeenCalledWith('Token file validation failed');
     });
 
-    test('should handle invalid account ID format', async () => {
+    test('should handle invalid treasury format', async () => {
       // Arrange
       const invalidFile = {
         ...validTokenFile,
-        treasury: {
-          accountId: 'invalid-account-id',
-          key: 'treasury-key',
-        },
+        treasury: '', // Empty treasury string
       };
 
       mockFs.readFile.mockResolvedValue(JSON.stringify(invalidFile));

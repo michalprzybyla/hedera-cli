@@ -63,15 +63,10 @@ const accountSchema = z
   })
   .strict();
 
-// Treasury can be either:
-// 1. A string (alias or treasury-id:treasury-key)
-// 2. An object with accountId and key (legacy format)
-const treasurySchema = z.union([
-  z
-    .string()
-    .min(1, 'Treasury is required (either name or treasury-id:treasury-key)'),
-  accountSchema,
-]);
+// Treasury: name or treasury-id:treasury-key format
+const treasurySchema = z
+  .string()
+  .min(1, 'Treasury is required (either name or treasury-id:treasury-key)');
 
 const tokenFileSchema = z
   .object({
@@ -164,56 +159,36 @@ async function readAndValidateTokenFile(
 
 /**
  * Resolves treasury from token file definition
- * Handles both string (alias or treasury-id:key) and object (legacy) formats
- * @param treasuryDef - Treasury definition from file
+ * @param treasuryDef - Treasury definition (name or treasury-id:treasury-key)
  * @param api - Core API instance
  * @param network - Current network
  * @param logger - Logger instance
  * @returns Resolved treasury information
  */
 function resolveTreasuryFromDefinition(
-  treasuryDef: string | { accountId: string; key: string },
+  treasuryDef: string,
   api: CoreApi,
   network: SupportedNetwork,
   logger: Logger,
   keyManager: KeyManagerName,
-  tokenName: string,
 ): TreasuryFromFileResolution {
-  if (typeof treasuryDef === 'string') {
-    // New format: alias or treasury-id:treasury-key
-    const resolvedTreasury = resolveTreasuryParameter(
-      treasuryDef,
-      api,
-      network,
-      keyManager,
-    );
+  const resolvedTreasury = resolveTreasuryParameter(
+    treasuryDef,
+    api,
+    network,
+    keyManager,
+  );
 
-    if (!resolvedTreasury) {
-      throw new Error('Treasury parameter is required');
-    }
-
-    logger.info(`🏦 Using treasury: ${resolvedTreasury.treasuryId}`);
-
-    return {
-      treasuryId: resolvedTreasury.treasuryId,
-      treasuryKeyRefId: resolvedTreasury.treasuryKeyRefId,
-      treasuryPublicKey: resolvedTreasury.treasuryPublicKey,
-    };
+  if (!resolvedTreasury) {
+    throw new Error('Treasury parameter is required');
   }
 
-  // Legacy format: object with accountId and key
-  // Parse private key - check if it has a key type prefix (e.g., "ed25519:...")
-  const { keyType, privateKey } = parseKeyWithType(treasuryDef.key);
-  const imported = api.kms.importPrivateKey(keyType, privateKey, keyManager, [
-    'token:treasury',
-    `token:${tokenName}`,
-  ]);
-  logger.info(`🏦 Using treasury (legacy format): ${treasuryDef.accountId}`);
+  logger.info(`🏦 Using treasury: ${resolvedTreasury.treasuryId}`);
 
   return {
-    treasuryId: treasuryDef.accountId,
-    treasuryKeyRefId: imported.keyRefId,
-    treasuryPublicKey: imported.publicKey,
+    treasuryId: resolvedTreasury.treasuryId,
+    treasuryKeyRefId: resolvedTreasury.treasuryKeyRefId,
+    treasuryPublicKey: resolvedTreasury.treasuryPublicKey,
   };
 }
 
@@ -367,7 +342,6 @@ export async function createTokenFromFile(
       network,
       logger,
       keyManager,
-      tokenDefinition.name,
     );
 
     // 4. Resolve adminKey (supports alias or raw private key)
