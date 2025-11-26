@@ -93,23 +93,6 @@ const tokenFileSchema = z
 
 type TokenFileDefinition = z.infer<typeof tokenFileSchema>;
 
-interface TokenValidationResult {
-  valid: boolean;
-  errors?: string[];
-  data?: TokenFileDefinition;
-}
-
-function validateTokenFile(raw: unknown): TokenValidationResult {
-  const parsed = tokenFileSchema.safeParse(raw);
-  if (parsed.success) return { valid: true, data: parsed.data };
-  return {
-    valid: false,
-    errors: parsed.error.issues.map(
-      (i) => `${i.path.join('.') || '<root>'}: ${i.message}`,
-    ),
-  };
-}
-
 function resolveTokenFilePath(filename: string): string {
   const hasPathSeparator = filename.includes('/') || filename.includes('\\');
 
@@ -145,16 +128,16 @@ async function readAndValidateTokenFile(
   const fileContent = await fs.readFile(filepath, 'utf-8');
   const raw = JSON.parse(fileContent) as unknown;
 
-  const validated = validateTokenFile(raw);
-  if (!validated.valid || !validated.data) {
+  const parsed = tokenFileSchema.safeParse(raw);
+  if (!parsed.success) {
     logger.error('Token file validation failed');
-    if (validated.errors && validated.errors.length) {
-      validated.errors.forEach((e) => logger.error(e));
-    }
+    parsed.error.issues.forEach((issue) => {
+      logger.error(`${issue.path.join('.') || '<root>'}: ${issue.message}`);
+    });
     throw new Error('Invalid token definition file');
   }
 
-  return validated.data;
+  return parsed.data;
 }
 
 /**
