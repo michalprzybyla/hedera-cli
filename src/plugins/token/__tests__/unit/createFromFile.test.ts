@@ -342,6 +342,7 @@ describe('createTokenFromFileHandler', () => {
             exempt: undefined,
           },
         ],
+        memo: 'Test token created from file',
       });
     });
 

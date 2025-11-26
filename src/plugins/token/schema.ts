@@ -91,6 +91,8 @@ export const TokenDataSchema = z.object({
   associations: z.array(TokenAssociationSchema).default([]),
 
   customFees: z.array(CustomFeeSchema).default([]),
+
+  memo: z.string().max(100).optional(),
 });
 
 // TypeScript type inferred from Zod schema

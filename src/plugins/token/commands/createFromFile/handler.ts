@@ -221,6 +221,8 @@ function buildTokenDataFromFile(
       collectorId: fee.collectorId,
       exempt: fee.exempt,
     })),
+
+    memo: tokenDefinition.memo,
   };
 }
 
@@ -357,6 +359,7 @@ export async function createTokenFromFile(
         collectorId: fee.collectorId,
         exempt: fee.exempt,
       })),
+      memo: tokenDefinition.memo,
     });
 
     // 6. Sign with both admin key and treasury key

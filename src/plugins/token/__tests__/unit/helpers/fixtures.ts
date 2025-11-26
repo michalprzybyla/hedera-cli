@@ -493,6 +493,7 @@ export const expectedTokenTransactionParamsFromFile = {
       exempt: undefined,
     },
   ],
+  memo: 'Test token created from file',
 };
 
 /**
