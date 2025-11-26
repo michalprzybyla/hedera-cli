@@ -1,13 +1,11 @@
 #!/usr/bin/env node
 
 import { program } from 'commander';
-import { createCoreApi } from './core/core-api';
-import { CoreApiConfig } from './core/core-api/core-api-config';
+import { createCoreApi } from './core';
 import './core/utils/json-serialize';
 import { DEFAULT_PLUGIN_STATE } from './core/shared/config/cli-options';
 import { addDisabledPluginsHelp } from './core/utils/add-disabled-plugins-help';
 import { PluginManager } from './core/plugins/plugin-manager';
-import { CoreApi } from './core/core-api/core-api.interface';
 import {
   setupGlobalErrorHandlers,
   setGlobalOutputFormat,
@@ -25,31 +23,26 @@ program
 
 // Initialize the simplified plugin system
 async function initializeCLI() {
-  let coreApi: CoreApi | undefined;
-  try {
-    console.error('🚀 Starting Hedera CLI...');
+  const coreApi = createCoreApi();
 
+  try {
     program.parseOptions(process.argv.slice(2));
     const opts = program.opts();
-    const format = validateOutputFormat(opts.format);
+    const format = validateOutputFormat(coreApi.logger, opts.format);
+
+    coreApi.output.setFormat(format);
 
     // Setup global error handlers with validated format
     setGlobalOutputFormat(format);
-    setupGlobalErrorHandlers();
+    setupGlobalErrorHandlers(coreApi.logger);
 
-    // Create core API config
-    const coreApiConfig: CoreApiConfig = {
-      format,
-    };
-
-    // Create core API
-    coreApi = createCoreApi(coreApiConfig);
     const pluginManager = new PluginManager(coreApi);
 
     // Initialize plugins, register disabled stubs, and load all manifests
     const pluginState = await pluginManager.initializePlugins(
       program,
       DEFAULT_PLUGIN_STATE,
+      coreApi.logger,
     );
 
     // Register plugin commands
@@ -64,7 +57,7 @@ async function initializeCLI() {
     await program.parseAsync(process.argv);
     process.exit(0);
   } catch (error) {
-    formatAndExitWithError('CLI initialization failed', error);
+    formatAndExitWithError('CLI initialization failed', error, coreApi.logger);
   }
 }
 

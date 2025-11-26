@@ -19,6 +19,10 @@ export class OutputServiceImpl implements OutputService {
     this.currentFormat = format;
   }
 
+  setFormat(format: OutputFormat): void {
+    this.currentFormat = format;
+  }
+
   getFormat(): OutputFormat {
     return this.currentFormat;
   }
