@@ -55,6 +55,8 @@ export async function getAccountBalance(
   const hbarOnly = (args.args.hbarOnly as boolean) || false;
   const token = args.args.token as string | undefined;
   const tokenOnly = !!token;
+  const shouldFetchHbar = !tokenOnly;
+  const shouldFetchTokens = !hbarOnly;
 
   if (hbarOnly && tokenOnly) {
     return {
@@ -95,21 +97,18 @@ export async function getAccountBalance(
       accountId = accountIdParseResult.data;
     }
 
-    // Prepare output data
     const outputData: AccountBalanceOutput = {
       accountId,
-      hbarOnly: hbarOnly || undefined,
-      tokenOnly: tokenOnly || undefined,
+      hbarOnly,
+      tokenOnly,
     };
 
-    // Get HBAR balance from mirror node (skip if only token balance requested)
-    if (!tokenOnly) {
+    if (shouldFetchHbar) {
       outputData.hbarBalance =
         await api.mirror.getAccountHBarBalance(accountId);
     }
 
-    // Get token balances if not only HBAR
-    if (!hbarOnly) {
+    if (shouldFetchTokens) {
       try {
         outputData.tokenBalances = await fetchAccountTokenBalances(
           api,
