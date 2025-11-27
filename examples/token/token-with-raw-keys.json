@@ -4,8 +4,8 @@
   "decimals": 10,
   "supplyType": "infinite",
   "initialSupply": 1000,
-  "treasury": "0.0.1638:ed25519:302e020100300506032b657004220420328182177b38c67f45381d509f73f7edb96134f933611d81f7320bcef30c66ea",
+  "treasury": "<accountId>:<keyType>:<privateKey>",
   "keys": {
-    "adminKey": "302e020100300506032b657004220420328182177b38c67f45381d509f73f7edb96134f933611d81f7320bcef30c66ea"
+    "adminKey": "<keyType>:<privateKey>"
   }
 }

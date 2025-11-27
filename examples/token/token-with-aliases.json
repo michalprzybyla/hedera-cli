@@ -4,8 +4,8 @@
   "decimals": 10,
   "supplyType": "infinite",
   "initialSupply": 1000,
-  "treasury": "test1",
+  "treasury": "<alias or accountId:keyType:privateKey>",
   "keys": {
-    "adminKey": "test1"
+    "adminKey": "<alias or keyType:privateKey>"
   }
 }
