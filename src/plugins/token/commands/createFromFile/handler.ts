@@ -18,80 +18,11 @@ import {
 } from '../../resolver-helper';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { z } from 'zod';
 import { formatError, toErrorMessage } from '../../../../core/utils/errors';
 import { CreateTokenFromFileOutput } from './output';
 import { KeyManagerName } from '../../../../core/services/kms/kms-types.interface';
 import { parseKeyWithType } from '../../../../core/utils/keys';
-
-// Import the token file schema from the original commands
-const accountIdRegex = /^\d+\.\d+\.\d+$/;
-
-const keysSchema = z
-  .object({
-    adminKey: z.string().min(1, 'adminKey is required'),
-    supplyKey: z.string().min(1).optional(),
-    wipeKey: z.string().min(1).optional(),
-    kycKey: z.string().min(1).optional(),
-    freezeKey: z.string().min(1).optional(),
-    pauseKey: z.string().min(1).optional(),
-    feeScheduleKey: z.string().min(1).optional(),
-  })
-  .strict();
-
-const fixedFeeSchema = z
-  .object({
-    type: z.literal('fixed'),
-    amount: z.number().int().positive('Amount must be positive'),
-    unitType: z.literal('HBAR').optional().default('HBAR'),
-    collectorId: z
-      .string()
-      .regex(accountIdRegex, 'collectorId must be a valid account id')
-      .optional(),
-    exempt: z.boolean().optional(),
-  })
-  .strict();
-
-const customFeeSchema = fixedFeeSchema; // Only fixed fees supported
-
-const accountSchema = z
-  .object({
-    accountId: z
-      .string()
-      .regex(accountIdRegex, 'accountId must be a valid account id'),
-    key: z.string().min(1, 'account key is required'),
-  })
-  .strict();
-
-// Treasury: name or treasury-id:treasury-key format
-const treasurySchema = z
-  .string()
-  .min(1, 'Treasury is required (either name or treasury-id:treasury-key)');
-
-const tokenFileSchema = z
-  .object({
-    name: z.string().min(1).max(100),
-    symbol: z.string().min(1).max(20),
-    decimals: z.number().int().min(0).max(18),
-    supplyType: z.union([z.literal('finite'), z.literal('infinite')]),
-    initialSupply: z
-      .union([z.number(), z.bigint()])
-      .transform((val) => BigInt(val))
-      .pipe(z.bigint().nonnegative()),
-    maxSupply: z
-      .union([z.number(), z.bigint()])
-      .transform((val) => BigInt(val))
-      .pipe(z.bigint().nonnegative())
-      .default(0n),
-    treasury: treasurySchema,
-    keys: keysSchema,
-    associations: z.array(accountSchema).default([]),
-    customFees: z.array(customFeeSchema).default([]),
-    memo: z.string().max(100).optional().default(''),
-  })
-  .strict();
-
-type TokenFileDefinition = z.infer<typeof tokenFileSchema>;
+import { TokenFileSchema, TokenFileDefinition } from '../../schema';
 
 function resolveTokenFilePath(filename: string): string {
   const hasPathSeparator = filename.includes('/') || filename.includes('\\');
@@ -128,7 +59,7 @@ async function readAndValidateTokenFile(
   const fileContent = await fs.readFile(filepath, 'utf-8');
   const raw = JSON.parse(fileContent) as unknown;
 
-  const parsed = tokenFileSchema.safeParse(raw);
+  const parsed = TokenFileSchema.safeParse(raw);
   if (!parsed.success) {
     logger.error('Token file validation failed');
     parsed.error.issues.forEach((issue) => {
