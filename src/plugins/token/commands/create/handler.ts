@@ -13,13 +13,15 @@ import { SupportedNetwork } from '../../../../core/types/shared.types';
 import { Transaction as HederaTransaction } from '@hashgraph/sdk';
 import { ZustandTokenStateHelper } from '../../zustand-state-helper';
 import { TokenData } from '../../schema';
-import { resolveTreasuryParameter } from '../../resolver-helper';
+import {
+  resolveTreasuryParameter,
+  resolveKeyParameter,
+} from '../../resolver-helper';
 import { formatError } from '../../../../core/utils/errors';
 import { CreateTokenOutput } from './output';
 import { processBalanceInput } from '../../../../core/utils/process-balance-input';
 import type { TokenCreateParams } from '../../../../core/types/token.types';
 import { KeyManagerName } from '../../../../core/services/kms/kms-types.interface';
-import { parseKeyWithType } from '../../../../core/utils/keys';
 import { CreateTokenInputSchema } from './input';
 
 /**
@@ -270,48 +272,17 @@ export async function createToken(
     );
 
     // Resolve admin key - will use provided key or fall back to operator key
-    let adminKeyPublicKey: string;
-    let adminKeyRefId: string;
+    const resolvedAdminKey = resolveKeyParameter(validArgs.adminKey, api, {
+      keyManager,
+      tags: ['token:admin', 'temporary'],
+    });
 
-    if (validArgs.adminKey) {
-      // First try to resolve as key alias
-      const keyAlias = api.alias.resolve(validArgs.adminKey, 'key', network);
-
-      if (keyAlias?.keyRefId) {
-        // Found as key alias
-        const publicKey = api.kms.getPublicKey(keyAlias.keyRefId);
-        if (!publicKey) {
-          throw new Error(
-            `Key alias "${validArgs.adminKey}" found but public key not available`,
-          );
-        }
-        adminKeyPublicKey = keyAlias.publicKey || publicKey;
-        adminKeyRefId = keyAlias.keyRefId;
-      } else {
-        // Not an alias - parse as private key with optional type prefix
-        const { keyType, privateKey } = parseKeyWithType(validArgs.adminKey);
-        const imported = api.kms.importPrivateKey(
-          keyType,
-          privateKey,
-          keyManager,
-          ['token:admin', 'temporary'],
-        );
-        adminKeyPublicKey = imported.publicKey;
-        adminKeyRefId = imported.keyRefId;
-      }
-    } else {
-      // Fallback to operator if no adminKey provided
-      const operator = api.network.getOperator(network);
-      if (!operator?.keyRefId) {
-        throw new Error('Unable to resolve any adminKey for the token');
-      }
-      const publicKey = api.kms.getPublicKey(operator.keyRefId);
-      if (!publicKey) {
-        throw new Error('Operator key found but public key not available');
-      }
-      adminKeyPublicKey = publicKey;
-      adminKeyRefId = operator.keyRefId;
+    if (!resolvedAdminKey) {
+      throw new Error('Unable to resolve admin key for the token');
     }
+
+    const adminKeyPublicKey = resolvedAdminKey.publicKey;
+    const adminKeyRefId = resolvedAdminKey.keyRefId!;
 
     logger.debug('=== TOKEN PARAMS DEBUG ===');
     logger.debug(`Treasury ID: ${treasury.treasuryId}`);

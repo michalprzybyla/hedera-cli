@@ -247,7 +247,7 @@ export const EvmAddressSchema = z
 export const AccountIdKeyPairSchema = z
   .string()
   .regex(
-    /^0\.0\.[1-9][0-9]*:(?:(?:ecdsa|ed25519):)?(?:(?:0x)?[0-9a-fA-F]{64}|(?:0x)?[0-9a-fA-F]{128}|(?:0x)?30[0-9a-fA-F]{100,})$/i,
+    /^0\.0\.[1-9][0-9]*:(?:(?:ecdsa|ed25519):)?(?:(?:0x)?[0-9a-fA-F]{64}|(?:0x)?[0-9a-fA-F]{128}|30[0-9a-fA-F]{80,})$/i,
     'Account ID with private key must be in format {accountId}:{private_key} or {accountId}:{keyType}:{private_key}',
   )
   .describe(
@@ -429,7 +429,7 @@ export const AccountReferenceSchema = z
  * Handler is responsible for parsing and converting to appropriate unit
  * Used for HBAR, tokens, and other balance inputs
  */
-export const AmountInputSchema = z
+export const AmountInputSchema = z.coerce
   .string()
   .trim()
   .regex(
