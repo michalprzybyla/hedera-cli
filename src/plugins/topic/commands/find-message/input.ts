@@ -15,9 +15,6 @@ import {
 export const FindMessageInputSchema = z
   .object({
     topic: EntityReferenceSchema.describe('Topic ID or topic name/alias'),
-    sequence: PositiveIntFilterFieldSchema.describe(
-      'Exact sequence number of the message to fetch',
-    ),
     sequenceGt: PositiveIntFilterFieldSchema.describe(
       'Filter messages with sequence number greater than',
     ),
@@ -36,7 +33,6 @@ export const FindMessageInputSchema = z
   })
   .refine(
     (data) =>
-      data.sequence ||
       data.sequenceGt ||
       data.sequenceGte ||
       data.sequenceLt ||
