@@ -48,7 +48,7 @@ describe('credentials plugin - remove command', () => {
     });
   });
 
-  test('returns failure when id is empty string', () => {
+  test('removes credentials with valid id', () => {
     const logger = makeLogger();
     const kmsService = makeKmsMock();
 

@@ -131,8 +131,8 @@ export const TinybarSchema = z
 // 5. HTS Token Balances
 // ======================================================
 
-// HTS decimals: 0–18 allowed (immutable after token creation)
-export const HtsDecimalsSchema = z.number().int().min(0).max(18);
+// HTS decimals(immutable after token creation)
+export const HtsDecimalsSchema = z.number().int().min(0);
 
 // HTS base unit (integer form)
 export const HtsBaseUnitSchema = z
