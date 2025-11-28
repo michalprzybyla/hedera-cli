@@ -78,10 +78,6 @@ export const setDefaultOperatorForNetwork = async (
       const setOperatorArgs: Record<string, unknown> = {
         operator: `${env.ACCOUNT_ID}:${env.PRIVATE_KEY}`,
       };
-      console.log(
-        '-------------------------------------------------------------',
-      );
-      console.log({ setOperatorArgs });
       await setOperatorHandler({
         args: setOperatorArgs,
         api: coreApi,
