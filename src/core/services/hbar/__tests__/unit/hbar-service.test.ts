@@ -6,6 +6,11 @@ import { HbarServiceImpl } from '../../hbar-service';
 import { makeLogger } from '../../../../../__tests__/mocks/mocks';
 import type { Logger } from '../../../logger/logger-service.interface';
 
+const ACCOUNT_ID_FROM_1 = '0.0.1111';
+const ACCOUNT_ID_TO_1 = '0.0.2222';
+const ACCOUNT_ID_FROM_2 = '0.0.5555';
+const ACCOUNT_ID_TO_2 = '0.0.9999';
+
 const mockTransferTransaction = {
   addHbarTransfer: jest.fn().mockReturnThis(),
   setTransactionMemo: jest.fn().mockReturnThis(),
@@ -38,14 +43,14 @@ describe('HbarServiceImpl', () => {
     it('should create transfer transaction with correct parameters', async () => {
       const params = {
         amount: 100_000_000n,
-        from: '0.0.1111',
-        to: '0.0.2222',
+        from: ACCOUNT_ID_FROM_1,
+        to: ACCOUNT_ID_TO_1,
       };
 
       const result = await hbarService.transferTinybar(params);
 
-      expect(AccountId.fromString).toHaveBeenCalledWith('0.0.1111');
-      expect(AccountId.fromString).toHaveBeenCalledWith('0.0.2222');
+      expect(AccountId.fromString).toHaveBeenCalledWith(ACCOUNT_ID_FROM_1);
+      expect(AccountId.fromString).toHaveBeenCalledWith(ACCOUNT_ID_TO_1);
       expect(Hbar).toHaveBeenCalledWith(-100_000_000n, HbarUnit.Tinybar);
       expect(Hbar).toHaveBeenCalledWith(100_000_000n, HbarUnit.Tinybar);
       expect(mockTransferTransaction.addHbarTransfer).toHaveBeenCalledTimes(2);
@@ -55,8 +60,8 @@ describe('HbarServiceImpl', () => {
     it('should set memo when provided', async () => {
       const params = {
         amount: 50_000_000n,
-        from: '0.0.1111',
-        to: '0.0.2222',
+        from: ACCOUNT_ID_FROM_1,
+        to: ACCOUNT_ID_TO_1,
         memo: 'Test transfer memo',
       };
 
@@ -70,8 +75,8 @@ describe('HbarServiceImpl', () => {
     it('should not set memo when not provided', async () => {
       const params = {
         amount: 50_000_000n,
-        from: '0.0.1111',
-        to: '0.0.2222',
+        from: ACCOUNT_ID_FROM_1,
+        to: ACCOUNT_ID_TO_1,
       };
 
       await hbarService.transferTinybar(params);
@@ -82,53 +87,53 @@ describe('HbarServiceImpl', () => {
     it('should log debug messages during transfer creation', async () => {
       const params = {
         amount: 100_000_000n,
-        from: '0.0.1111',
-        to: '0.0.2222',
+        from: ACCOUNT_ID_FROM_1,
+        to: ACCOUNT_ID_TO_1,
         memo: 'Debug test',
       };
 
       await hbarService.transferTinybar(params);
 
       expect(logger.debug).toHaveBeenCalledWith(
-        '[HBAR SERVICE] Building transfer: amount=100000000 from=0.0.1111 to=0.0.2222 memo=Debug test',
+        `[HBAR SERVICE] Building transfer: amount=100000000 from=${ACCOUNT_ID_FROM_1} to=${ACCOUNT_ID_TO_1} memo=Debug test`,
       );
       expect(logger.debug).toHaveBeenCalledWith(
-        '[HBAR SERVICE] Created transfer transaction: from=0.0.1111 to=0.0.2222 amount=100000000',
+        `[HBAR SERVICE] Created transfer transaction: from=${ACCOUNT_ID_FROM_1} to=${ACCOUNT_ID_TO_1} amount=100000000`,
       );
     });
 
     it('should log empty memo when not provided', async () => {
       const params = {
         amount: 100_000_000n,
-        from: '0.0.1111',
-        to: '0.0.2222',
+        from: ACCOUNT_ID_FROM_1,
+        to: ACCOUNT_ID_TO_1,
       };
 
       await hbarService.transferTinybar(params);
 
       expect(logger.debug).toHaveBeenCalledWith(
-        '[HBAR SERVICE] Building transfer: amount=100000000 from=0.0.1111 to=0.0.2222 memo=',
+        `[HBAR SERVICE] Building transfer: amount=100000000 from=${ACCOUNT_ID_FROM_1} to=${ACCOUNT_ID_TO_1} memo=`,
       );
     });
 
     it('should handle different account IDs', async () => {
       const params = {
         amount: 1_000_000n,
-        from: '0.0.5555',
-        to: '0.0.9999',
+        from: ACCOUNT_ID_FROM_2,
+        to: ACCOUNT_ID_TO_2,
       };
 
       await hbarService.transferTinybar(params);
 
-      expect(AccountId.fromString).toHaveBeenCalledWith('0.0.5555');
-      expect(AccountId.fromString).toHaveBeenCalledWith('0.0.9999');
+      expect(AccountId.fromString).toHaveBeenCalledWith(ACCOUNT_ID_FROM_2);
+      expect(AccountId.fromString).toHaveBeenCalledWith(ACCOUNT_ID_TO_2);
     });
 
     it('should handle small amounts', async () => {
       const params = {
         amount: 1n,
-        from: '0.0.1111',
-        to: '0.0.2222',
+        from: ACCOUNT_ID_FROM_1,
+        to: ACCOUNT_ID_TO_1,
       };
 
       await hbarService.transferTinybar(params);
@@ -140,8 +145,8 @@ describe('HbarServiceImpl', () => {
     it('should handle large amounts', async () => {
       const params = {
         amount: 100_000_000_000_000n,
-        from: '0.0.1111',
-        to: '0.0.2222',
+        from: ACCOUNT_ID_FROM_1,
+        to: ACCOUNT_ID_TO_1,
       };
 
       await hbarService.transferTinybar(params);
