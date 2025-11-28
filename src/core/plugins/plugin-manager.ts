@@ -63,11 +63,7 @@ export class PluginManager {
         this.coreApi.state.registerNamespaces(namespaces);
       } catch (error) {
         // Use centralized error handler for consistent error formatting
-        this.exitWithError(
-          this.logger,
-          'Failed to register plugin namespaces',
-          error,
-        );
+        this.exitWithError('Failed to register plugin namespaces', error);
       }
     }
 
@@ -203,15 +199,11 @@ export class PluginManager {
    * Exit with formatted error using the current output format
    * Wrapper for formatAndExitWithError with automatic format detection
    */
-  private exitWithError(
-    logger: Logger,
-    context: string,
-    error: unknown,
-  ): never {
+  private exitWithError(context: string, error: unknown): never {
     return formatAndExitWithError(
       context,
       error,
-      logger,
+      this.logger,
       this.coreApi.output.getFormat(),
     );
   }
@@ -231,7 +223,6 @@ export class PluginManager {
       if (!manifest) {
         // Use centralized error handler for consistent error formatting
         return this.exitWithError(
-          this.logger,
           'Plugin initialization failed',
           new Error(`No manifest found in ${pluginPath}`),
         );
@@ -248,7 +239,6 @@ export class PluginManager {
     } catch (error) {
       // Use centralized error handler for consistent error formatting
       return this.exitWithError(
-        this.logger,
         `Failed to load plugin from ${pluginPath}`,
         error,
       );
@@ -381,7 +371,6 @@ export class PluginManager {
     } catch (error) {
       // Use centralized error handler for consistent error formatting
       this.exitWithError(
-        this.logger,
         `Failed to register command ${commandSpec.name} from plugin ${plugin.manifest.name}`,
         error,
       );
@@ -414,7 +403,6 @@ export class PluginManager {
     // Validate that output spec is present (required per CommandSpec type)
     if (!commandSpec.output) {
       this.exitWithError(
-        this.logger,
         `Command ${commandSpec.name} configuration error`,
         new Error('Command must define an output specification'),
       );
@@ -425,17 +413,12 @@ export class PluginManager {
     try {
       result = await commandSpec.handler(handlerArgs);
     } catch (error) {
-      this.exitWithError(
-        this.logger,
-        `Command ${commandSpec.name} execution failed`,
-        error,
-      );
+      this.exitWithError(`Command ${commandSpec.name} execution failed`, error);
     }
 
     // ADR-003: If command has output spec, expect handler to return result
     if (!result) {
       this.exitWithError(
-        this.logger,
         `Command ${commandSpec.name} handler error`,
         new Error(
           'Handler must return CommandExecutionResult when output spec is defined',
@@ -448,7 +431,6 @@ export class PluginManager {
     // Handle non-success statuses
     if (executionResult.status !== Status.Success) {
       this.exitWithError(
-        this.logger,
         `Command ${commandSpec.name} failed`,
         new Error(
           executionResult.errorMessage || `Status: ${executionResult.status}`,
@@ -468,7 +450,6 @@ export class PluginManager {
         });
       } catch (error) {
         this.exitWithError(
-          this.logger,
           `Failed to format output for ${commandSpec.name}`,
           error,
         );

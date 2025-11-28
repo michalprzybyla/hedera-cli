@@ -311,29 +311,8 @@ describe('topic plugin - message-find command', () => {
     });
   });
 
-  test('returns failure when no sequence number or filter provided', async () => {
-    const logger = makeLogger();
-
-    const { mirror, networkMock, alias } = makeApiMocks({});
-
-    const api: Partial<CoreApi> = {
-      mirror,
-      network: networkMock,
-      alias: alias as any,
-      logger,
-    };
-
-    const args = makeArgs(api, logger, {
-      topic: '0.0.5678',
-    });
-
-    const result = await findMessage(args);
-
-    expect(result.status).toBe(Status.Failure);
-    expect(result.errorMessage).toContain(
-      'No sequence number or filter provided',
-    );
-  });
+  // NOTE: Validation for missing sequence parameters is now handled by Zod schema (FindMessageInputSchema)
+  // This test is no longer needed as the validation happens at the schema level before reaching the handler
 
   test('returns failure when getTopicMessage throws', async () => {
     const logger = makeLogger();
