@@ -7,6 +7,7 @@ import { Status } from '../../../../core/shared/constants';
 import { formatError } from '../../../../core/utils/errors';
 import { Filter } from '../../../../core/services/mirrornode/types';
 import { FindMessagesOutput } from './output';
+import { FindMessageInputSchema } from './input';
 
 /**
  * Helper function to build sequence number filter from command arguments
@@ -141,9 +142,11 @@ export async function findMessage(
 ): Promise<CommandExecutionResult> {
   const { api, logger } = args;
 
-  // Extract command arguments
-  const topicIdOrAlias = args.args.topic as string;
-  const sequence = args.args.sequence as number | undefined;
+  // Parse and validate command arguments
+  const validParams = FindMessageInputSchema.parse(args.args);
+
+  const topicIdOrAlias = validParams.topic;
+  const sequence = validParams.sequence;
 
   const currentNetwork = api.network.getCurrentNetwork();
 
