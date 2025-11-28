@@ -3,8 +3,8 @@
  * Handles token creation operations using the Core API
  * Follows ADR-003 contract: returns CommandExecutionResult
  */
-import { CommandHandlerArgs } from '../../../../core/plugins/plugin.interface';
-import { CommandExecutionResult } from '../../../../core/plugins/plugin.types';
+import { CommandHandlerArgs } from '../../../../core';
+import { CommandExecutionResult } from '../../../../core';
 import { Status } from '../../../../core/shared/constants';
 import { CoreApi } from '../../../../core';
 import { Logger } from '../../../../core';
@@ -12,16 +12,15 @@ import { TransactionResult } from '../../../../core';
 import { SupportedNetwork } from '../../../../core/types/shared.types';
 import { Transaction as HederaTransaction } from '@hashgraph/sdk';
 import { ZustandTokenStateHelper } from '../../zustand-state-helper';
-import { TokenData, safeValidateTokenCreateParams } from '../../schema';
-import {
-  resolveTreasuryParameter,
-  resolveKeyParameter,
-} from '../../resolver-helper';
+import { TokenData } from '../../schema';
+import { resolveTreasuryParameter } from '../../resolver-helper';
 import { formatError } from '../../../../core/utils/errors';
 import { CreateTokenOutput } from './output';
 import { processBalanceInput } from '../../../../core/utils/process-balance-input';
 import type { TokenCreateParams } from '../../../../core/types/token.types';
 import { KeyManagerName } from '../../../../core/services/kms/kms-types.interface';
+import { parseKeyWithType } from '../../../../core/utils/keys';
+import { CreateTokenInputSchema } from './input';
 
 /**
  * Determines the final max supply value for FINITE supply tokens
@@ -184,40 +183,32 @@ export async function createToken(
 ): Promise<CommandExecutionResult> {
   const { api, logger } = args;
 
-  // Validate command parameters
-  const validationResult = safeValidateTokenCreateParams(args.args);
-  if (!validationResult.success) {
-    const errorMessages = validationResult.error.errors.map(
-      (error) => `${error.path.join('.')}: ${error.message}`,
-    );
-    return {
-      status: Status.Failure,
-      errorMessage: `Invalid command parameters:\n${errorMessages.join('\n')}`,
-    };
-  }
-
   // Initialize token state helper
   const tokenState = new ZustandTokenStateHelper(api.state, logger);
 
-  // Use validated parameters with defaults
-  const validatedParams = validationResult.data;
-  const name = validatedParams.tokenName;
-  const symbol = validatedParams.symbol;
-  const keyManagerArg = args.args.keyManager as KeyManagerName | undefined;
+  // Validate command parameters
+  const validArgs = CreateTokenInputSchema.parse(args.args);
+
+  // Use validated parameters
+  const name = validArgs.tokenName;
+  const symbol = validArgs.symbol;
+  const decimals = validArgs.decimals;
+  const rawInitialSupply = validArgs.initialSupply;
+  const supplyType = validArgs.supplyType;
+  const alias = validArgs.name;
+  const providedMaxSupply = validArgs.maxSupply;
+  const providedKeyManager = validArgs.keyManager;
 
   // Get keyManager from args or fallback to config
   const keyManager =
-    keyManagerArg ||
+    providedKeyManager ??
     api.config.getOption<KeyManagerName>('default_key_manager');
-  const decimals = validatedParams.decimals || 0;
-  const rawInitialSupply = validatedParams.initialSupply || 1000000;
+
   // Convert display units to raw token units
   const initialSupply = processBalanceInput(rawInitialSupply, decimals);
-  const supplyType = validatedParams.supplyType || 'INFINITE';
-  const maxSupply = validatedParams.maxSupply
-    ? processBalanceInput(validatedParams.maxSupply, decimals)
+  const maxSupply = providedMaxSupply
+    ? processBalanceInput(providedMaxSupply, decimals)
     : undefined;
-  const alias = validatedParams.name;
 
   // Check if alias already exists on the current network
   const network = api.network.getCurrentNetwork();
@@ -228,10 +219,10 @@ export async function createToken(
   let treasuryKeyRefId: string | undefined;
   let treasuryPublicKey: string | undefined;
 
-  if (validatedParams.treasury) {
+  if (validArgs.treasury) {
     const network = api.network.getCurrentNetwork();
     const resolvedTreasury = resolveTreasuryParameter(
-      validatedParams.treasury,
+      validArgs.treasury,
       api,
       network,
       keyManager,
@@ -240,7 +231,7 @@ export async function createToken(
     // Treasury was explicitly provided - it MUST resolve or fail
     if (!resolvedTreasury) {
       throw new Error(
-        `Failed to resolve treasury parameter: ${validatedParams.treasury}. ` +
+        `Failed to resolve treasury parameter: ${validArgs.treasury}. ` +
           `Expected format: account-alias OR treasury-id:treasury-key`,
       );
     }
@@ -279,15 +270,52 @@ export async function createToken(
     );
 
     // Resolve admin key - will use provided key or fall back to operator key
-    const adminKey = resolveKeyParameter(validatedParams.adminKey, api);
+    let adminKeyPublicKey: string;
+    let adminKeyRefId: string;
 
-    if (!adminKey) {
-      throw new Error('Unable to resolve any adminKey for the token');
+    if (validArgs.adminKey) {
+      // First try to resolve as key alias
+      const keyAlias = api.alias.resolve(validArgs.adminKey, 'key', network);
+
+      if (keyAlias?.keyRefId) {
+        // Found as key alias
+        const publicKey = api.kms.getPublicKey(keyAlias.keyRefId);
+        if (!publicKey) {
+          throw new Error(
+            `Key alias "${validArgs.adminKey}" found but public key not available`,
+          );
+        }
+        adminKeyPublicKey = keyAlias.publicKey || publicKey;
+        adminKeyRefId = keyAlias.keyRefId;
+      } else {
+        // Not an alias - parse as private key with optional type prefix
+        const { keyType, privateKey } = parseKeyWithType(validArgs.adminKey);
+        const imported = api.kms.importPrivateKey(
+          keyType,
+          privateKey,
+          keyManager,
+          ['token:admin', 'temporary'],
+        );
+        adminKeyPublicKey = imported.publicKey;
+        adminKeyRefId = imported.keyRefId;
+      }
+    } else {
+      // Fallback to operator if no adminKey provided
+      const operator = api.network.getOperator(network);
+      if (!operator?.keyRefId) {
+        throw new Error('Unable to resolve any adminKey for the token');
+      }
+      const publicKey = api.kms.getPublicKey(operator.keyRefId);
+      if (!publicKey) {
+        throw new Error('Operator key found but public key not available');
+      }
+      adminKeyPublicKey = publicKey;
+      adminKeyRefId = operator.keyRefId;
     }
 
     logger.debug('=== TOKEN PARAMS DEBUG ===');
     logger.debug(`Treasury ID: ${treasury.treasuryId}`);
-    logger.debug(`Admin Key (keyRefId): ${adminKey?.keyRefId}`);
+    logger.debug(`Admin Key (keyRefId): ${adminKeyRefId}`);
     logger.debug(`Use Custom Treasury: ${treasury.useCustom}`);
     logger.debug('=========================');
 
@@ -300,7 +328,7 @@ export async function createToken(
       initialSupplyRaw: initialSupply,
       supplyType: supplyType.toUpperCase() as 'FINITE' | 'INFINITE',
       maxSupplyRaw: finalMaxSupply,
-      adminKey: adminKey.publicKey,
+      adminKey: adminKeyPublicKey,
     };
 
     const tokenCreateTransaction =
@@ -311,7 +339,7 @@ export async function createToken(
       tokenCreateTransaction,
       treasury,
       logger,
-      adminKey.keyRefId,
+      adminKeyRefId,
     );
 
     // 3. Verify success and store token data
@@ -326,7 +354,7 @@ export async function createToken(
       decimals,
       initialSupply,
       supplyType,
-      adminPublicKey: adminKey.publicKey,
+      adminPublicKey: adminKeyPublicKey,
       treasuryPublicKey,
       network: api.network.getCurrentNetwork(),
     });
