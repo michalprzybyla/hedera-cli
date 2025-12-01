@@ -4,18 +4,18 @@
  */
 import { HederaMirrornodeServiceDefaultImpl } from '../../hedera-mirrornode-service';
 import type { LedgerId } from '@hashgraph/sdk';
-import type {
-  AccountAPIResponse,
-  TokenBalancesResponse,
-  TopicMessage,
-  TopicMessagesAPIResponse,
-  TokenInfo,
-  TopicInfo,
-  TransactionDetailsResponse,
-  ContractInfo,
-  TokenAirdropsResponse,
-  ExchangeRateResponse,
-} from '../../types';
+import {
+  createMockAccountAPIResponse,
+  createMockTokenBalancesResponse,
+  createMockTopicMessage,
+  createMockTopicMessagesAPIResponse,
+  createMockTokenInfo,
+  createMockTopicInfo,
+  createMockTransactionDetailsResponse,
+  createMockContractInfo,
+  createMockTokenAirdropsResponse,
+  createMockExchangeRateResponse,
+} from './mocks';
 
 // Mock fetch globally
 global.fetch = jest.fn();
@@ -25,7 +25,6 @@ jest.mock('@hashgraph/sdk');
 
 // Test constants
 const TEST_ACCOUNT_ID = '0.0.1234';
-const TEST_ACCOUNT_ID_2 = '0.0.5678';
 const TEST_TOKEN_ID = '0.0.2000';
 const TEST_TOPIC_ID = '0.0.3000';
 const TEST_CONTRACT_ID = '0.0.4000';
@@ -38,165 +37,6 @@ const MAINNET_URL = 'https://mainnet-public.mirrornode.hedera.com/api/v1';
 // Timestamps & Values
 const TEST_TIMESTAMP = '2024-01-01T12:00:00.000Z';
 const TEST_SEQUENCE_NUMBER = 1;
-
-// Factory functions for mock responses
-const createMockAccountAPIResponse = (
-  overrides: Partial<AccountAPIResponse> = {},
-): AccountAPIResponse => ({
-  account: TEST_ACCOUNT_ID,
-  balance: {
-    balance: 1000000,
-    timestamp: TEST_TIMESTAMP,
-  },
-  created_timestamp: TEST_TIMESTAMP,
-  evm_address: '0x1234567890123456789012345678901234567890',
-  key: {
-    _type: 'ED25519',
-    key: 'ed25519_abcd1234',
-  },
-  max_automatic_token_associations: 0,
-  memo: '',
-  receiver_sig_required: false,
-  ...overrides,
-});
-
-const createMockTokenBalancesResponse = (
-  overrides: Partial<TokenBalancesResponse> = {},
-): TokenBalancesResponse => ({
-  account: TEST_ACCOUNT_ID,
-  balance: 0,
-  tokens: [
-    {
-      token_id: TEST_TOKEN_ID,
-      balance: 100,
-      decimals: 6,
-    },
-  ],
-  timestamp: TEST_TIMESTAMP,
-  ...overrides,
-});
-
-const createMockTopicMessage = (
-  overrides: Partial<TopicMessage> = {},
-): TopicMessage => ({
-  consensus_timestamp: TEST_TIMESTAMP,
-  topic_id: TEST_TOPIC_ID,
-  message: 'test message',
-  running_hash: 'abcd1234',
-  sequence_number: TEST_SEQUENCE_NUMBER,
-  ...overrides,
-});
-
-const createMockTopicMessagesAPIResponse = (
-  messages: TopicMessage[] = [],
-  overrides: Partial<TopicMessagesAPIResponse> = {},
-): TopicMessagesAPIResponse => ({
-  messages,
-  links: undefined,
-  ...overrides,
-});
-
-const createMockTokenInfo = (
-  overrides: Partial<TokenInfo> = {},
-): TokenInfo => ({
-  token_id: TEST_TOKEN_ID,
-  symbol: 'TEST',
-  name: 'Test Token',
-  decimals: '6',
-  total_supply: '1000000000',
-  max_supply: '1000000000',
-  treasury: TEST_ACCOUNT_ID,
-  created_timestamp: TEST_TIMESTAMP,
-  deleted: false,
-  default_freeze_status: false,
-  default_kyc_status: false,
-  pause_status: 'UNPAUSED',
-  memo: '',
-  ...overrides,
-});
-
-const createMockTopicInfo = (
-  overrides: Partial<TopicInfo> = {},
-): TopicInfo => ({
-  topic_id: TEST_TOPIC_ID,
-  memo: 'test topic',
-  running_hash: 'hash123',
-  sequence_number: 1,
-  consensus_timestamp: TEST_TIMESTAMP,
-  auto_renew_period: 7776000,
-  created_timestamp: TEST_TIMESTAMP,
-  deleted: false,
-  ...overrides,
-});
-
-const createMockTransactionDetailsResponse = (
-  overrides: Partial<TransactionDetailsResponse> = {},
-): TransactionDetailsResponse => ({
-  transactions: [
-    {
-      transaction_id: TEST_TX_ID,
-      consensus_timestamp: TEST_TIMESTAMP,
-      valid_start_timestamp: TEST_TIMESTAMP,
-      charged_tx_fee: 100000,
-      result: 'SUCCESS',
-      transaction_hash: 'hash123',
-      name: 'CRYPTOTRANSFER',
-      node: '0.0.3',
-      transaction_fee: 100000,
-      scheduled: false,
-      transfers: [
-        { account: TEST_ACCOUNT_ID, amount: -1000000 },
-        { account: TEST_ACCOUNT_ID_2, amount: 1000000 },
-      ],
-    },
-  ],
-  ...overrides,
-});
-
-const createMockContractInfo = (
-  overrides: Partial<ContractInfo> = {},
-): ContractInfo => ({
-  contract_id: TEST_CONTRACT_ID,
-  account: TEST_ACCOUNT_ID,
-  created_timestamp: TEST_TIMESTAMP,
-  deleted: false,
-  memo: 'test contract',
-  evm_address: '0x1234567890123456789012345678901234567890',
-  auto_renew_period: 7776000,
-  max_automatic_token_associations: 0,
-  ...overrides,
-});
-
-const createMockTokenAirdropsResponse = (
-  overrides: Partial<TokenAirdropsResponse> = {},
-): TokenAirdropsResponse => ({
-  airdrops: [
-    {
-      account_id: TEST_ACCOUNT_ID,
-      amount: 1000,
-      token_id: TEST_TOKEN_ID,
-      timestamp: TEST_TIMESTAMP,
-    },
-  ],
-  ...overrides,
-});
-
-const createMockExchangeRateResponse = (
-  overrides: Partial<ExchangeRateResponse> = {},
-): ExchangeRateResponse => ({
-  current_rate: {
-    cent_equivalent: 12,
-    expiration_time: TEST_TIMESTAMP,
-    hbar_equivalent: 1,
-  },
-  next_rate: {
-    cent_equivalent: 12,
-    expiration_time: TEST_TIMESTAMP,
-    hbar_equivalent: 1,
-  },
-  timestamp: TEST_TIMESTAMP,
-  ...overrides,
-});
 
 // Setup helper
 const setupService = (
