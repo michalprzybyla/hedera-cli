@@ -42,11 +42,9 @@ describe('TopicServiceImpl', () => {
 
   describe('isPrivateKey', () => {
     it('should return true for valid DER-formatted private key', () => {
-      const { PrivateKey } = jest.requireMock('@hashgraph/sdk');
-      PrivateKey.fromStringDer.mockReturnValueOnce(mockPrivateKey);
-
       const result = topicService.isPrivateKey(VALID_PRIVATE_KEY_DER);
 
+      const { PrivateKey } = jest.requireMock('@hashgraph/sdk');
       expect(PrivateKey.fromStringDer).toHaveBeenCalledWith(
         VALID_PRIVATE_KEY_DER,
       );
@@ -89,11 +87,9 @@ describe('TopicServiceImpl', () => {
 
   describe('createKeyFromString', () => {
     it('should create PrivateKey when key is private key string', () => {
-      const { PrivateKey } = jest.requireMock('@hashgraph/sdk');
-      PrivateKey.fromStringDer.mockReturnValueOnce(mockPrivateKey);
-
       const result = topicService.createKeyFromString(VALID_PRIVATE_KEY_DER);
 
+      const { PrivateKey } = jest.requireMock('@hashgraph/sdk');
       expect(PrivateKey.fromStringDer).toHaveBeenCalledWith(
         VALID_PRIVATE_KEY_DER,
       );
@@ -105,7 +101,6 @@ describe('TopicServiceImpl', () => {
       PrivateKey.fromStringDer.mockImplementationOnce(() => {
         throw new Error('Not a private key');
       });
-      PublicKey.fromString.mockReturnValueOnce(mockPublicKey);
 
       const result = topicService.createKeyFromString(VALID_PUBLIC_KEY);
 
@@ -114,23 +109,22 @@ describe('TopicServiceImpl', () => {
     });
 
     it('should delegate to isPrivateKey for key type detection', () => {
-      const { PrivateKey } = jest.requireMock('@hashgraph/sdk');
       const isPrivateKeySpy = jest.spyOn(topicService, 'isPrivateKey');
-      PrivateKey.fromStringDer.mockReturnValueOnce(mockPrivateKey);
 
       topicService.createKeyFromString(VALID_PRIVATE_KEY_DER);
 
       expect(isPrivateKeySpy).toHaveBeenCalledWith(VALID_PRIVATE_KEY_DER);
     });
 
-    it('should throw when PrivateKey.fromStringDer fails twice (isPrivateKey + createKeyFromString)', () => {
+    it('should throw when PrivateKey.fromStringDer fails on second call', () => {
       const { PrivateKey } = jest.requireMock('@hashgraph/sdk');
-      // First call in isPrivateKey() - succeeds
-      PrivateKey.fromStringDer.mockReturnValueOnce(mockPrivateKey);
-      // Second call in createKeyFromString() - fails
-      PrivateKey.fromStringDer.mockImplementationOnce(() => {
-        throw new Error('Invalid DER format');
-      });
+      // First call in isPrivateKey() - uses default mock (succeeds)
+      // Second call in createKeyFromString() - override to fail
+      PrivateKey.fromStringDer
+        .mockReturnValueOnce(mockPrivateKey)
+        .mockImplementationOnce(() => {
+          throw new Error('Invalid DER format');
+        });
 
       expect(() =>
         topicService.createKeyFromString(VALID_PRIVATE_KEY_DER),
@@ -180,17 +174,13 @@ describe('TopicServiceImpl', () => {
     });
 
     it('should create topic with admin key (private)', () => {
-      const { PrivateKey } = jest.requireMock('@hashgraph/sdk');
-      // Called twice: once in isPrivateKey(), once in createKeyFromString()
-      PrivateKey.fromStringDer
-        .mockReturnValueOnce(mockPrivateKey)
-        .mockReturnValueOnce(mockPrivateKey);
       const params = createCreateTopicParams({
         adminKey: VALID_PRIVATE_KEY_DER,
       });
 
       const result = topicService.createTopic(params);
 
+      const { PrivateKey } = jest.requireMock('@hashgraph/sdk');
       expect(PrivateKey.fromStringDer).toHaveBeenCalledWith(
         VALID_PRIVATE_KEY_DER,
       );
@@ -206,7 +196,6 @@ describe('TopicServiceImpl', () => {
       PrivateKey.fromStringDer.mockImplementationOnce(() => {
         throw new Error('Not private');
       });
-      PublicKey.fromString.mockReturnValueOnce(mockPublicKey);
       const params = createCreateTopicParams({ adminKey: VALID_PUBLIC_KEY });
 
       const result = topicService.createTopic(params);
@@ -217,17 +206,13 @@ describe('TopicServiceImpl', () => {
     });
 
     it('should create topic with submit key (private)', () => {
-      const { PrivateKey } = jest.requireMock('@hashgraph/sdk');
-      // Called twice: once in isPrivateKey(), once in createKeyFromString()
-      PrivateKey.fromStringDer
-        .mockReturnValueOnce(mockPrivateKey)
-        .mockReturnValueOnce(mockPrivateKey);
       const params = createCreateTopicParams({
         submitKey: VALID_PRIVATE_KEY_DER,
       });
 
       const result = topicService.createTopic(params);
 
+      const { PrivateKey } = jest.requireMock('@hashgraph/sdk');
       expect(PrivateKey.fromStringDer).toHaveBeenCalledWith(
         VALID_PRIVATE_KEY_DER,
       );
@@ -239,13 +224,6 @@ describe('TopicServiceImpl', () => {
     });
 
     it('should create topic with both admin and submit keys', () => {
-      const { PrivateKey } = jest.requireMock('@hashgraph/sdk');
-      // Called 4 times: isPrivateKey(adminKey), createKeyFromString(adminKey), isPrivateKey(submitKey), createKeyFromString(submitKey)
-      PrivateKey.fromStringDer
-        .mockReturnValueOnce(mockPrivateKey)
-        .mockReturnValueOnce(mockPrivateKey)
-        .mockReturnValueOnce(mockPrivateKey)
-        .mockReturnValueOnce(mockPrivateKey);
       const params = createCreateTopicParams({
         adminKey: VALID_PRIVATE_KEY_DER,
         submitKey: VALID_PRIVATE_KEY_DER,
@@ -253,6 +231,7 @@ describe('TopicServiceImpl', () => {
 
       const result = topicService.createTopic(params);
 
+      const { PrivateKey } = jest.requireMock('@hashgraph/sdk');
       expect(PrivateKey.fromStringDer).toHaveBeenCalledTimes(4);
       expect(mockTopicCreateTx.setAdminKey).toHaveBeenCalledWith(
         mockPrivateKey,
@@ -264,13 +243,6 @@ describe('TopicServiceImpl', () => {
     });
 
     it('should create topic with all optional parameters', () => {
-      const { PrivateKey } = jest.requireMock('@hashgraph/sdk');
-      // Called 4 times: isPrivateKey(adminKey), createKeyFromString(adminKey), isPrivateKey(submitKey), createKeyFromString(submitKey)
-      PrivateKey.fromStringDer
-        .mockReturnValueOnce(mockPrivateKey)
-        .mockReturnValueOnce(mockPrivateKey)
-        .mockReturnValueOnce(mockPrivateKey)
-        .mockReturnValueOnce(mockPrivateKey);
       const params = createCreateTopicParams({
         memo: 'Full Topic',
         adminKey: VALID_PRIVATE_KEY_DER,
