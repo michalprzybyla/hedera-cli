@@ -2,7 +2,7 @@
 
 ## Status
 
-**Proposed** – This ADR is under review and discussion.
+**Accepted** – This ADR has been implemented and is actively used.
 
 ## Date
 
@@ -12,8 +12,8 @@
 
 - `src/core/*`
 - `src/plugins/*`
-- `__tests__/unit/*`
-- `__tests__/e2e/*`
+- `src/__tests__/integration/*`
+- `src/__tests__/e2e/*` (planned)
 - GitHub Actions CI/CD workflows
 
 ---
@@ -34,36 +34,43 @@ Our testing must focus primarily on the **CLI core, built-in plugins, and end-us
 
 ## Decision
 
-We will implement a **two-tier testing strategy**:
+We will implement a **three-tier testing strategy**:
 
 1. **Unit Tests** – Verify individual components, services, and plugin handlers in isolation.
-2. **End-to-End Tests (E2E)** – Validate complete CLI workflows by executing real commands against Hedera testnet.
+2. **Integration Tests** – Test plugin interactions and service integrations without full CLI process execution.
+3. **End-to-End Tests (E2E)** – Validate complete CLI workflows by executing real commands against Hedera testnet.
 
 ### Key Decisions
 
 #### Testing Framework
 
-- **Jest** will be used as the single testing framework for both unit and E2E tests.
+- **Jest** will be used as the single testing framework for unit, integration, and E2E tests.
 - This ensures consistent tooling, mocks, and assertions across the project.
 
 #### Test Organization
 
-- `__tests__/unit/*` – Unit tests for Core services, plugin handlers, and utilities.
-- `__tests__/e2e/*` – CLI process tests simulating user workflows.
+- `src/core/services/*/__tests__/unit/*` – Unit tests for Core services (config, logger, network, kms, state, output, plugin-management, etc.).
+- `src/core/plugins/__tests__/unit/*` – Unit tests for plugin management and core plugin infrastructure.
+- `src/plugins/*/__tests__/unit/*` – Unit tests for plugin command handlers.
+- `src/__tests__/integration/*` – Integration tests for plugin interactions and service integrations.
+- `src/__tests__/e2e/*` – CLI process tests simulating user workflows (to be implemented).
 - Legacy tests will be reviewed after the plugin refactor; some will be removed or rewritten.
 
 #### CI/CD Integration
 
 - **Pre-commit hooks** will run the unit test suite to provide immediate feedback.
 - **GitHub Actions** will execute the full pipeline:
-  - Unit tests on every push and PR.
-  - E2E tests on PR to `main` and before releases.
+  - Unit tests on every push and PR (`npm run test:unit`).
+  - Integration tests and E2E tests on PR to `main` branch (pipeline execution).
+  - All tests can be run together locally with `npm run test` (unit + integration).
 
 ### Test Coverage
 
-- Unit tests: **TBD% line coverage** will be required to ensure that the core business logic, command handlers, and state management are properly validated in isolation.
+- **Unit tests**: Comprehensive coverage for Core services (config, logger, network, kms, state, output, plugin-management, hbar, alias, account, token, topic, tx-execution, mirrornode) and plugin handlers. Tests validate core business logic, command handlers, and state management in isolation.
 
-- E2E tests: **TBD% critical path coverage** will be required to guarantee that key user workflows (such as account management, token operations, and plugin interactions) function correctly in a production-like environment.
+- **Integration tests**: Coverage for plugin interactions and service integrations, ensuring that plugins work correctly together and with Core services.
+
+- **E2E tests**: Critical path coverage for key user workflows (such as account management, token operations, and plugin interactions) executed against Hedera testnet (to be implemented).
 
 #### End-to-End Testing Strategy
 
@@ -89,8 +96,8 @@ We will implement a **two-tier testing strategy**:
 ### Negative
 
 1. **Test Overhead** – Writing and maintaining tests adds cost.
-2. **Longer Pipelines** – E2E tests with testnet may increase runtime.
-3. **Partial Coverage** – With no integration tier, some interactions are only covered by E2E tests.
+2. **Longer Pipelines** – Integration and E2E tests may increase runtime.
+3. **Maintenance** – Three-tier strategy requires maintaining multiple test suites.
 
 ### Risks & Mitigation
 
@@ -104,17 +111,30 @@ We will implement a **two-tier testing strategy**:
 
 ### Phase 1: Foundation
 
-- Set up Jest configuration for both unit and E2E tests.
-- Define test folder structure (`tests/unit`, `tests/e2e`).
+- Set up Jest configuration for unit, integration, and E2E tests.
+- Define test folder structure:
+  - Unit tests: `src/core/services/*/__tests__/unit/*`, `src/core/plugins/__tests__/unit/*`, `src/plugins/*/__tests__/unit/*`
+  - Integration tests: `src/__tests__/integration/*`
+  - E2E tests: `src/__tests__/e2e/*` (planned)
 - Integrate into GitHub Actions workflow.
 
 ### Phase 2: Unit Test Coverage
 
-- Add unit tests for Core services (`AccountTransactionService`, `TxExecutionService`, `HederaMirrornodeService`).
-- Mocks and test utilities will be centralized in a dedicated testing module (e.g. `__tests__/helpers` or `__tests__/unit/mocks`), to avoid duplication across unit and e2e tests.
-- Validate plugin lifecycle in isolation with mocked contexts.
+- Added unit tests for Core services:
+  - `ConfigService`, `LoggerService`, `NetworkService`, `KmsService`, `StateService`
+  - `OutputService`, `PluginManagementService`, `HbarService`, `AliasService`
+  - `AccountTransactionService`, `TokenService`, `TopicService`
+  - `TxExecutionService`, `HederaMirrornodeService`
+- Added unit tests for plugin management (`PluginManager`).
+- Mocks and test utilities are centralized in `src/__tests__/mocks/mocks.ts` for shared mocks, with service-specific mocks in `__tests__/unit/mocks.ts` files within each service/plugin directory.
+- Plugin lifecycle validated in isolation with mocked contexts.
 
-### Phase 3: End-to-End Workflows
+### Phase 3: Integration Tests
+
+- Integration tests implemented for plugin interactions and service integrations.
+- Tests validate plugin loading, command registration, and service interactions.
+
+### Phase 4: End-to-End Workflows (Planned)
 
 - Write E2E tests that execute CLI commands.
 - Cover account creation, token transfer, and the rest of the plugin commands.
