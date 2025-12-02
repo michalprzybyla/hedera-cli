@@ -28,6 +28,22 @@ npm run build
   npm run test:integration
   ```
 
+  **Note**: Integration tests require environment variables to be configured in a `.env.test` file in the project root. Create this file with the following variables:
+
+  ```env
+  OPERATOR_ID=0.0.123456
+  OPERATOR_KEY=302e020100300506032b657004220420...
+  NETWORK=testnet
+  ```
+
+  Where:
+
+  - `OPERATOR_ID` is your Hedera account ID in format `0.0.{number}` (must have at least 1 Hbar for transaction fees)
+  - `OPERATOR_KEY` is your account's private key in hex format (ED25519 or ECDSA)
+  - `NETWORK` is either `testnet` or `localnet`
+
+  The `.env.test` file is already included in `.gitignore` to prevent committing sensitive credentials.
+
 - **All tests** (unit + integration) can be run together with:
 
   ```sh

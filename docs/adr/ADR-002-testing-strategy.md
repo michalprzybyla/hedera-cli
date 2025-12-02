@@ -119,6 +119,13 @@ We will implement a **two-tier testing strategy**:
 
 - Integration tests implemented for plugin interactions and service integrations.
 - Tests validate plugin loading, command registration, and service interactions.
+- **Environment Configuration**: Integration tests require environment variables to be configured in a `.env.test` file in the project root. The file must contain:
+
+  - `OPERATOR_ID`: Hedera account ID in format `0.0.{number}` (must have at least 1 Hbar for transaction fees)
+  - `OPERATOR_KEY`: Account private key in hex format (ED25519 or ECDSA)
+  - `NETWORK`: Network name (`testnet` or `localnet`)
+
+  The `.env.test` file is loaded automatically by Jest integration test setup (`jest.integration.setup.js`) and is excluded from version control via `.gitignore`.
 
 ---
 
