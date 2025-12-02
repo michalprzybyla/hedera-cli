@@ -13,7 +13,6 @@
 - `src/core/*`
 - `src/plugins/*`
 - `src/__tests__/integration/*`
-- `src/__tests__/e2e/*` (planned)
 - GitHub Actions CI/CD workflows
 
 ---
@@ -34,17 +33,16 @@ Our testing must focus primarily on the **CLI core, built-in plugins, and end-us
 
 ## Decision
 
-We will implement a **three-tier testing strategy**:
+We will implement a **two-tier testing strategy**:
 
 1. **Unit Tests** – Verify individual components, services, and plugin handlers in isolation.
 2. **Integration Tests** – Test plugin interactions and service integrations without full CLI process execution.
-3. **End-to-End Tests (E2E)** – Validate complete CLI workflows by executing real commands against Hedera testnet.
 
 ### Key Decisions
 
 #### Testing Framework
 
-- **Jest** will be used as the single testing framework for unit, integration, and E2E tests.
+- **Jest** will be used as the single testing framework for unit and integration tests.
 - This ensures consistent tooling, mocks, and assertions across the project.
 
 #### Test Organization
@@ -53,7 +51,6 @@ We will implement a **three-tier testing strategy**:
 - `src/core/plugins/__tests__/unit/*` – Unit tests for plugin management and core plugin infrastructure.
 - `src/plugins/*/__tests__/unit/*` – Unit tests for plugin command handlers.
 - `src/__tests__/integration/*` – Integration tests for plugin interactions and service integrations.
-- `src/__tests__/e2e/*` – CLI process tests simulating user workflows (to be implemented).
 - Legacy tests will be reviewed after the plugin refactor; some will be removed or rewritten.
 
 #### CI/CD Integration
@@ -61,7 +58,7 @@ We will implement a **three-tier testing strategy**:
 - **Pre-commit hooks** will run the unit test suite to provide immediate feedback.
 - **GitHub Actions** will execute the full pipeline:
   - Unit tests on every push and PR (`npm run test:unit`).
-  - Integration tests and E2E tests on PR to `main` branch (pipeline execution).
+  - Integration tests on PR to `main` branch (pipeline execution).
   - All tests can be run together locally with `npm run test` (unit + integration).
 
 ### Test Coverage
@@ -69,15 +66,6 @@ We will implement a **three-tier testing strategy**:
 - **Unit tests**: Comprehensive coverage for Core services (config, logger, network, kms, state, output, plugin-management, hbar, alias, account, token, topic, tx-execution, mirrornode) and plugin handlers. Tests validate core business logic, command handlers, and state management in isolation.
 
 - **Integration tests**: Coverage for plugin interactions and service integrations, ensuring that plugins work correctly together and with Core services.
-
-- **E2E tests**: Critical path coverage for key user workflows (such as account management, token operations, and plugin interactions) executed against Hedera testnet (to be implemented).
-
-#### End-to-End Testing Strategy
-
-- E2E tests will run the CLI as a separate process (`hcli ...`), verifying its output, error messages, and exit codes to reflect the real end-user experience.
-- The focus will be on **critical workflows defined in ADR-001-plugin-architecture**, ensuring that end-to-end scenarios for account management, token operations, and plugin lifecycle are fully validated.
-- Hedera **testnet** will be used to execute real transactions, providing confidence that the CLI behaves correctly against a live network.
-- Tests will include cleanup routines to guarantee isolation between runs and prevent side effects from persisting across test executions.
 
 ---
 
@@ -96,14 +84,13 @@ We will implement a **three-tier testing strategy**:
 ### Negative
 
 1. **Test Overhead** – Writing and maintaining tests adds cost.
-2. **Longer Pipelines** – Integration and E2E tests may increase runtime.
-3. **Maintenance** – Three-tier strategy requires maintaining multiple test suites.
+2. **Longer Pipelines** – Integration tests may increase runtime.
+3. **Maintenance** – Two-tier strategy requires maintaining multiple test suites.
 
 ### Risks & Mitigation
 
-- **Risk: Test Flakiness on Testnet** – Use retries and stable accounts for test execution.
 - **Risk: Legacy Test Debt** – Audit and remove/replace outdated tests post-refactor.
-- **Risk: Pipeline Delays** – Run unit tests pre-commit, E2E only on `main` merges and release builds.
+- **Risk: Pipeline Delays** – Run unit tests pre-commit, integration tests on `main` merges and release builds.
 
 ---
 
@@ -111,11 +98,10 @@ We will implement a **three-tier testing strategy**:
 
 ### Phase 1: Foundation
 
-- Set up Jest configuration for unit, integration, and E2E tests.
+- Set up Jest configuration for unit and integration tests.
 - Define test folder structure:
   - Unit tests: `src/core/services/*/__tests__/unit/*`, `src/core/plugins/__tests__/unit/*`, `src/plugins/*/__tests__/unit/*`
   - Integration tests: `src/__tests__/integration/*`
-  - E2E tests: `src/__tests__/e2e/*` (planned)
 - Integrate into GitHub Actions workflow.
 
 ### Phase 2: Unit Test Coverage
@@ -133,12 +119,6 @@ We will implement a **three-tier testing strategy**:
 
 - Integration tests implemented for plugin interactions and service integrations.
 - Tests validate plugin loading, command registration, and service interactions.
-
-### Phase 4: End-to-End Workflows (Planned)
-
-- Write E2E tests that execute CLI commands.
-- Cover account creation, token transfer, and the rest of the plugin commands.
-- Implement cleanup and isolation strategies.
 
 ---
 

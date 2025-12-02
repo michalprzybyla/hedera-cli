@@ -370,7 +370,7 @@ Core API
 
 ## 🧪 Testing Architecture
 
-The project uses a three-tier testing strategy:
+The project uses a two-tier testing strategy:
 
 ### 1. Unit Testing
 
@@ -388,12 +388,6 @@ The project uses a three-tier testing strategy:
 - Service integration testing
 - Tests located under `src/__tests__/integration/`
 - Validates plugin loading, command registration, and service interactions
-
-### 3. End-to-End Testing (Planned)
-
-- Complete CLI workflow testing
-- Real command execution against Hedera testnet
-- Tests will be located under `src/__tests__/e2e/`
 
 ### Running Tests
 
