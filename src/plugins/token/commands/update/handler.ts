@@ -93,7 +93,7 @@ export class TokenUpdateCommand extends BaseTransactionCommand<
       signingKeyLabels: ['token:admin'],
       emptyMirrorRoleKeyMessage: 'This token has no admin key on Hedera.',
       insufficientKmsMatchesMessage:
-        'Not enough admin key(s) not found in key manager for this token. Provide --admin-key.',
+        'Not enough admin key(s) found in key manager for this token. Provide --admin-key.',
       validationErrorOptions: {
         context: { tokenId: tokenInfo.token_id },
       },
