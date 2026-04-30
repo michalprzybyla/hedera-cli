@@ -51,13 +51,17 @@ export class TokenUpdateStateHook implements Hook<PostOutputPreparationHookParam
       return;
     }
 
-    const p = parseResult.data;
+    const normalisedParams = parseResult.data;
     const tokenState = new ZustandTokenStateHelper(api.state, logger);
-    const existing = tokenState.getToken(p.stateKey);
+    const existing = tokenState.getToken(normalisedParams.stateKey);
 
-    const tokenData = buildUpdatedTokenData(p, p.tokenInfo, existing);
+    const tokenData = buildUpdatedTokenData(
+      normalisedParams,
+      normalisedParams.tokenInfo,
+      existing,
+    );
 
-    tokenState.saveToken(p.stateKey, tokenData);
-    logger.info(`   Token update state saved for ${p.tokenId}`);
+    tokenState.saveToken(normalisedParams.stateKey, tokenData);
+    logger.info(`   Token update state saved for ${normalisedParams.tokenId}`);
   }
 }

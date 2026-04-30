@@ -272,11 +272,9 @@ export function buildUpdatedTokenData(
       existing?.metadataKeyThreshold ?? 0,
     ),
     memo:
-      normalisedParams.memo === null
-        ? undefined
-        : normalisedParams.memo !== undefined
-          ? normalisedParams.memo
-          : (existing?.memo ?? (tokenInfo.memo || undefined)),
+      normalisedParams.memo !== undefined
+        ? (normalisedParams.memo ?? undefined)
+        : (existing?.memo ?? (tokenInfo.memo || undefined)),
     network: normalisedParams.network,
     associations: existing?.associations ?? [],
     customFees: existing?.customFees ?? [],

@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import {
   AccountReferenceSchema,
+  EmptyOrNullableKeyListSchema,
   EntityReferenceSchema,
   IsoTimestampSchema,
   KeyManagerTypeSchema,
@@ -23,12 +24,9 @@ const topicUpdateInputObjectSchema = z.object({
     .optional()
     .default([])
     .describe('New admin key(s). Cannot be cleared, only replaced.'),
-  submitKey: z
-    .array(KeySchema)
-    .or(NullLiteralSchema)
-    .optional()
-    .default([])
-    .describe('New submit key(s). Pass "null" to clear.'),
+  submitKey: EmptyOrNullableKeyListSchema.describe(
+    'New submit key(s). Pass "null" to clear.',
+  ),
   adminKeyThreshold: KeyThresholdOptionalSchema.describe(
     'Number of admin keys required to sign (M-of-N)',
   ),

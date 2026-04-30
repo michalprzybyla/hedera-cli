@@ -3,6 +3,7 @@ import { z } from 'zod';
 import {
   AccountReferenceSchema,
   AutoRenewPeriodSecondsSchema,
+  EmptyOrNullableKeyListSchema,
   EntityReferenceSchema,
   ExpirationTimeSchema,
   KeyManagerTypeSchema,
@@ -30,92 +31,54 @@ const TokenUpdateInputObjectSchema = z.object({
   adminKeyThreshold: KeyThresholdOptionalSchema.describe(
     'M-of-N: how many current admin keys to use for signing.',
   ),
-  newAdminKeys: z
-    .array(KeySchema)
-    .or(NullLiteralSchema)
-    .optional()
-    .default([])
-    .describe(
-      'New admin key(s) to replace the current admin key. Accepts any key format. Pass "null" to clear.',
-    ),
+  newAdminKeys: EmptyOrNullableKeyListSchema.describe(
+    'New admin key(s) to replace the current admin key. Accepts any key format. Pass "null" to clear.',
+  ),
   newAdminKeyThreshold: KeyThresholdOptionalSchema.describe(
     'M-of-N: number of new admin keys required to sign (only when multiple --new-admin-keys are set).',
   ),
   currentTreasuryKey: KeySchema.optional().describe(
     'Signing key for the new treasury account. Omit to auto-resolve from key manager.',
   ),
-  kycKey: z
-    .array(KeySchema)
-    .or(NullLiteralSchema)
-    .optional()
-    .default([])
-    .describe('New KYC key(s). Pass "null" to permanently remove the KYC key.'),
+  kycKey: EmptyOrNullableKeyListSchema.describe(
+    'New KYC key(s). Pass "null" to permanently remove the KYC key.',
+  ),
   kycKeyThreshold: KeyThresholdOptionalSchema.describe(
     'M-of-N: number of KYC keys required to sign.',
   ),
-  freezeKey: z
-    .array(KeySchema)
-    .or(NullLiteralSchema)
-    .optional()
-    .default([])
-    .describe(
-      'New freeze key(s). Pass "null" to permanently remove the freeze key.',
-    ),
+  freezeKey: EmptyOrNullableKeyListSchema.describe(
+    'New freeze key(s). Pass "null" to permanently remove the freeze key.',
+  ),
   freezeKeyThreshold: KeyThresholdOptionalSchema.describe(
     'M-of-N: number of freeze keys required to sign.',
   ),
-  wipeKey: z
-    .array(KeySchema)
-    .or(NullLiteralSchema)
-    .optional()
-    .default([])
-    .describe(
-      'New wipe key(s). Pass "null" to permanently remove the wipe key.',
-    ),
+  wipeKey: EmptyOrNullableKeyListSchema.describe(
+    'New wipe key(s). Pass "null" to permanently remove the wipe key.',
+  ),
   wipeKeyThreshold: KeyThresholdOptionalSchema.describe(
     'M-of-N: number of wipe keys required to sign.',
   ),
-  supplyKey: z
-    .array(KeySchema)
-    .or(NullLiteralSchema)
-    .optional()
-    .default([])
-    .describe(
-      'New supply key(s). Pass "null" to permanently remove the supply key.',
-    ),
+  supplyKey: EmptyOrNullableKeyListSchema.describe(
+    'New supply key(s). Pass "null" to permanently remove the supply key.',
+  ),
   supplyKeyThreshold: KeyThresholdOptionalSchema.describe(
     'M-of-N: number of supply keys required to sign.',
   ),
-  feeScheduleKey: z
-    .array(KeySchema)
-    .or(NullLiteralSchema)
-    .optional()
-    .default([])
-    .describe(
-      'New fee schedule key(s). Pass "null" to permanently remove the fee schedule key.',
-    ),
+  feeScheduleKey: EmptyOrNullableKeyListSchema.describe(
+    'New fee schedule key(s). Pass "null" to permanently remove the fee schedule key.',
+  ),
   feeScheduleKeyThreshold: KeyThresholdOptionalSchema.describe(
     'M-of-N: number of fee schedule keys required to sign.',
   ),
-  pauseKey: z
-    .array(KeySchema)
-    .or(NullLiteralSchema)
-    .optional()
-    .default([])
-    .describe(
-      'New pause key(s). Pass "null" to permanently remove the pause key.',
-    ),
+  pauseKey: EmptyOrNullableKeyListSchema.describe(
+    'New pause key(s). Pass "null" to permanently remove the pause key.',
+  ),
   pauseKeyThreshold: KeyThresholdOptionalSchema.describe(
     'M-of-N: number of pause keys required to sign.',
   ),
-  metadataKey: z
-    .array(KeySchema)
-    .or(NullLiteralSchema)
-    .optional()
-    .default([])
-    .describe(
-      'New metadata key(s). Pass "null" to permanently remove the metadata key.',
-    ),
+  metadataKey: EmptyOrNullableKeyListSchema.describe(
+    'New metadata key(s). Pass "null" to permanently remove the metadata key.',
+  ),
   metadataKeyThreshold: KeyThresholdOptionalSchema.describe(
     'M-of-N: number of metadata keys required to sign.',
   ),
