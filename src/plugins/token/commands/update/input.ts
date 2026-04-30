@@ -140,24 +140,14 @@ function validateKeyThresholds(
   data: TokenUpdateInputData,
   context: z.RefinementCtx,
 ): void {
-  const newAdminKeyCount = Array.isArray(data.newAdminKeys)
-    ? data.newAdminKeys.length
-    : 0;
-  const kycKeyCount = Array.isArray(data.kycKey) ? data.kycKey.length : 0;
-  const freezeKeyCount = Array.isArray(data.freezeKey)
-    ? data.freezeKey.length
-    : 0;
-  const wipeKeyCount = Array.isArray(data.wipeKey) ? data.wipeKey.length : 0;
-  const supplyKeyCount = Array.isArray(data.supplyKey)
-    ? data.supplyKey.length
-    : 0;
-  const feeScheduleKeyCount = Array.isArray(data.feeScheduleKey)
-    ? data.feeScheduleKey.length
-    : 0;
-  const pauseKeyCount = Array.isArray(data.pauseKey) ? data.pauseKey.length : 0;
-  const metadataKeyCount = Array.isArray(data.metadataKey)
-    ? data.metadataKey.length
-    : 0;
+  const newAdminKeyCount = data.newAdminKeys?.length ?? 0;
+  const kycKeyCount = data.kycKey?.length ?? 0;
+  const freezeKeyCount = data.freezeKey?.length ?? 0;
+  const wipeKeyCount = data.wipeKey?.length ?? 0;
+  const supplyKeyCount = data.supplyKey?.length ?? 0;
+  const feeScheduleKeyCount = data.feeScheduleKey?.length ?? 0;
+  const pauseKeyCount = data.pauseKey?.length ?? 0;
+  const metadataKeyCount = data.metadataKey?.length ?? 0;
 
   applyKeyThresholdSuperRefine(data, context, [
     {
