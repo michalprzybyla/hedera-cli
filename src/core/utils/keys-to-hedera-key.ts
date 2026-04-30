@@ -8,6 +8,7 @@ export function toNullableHederaKey(
   threshold: number | undefined,
 ): Key | null | undefined {
   if (keys === null) return null;
+  if (keys.length === 0) return undefined;
   return toHederaKey(keys, threshold ?? keys.length);
 }
 
